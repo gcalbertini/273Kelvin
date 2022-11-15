@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -i
 
 #SBATCH --account=csci_ga_2572-2022fa
 #SBATCH --partition=n1s8-v100-1
@@ -7,8 +7,6 @@
 #SBATCH --job-name=load_test
 #SBATCH --gres=gpu:1
 #SBATCH --output=slurm_%j.out
-
-module purge
 
 singularity exec --nv --overlay /scratch/DL22FA/overlay_11-15.ext3:ro \
             -B /scratch/DL22FA/unlabeled_112.sqsh:/labeled:image-src=/ \
