@@ -10,4 +10,7 @@ from tqdm import tqdm
 import torch.optim.lr_scheduler as lr_scheduler
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
-from model import model
+
+from network import PreModel
+
+model = PreModel('resnet50').to('cuda:0')
