@@ -1,4 +1,4 @@
-#!/bin/bash -i
+#!/bin/bash
 
 #SBATCH --account=csci_ga_2572-2022fa
 #SBATCH --partition=n1s8-v100-1
