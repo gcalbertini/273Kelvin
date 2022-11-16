@@ -5,12 +5,12 @@ import torch.nn as nn
 #import torch.optim as optim
 from torchvision import models #datasets, transforms, model
 
-class Identity(nn.Module):
-    def __init__(self):
-        super(Identity, self).__init__()
+# class Identity(nn.Module):
+#     def __init__(self):
+#         super(Identity, self).__init__()
 
-    def forward(self, x):
-        return x
+#     def forward(self, x):
+#         return x
 
 # class LinearLayer(nn.Module):
 #     def __init__(self, in_features, out_features, use_bias = True, **kwargs):
@@ -69,7 +69,7 @@ class PreModel(nn.Module):
     def forward(self,x):
         out = self.pretrained(x)
         
-        xp = self.projector(torch.squeeze(out))
+        x_projection = self.projector(torch.squeeze(out))
         
-        return xp
+        return x_projection
 
