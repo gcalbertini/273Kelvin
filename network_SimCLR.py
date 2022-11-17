@@ -2,9 +2,7 @@
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-#import torch.optim as optim
-from torchvision import models #datasets, transforms, model
+from torchvision import models 
 
 class ProjectionHead(nn.Module):
     #Linear, Batch Norm, ReLU, Linear, Batch Norm
@@ -35,32 +33,15 @@ class PreModel(nn.Module):
         for p in self.pretrained.parameters():
                 p.requires_grad = True
 
-        if labeled:
-            layers = list(self.pretrained.children())[:8]
-            self.features1 = nn.Sequential(*layers[:6])
-            self.features2 = nn.Sequential(*layers[6:])
-            self.classifier = nn.Sequential(nn.BatchNorm1d(512), nn.Linear(512, 4))
-            self.bb = nn.Sequential(nn.BatchNorm1d(512), nn.Linear(512, 4))
-        else:  
-            self.pretrained.conv1 = nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), bias=False)
-            self.pretrained.maxpool = nn.Identity()
-            self.pretrained.fc = nn.Identity()
-            self.projector = ProjectionHead(2048, 2048, 128)
+        self.pretrained.conv1 = nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), bias=False)
+        self.pretrained.maxpool = nn.Identity()
+        self.pretrained.fc = nn.Identity()
+        self.projector = ProjectionHead(2048, 2048, 128)
 
     def forward(self,x):
         out = self.pretrained(x)
-        if self.labeled:
-            x = self.features1(x)
-            x = self.features2(x)
-            x = F.relu(x)
-            x = nn.AdaptiveAvgPool2d((1,1))(x)
-            x = x.view(x.shape[0], -1)
-            classes = self.classifier(x)
-            bbox = self.bb(x)
-            return classes, bbox
-        else:
-            x_projection = self.projector(torch.squeeze(out))
-            return x_projection
+        x_projection = self.projector(torch.squeeze(out))
+        return x_projection
 
 # class BB_model(nn.Module):
 #     def __init__(self):

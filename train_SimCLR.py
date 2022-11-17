@@ -9,9 +9,9 @@ import torch.optim as optim
 from tqdm import tqdm
 import torch.optim.lr_scheduler as lr_scheduler
 import torch.nn.functional as F
-from loss import SimCLR_Loss
+from loss_SimCLR import SimCLR_Loss
 
-from network import PreModel
+from network_SimCLR import PreModel
 
 #Optimizer
 learning_rate = 0.01
