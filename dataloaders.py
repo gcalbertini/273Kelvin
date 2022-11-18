@@ -12,7 +12,6 @@ from PIL import Image
 
 VALID_DATASET_PATH = "./drive/MyDrive/project/labeled_data/"
 
-
 def collate_fn(batch):
     return tuple(zip(*batch))
 
@@ -33,6 +32,21 @@ class_dict = {
     "nail": 94, "axe": 95, "salt or pepper shaker": 96, "croquet ball": 97, "skunk": 98, "starfish": 99,
 }
 # fmt: on
+
+import matplotlib.pyplot as plt
+import torchvision.transforms.functional as F
+
+plt.rcParams["savefig.bbox"] = "tight"
+
+def show(imgs):
+    if not isinstance(imgs, list):
+        imgs = [imgs]
+    fix, axs = plt.subplots(ncols=len(imgs), squeeze=False)
+    for i, img in enumerate(imgs):
+        img = img.detach()
+        img = F.to_pil_image(img)
+        axs[0, i].imshow(np.asarray(img))
+        axs[0, i].set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
 
 class LabeledDataset(torch.utils.data.Dataset):
     def __init__(self, root, split, transforms):
@@ -113,13 +127,15 @@ def main():
         collate_fn=collate_fn,
     )
 
-    it = iter(valid_loader)
-    print(next(it))
-    print(next(it))
+    return iter(valid_loader)
 
     #model = get_model().to(device)
     #evaluate(model, valid_loader, device=device)
 
+from torchvision.utils import draw_bounding_boxes
 
 if __name__ == "__main__":
-    main()
+    data_loader = main()
+    sample_x = next(data_loader)
+    drawn_boxes = draw_bounding_boxes((sample_x[0][0] * 255).to(torch.uint8), sample_x[1][0]['boxes'], colors="red")
+    show(drawn_boxes)
