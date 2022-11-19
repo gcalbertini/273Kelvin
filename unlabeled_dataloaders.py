@@ -93,5 +93,5 @@ if __name__ == "__main__":
     # 2nd image -> has 2 augmentation, to get each augmentation index liek this: batch_images[0][1], batch_images[1][1]
     batch_images = next(data_loader) 
     # to display uncomment below
-    show((batch_images[0][0] * 255).to(torch.uint8)) # x_i
-    show((batch_images[1][0] * 255).to(torch.uint8)) # x_j
+    #show((batch_images[0][0] * 255).to(torch.uint8)) # x_i
+    #show((batch_images[1][0] * 255).to(torch.uint8)) # x_j
