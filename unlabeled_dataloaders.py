@@ -64,7 +64,7 @@ class UnlabeledDataset(torch.utils.data.Dataset):
         with open(os.path.join(self.image_dir, f"{idx}.PNG"), "rb") as f:
             img = Image.open(f).convert("RGB")
 
-        return self.transform1(img), self.transform2(img)
+        return torch.stack((transform1(img), transform2(img)))
 
 def main():
   
@@ -81,7 +81,7 @@ def main():
             batch_size=BATCH_SIZE,
             shuffle=SHUFFLE,
             num_workers=NUM_WORKERS,
-            collate_fn=collate_fn,
+            collate_fn=None,
     )
 
     return iter(loader)
@@ -89,9 +89,9 @@ def main():
 if __name__ == "__main__":
     data_loader = main()
     # if batch = 2 then
-    # 1st image -> has 2 augmentation, to get each augmentation index liek this: batch_images[0][0], batch_images[1][0]
-    # 2nd image -> has 2 augmentation, to get each augmentation index liek this: batch_images[0][1], batch_images[1][1]
+    # 1st image -> has 2 augmentation, to get each augmentation index liek this: batch_images[0][0], batch_images[0][1]
+    # 2nd image -> has 2 augmentation, to get each augmentation index liek this: batch_images[1][0], batch_images[1][1]
     batch_images = next(data_loader) 
     # to display uncomment below
     #show((batch_images[0][0] * 255).to(torch.uint8)) # x_i
-    #show((batch_images[1][0] * 255).to(torch.uint8)) # x_j
+    #show((batch_images[0][1] * 255).to(torch.uint8)) # x_j
