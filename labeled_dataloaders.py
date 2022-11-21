@@ -103,7 +103,7 @@ transform = A.Compose([
 transform2 = A.Compose([
     A.RandomSizedBBoxSafeCrop(width=224, height=224, erosion_rate=0.2),
     A.HorizontalFlip(p=0.5),
-    #A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+    A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     ToTensorV2(),  # convert PIL to Pytorch Tensor
 ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
 
@@ -112,7 +112,7 @@ transform3 = A.Compose([
     A.resize.SmallestMaxSize(max_size=224, interpolation=1, always_apply=False, p=1),
     A.CenterCrop(height=224, width=224),
     A.HorizontalFlip(p=0.5),
-    #A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+    A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     ToTensorV2(),  # convert PIL to Pytorch Tensor
 ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
 
@@ -206,7 +206,7 @@ def main():
 
 if __name__ == "__main__":
     data_loader = main()
-    img = next(data_loader)
-    drawn_boxes = draw_bounding_boxes((unnormalize(img[0][0]) * 255).to(torch.uint8), img[1][0]['boxes'], colors="red")
+    #img = next(data_loader)
+    #drawn_boxes = draw_bounding_boxes((unnormalize(img[0][0]) * 255).to(torch.uint8), img[1][0]['boxes'], colors="red")
     # uncomment below to print image with bounding boxes
     #show(drawn_boxes) 
