@@ -12,9 +12,10 @@ import torchvision.transforms.functional as F
 VALID_DATASET_PATH = "./unlabeled_data/" # this is the path where our images and labels are
 BATCH_SIZE = 2
 NUM_WORKERS = 2
-SHUFFLE = False # whether we want to shiffle the dataset
+SHUFFLE = False # whether we want to shiffle the dataset, should change to True as in SimCLRv1
 IMAGE_SIZE = 112
-CROP_SIZE = 56
+CROP_SIZE_A = 64
+CROP_SIZE_B = 48
 
 plt.rcParams["savefig.bbox"] = "tight"
 def show(imgs):
@@ -31,16 +32,18 @@ def collate_fn(batch):
     return tuple(zip(*batch))
 
 transform1 = transforms.Compose([
-          transforms.RandomCrop(CROP_SIZE),
+          transforms.RandomCrop(CROP_SIZE_A),
           transforms.Resize(IMAGE_SIZE), # currently the small unlabeled dataset is 3 x 112 x 112
+          transforms.RandomHorizontalFlip(p=0.5),
           transforms.ColorJitter(brightness=0.5, hue=.2, saturation=.3, contrast=.2),
           transforms.GaussianBlur(5, sigma=(0.6, 1.0)),
           transforms.ToTensor(),
 ])
 
 transform2 = transforms.Compose([
-          transforms.RandomCrop(CROP_SIZE),
+          transforms.RandomCrop(CROP_SIZE_B),
           transforms.Resize(IMAGE_SIZE), # currently the small unlabeled dataset is 3 x 112 x 112
+          transforms.RandomHorizontalFlip(p=0.5),
           transforms.ColorJitter(brightness=0.9, hue=.2, saturation=.3, contrast=.7),
           transforms.GaussianBlur(3, sigma=(0.2, 1.0)),
           transforms.ToTensor(),
