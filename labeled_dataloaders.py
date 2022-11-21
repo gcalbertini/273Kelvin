@@ -56,39 +56,14 @@ class_dict = {
 }
 # fmt: on
 
-"""
-# Below is just to keep in mind
-
-# These numbers are mean and std values for channels of natural images. 
-normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
-
-train_transforms = transforms.Compose([
-                                    transforms.Resize((256, 256)),
-                                    transforms.RandomHorizontalFlip(),
-                                    transforms.ColorJitter(hue=.1, saturation=.1, contrast=.1),
-                                    transforms.RandomRotation(20, Image.BILINEAR),
-                                    transforms.GaussianBlur(7, sigma=(0.1, 1.0)),
-                                    transforms.ToTensor(),  # convert PIL to Pytorch Tensor
-                                    normalize,
-                                ])
-
-validation_transforms = transforms.Compose([
-                                    transforms.Resize((256, 256)),
-                                    transforms.ToTensor(), 
-                                    normalize,
-                                ])
-
-"""
-
 # Inverse transformation: needed for plotting.
 unnormalize = transforms.Normalize(
     mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225],
     std=[1/0.229, 1/0.224, 1/0.225]
 )
 
-
 # Albumentations library
+#Con: too many transformations applied, not used in SimCLR paper 
 transform = A.Compose([
     A.Resize(224, 224),
     A.HorizontalFlip(p=0.5),
@@ -100,6 +75,8 @@ transform = A.Compose([
 ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
 
 # Below is the one actually used during fine-tuning of SimCLRv1
+#Pro: Doesn't cut bounding boxes
+#Con: Image aspect ratio not maintained
 transform2 = A.Compose([
     A.RandomSizedBBoxSafeCrop(width=224, height=224, erosion_rate=0.2),
     A.HorizontalFlip(p=0.5),
@@ -107,7 +84,8 @@ transform2 = A.Compose([
     ToTensorV2(),  # convert PIL to Pytorch Tensor
 ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
 
-# Below is the one actually used during fine-tuning of SimCLRv1, however, need to make sure that the transformations keep the bounding boxes
+#Pro: Image aspect ratio is maintained
+#Con: May cut bounding boxes
 transform3 = A.Compose([
     A.resize.SmallestMaxSize(max_size=224, interpolation=1, always_apply=False, p=1),
     A.CenterCrop(height=224, width=224),
