@@ -8,14 +8,14 @@ from albumentations.pytorch import ToTensorV2
 import numpy as np
 import matplotlib.pyplot as plt
 import torchvision.transforms.functional as F
+import math
 
 VALID_DATASET_PATH = "./unlabeled_data/" # this is the path where our images and labels are
 BATCH_SIZE = 2
 NUM_WORKERS = 2
 SHUFFLE = False # whether we want to shiffle the dataset, should change to True as in SimCLRv1
 IMAGE_SIZE = 112
-CROP_SIZE_A = 64
-CROP_SIZE_B = 48
+S = 1.0 # strength of color distortion
 
 plt.rcParams["savefig.bbox"] = "tight"
 def show(imgs):
@@ -31,33 +31,23 @@ def show(imgs):
 def collate_fn(batch):
     return tuple(zip(*batch))
 
-transform1 = transforms.Compose([
-          transforms.RandomCrop(CROP_SIZE_A),
-          transforms.Resize(IMAGE_SIZE), # currently the small unlabeled dataset is 3 x 112 x 112
-          transforms.RandomHorizontalFlip(p=0.5),
-          transforms.ColorJitter(brightness=0.5, hue=.2, saturation=.3, contrast=.2),
-          transforms.GaussianBlur(5, sigma=(0.6, 1.0)),
-          transforms.ToTensor(),
-])
-
-transform2 = transforms.Compose([
-          transforms.RandomCrop(CROP_SIZE_B),
-          transforms.Resize(IMAGE_SIZE), # currently the small unlabeled dataset is 3 x 112 x 112
-          transforms.RandomHorizontalFlip(p=0.5),
-          transforms.ColorJitter(brightness=0.9, hue=.2, saturation=.3, contrast=.7),
-          transforms.GaussianBlur(3, sigma=(0.2, 1.0)),
-          transforms.ToTensor(),
+transform = transforms.Compose([
+        transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.08, 1.0)),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.RandomApply([transforms.ColorJitter(brightness=0.8*S, hue=.8*S, saturation=.8*S, contrast=.2*S)], p=0.8),
+        transforms.RandomGrayscale(p=0.2),
+        transforms.GaussianBlur(math.floor(0.1*IMAGE_SIZE), sigma=(0.1, 2.0)),
+        transforms.ToTensor(),
 ])
 
 class UnlabeledDataset(torch.utils.data.Dataset):
-    def __init__(self, root, transform1, transform2):
+    def __init__(self, root, transform):
         r"""
         Args:
             root: Location of the dataset folder, usually it is /unlabeled
             transform: the transform you want to applied to the images.
         """
-        self.transform1 = transform1
-        self.transform2 = transform2
+        self.transform = transform
         self.image_dir = root
         self.num_images = len(os.listdir(self.image_dir))
 
@@ -69,7 +59,7 @@ class UnlabeledDataset(torch.utils.data.Dataset):
         with open(os.path.join(self.image_dir, f"{idx}.PNG"), "rb") as f:
             img = Image.open(f).convert("RGB")
 
-        return torch.stack((transform1(img), transform2(img)))
+        return torch.stack((transform(img), transform(img)))
 
 def main():
   
@@ -77,8 +67,7 @@ def main():
 
     unlabeled_dataset = UnlabeledDataset(
         VALID_DATASET_PATH, 
-        transform1=transform1,
-        transform2=transform2,
+        transform=transform,
     )
 
     loader = torch.utils.data.DataLoader(
