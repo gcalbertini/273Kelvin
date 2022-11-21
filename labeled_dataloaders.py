@@ -90,7 +90,7 @@ unnormalize = transforms.Normalize(
 
 # Albumentations library
 transform = A.Compose([
-    A.Resize(256, 256),
+    A.Resize(224, 224),
     A.HorizontalFlip(p=0.5),
     A.ColorJitter(hue=.1, saturation=.1, contrast=.1),
     A.SafeRotate(90, Image.BILINEAR, p=1),
