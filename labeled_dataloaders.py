@@ -63,30 +63,10 @@ unnormalize = transforms.Normalize(
     std=[1/0.229, 1/0.224, 1/0.225]
 )
 
-
 # Albumentations library
 transform = A.Compose([
-    A.Resize(224, 224),
-    A.HorizontalFlip(p=0.5),
-    A.ColorJitter(hue=.1, saturation=.1, contrast=.1),
-    A.SafeRotate(90, Image.BILINEAR, p=1),
-    A.GaussNoise(9),
-    A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
-    ToTensorV2(),  # convert PIL to Pytorch Tensor
-], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
-
-# Below is the one actually used during fine-tuning of SimCLRv1
-transform2 = A.Compose([
-    A.RandomSizedBBoxSafeCrop(width=224, height=224, erosion_rate=0.2),
-    A.HorizontalFlip(p=0.5),
-    A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
-    ToTensorV2(),  # convert PIL to Pytorch Tensor
-], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
-
-# Below is the one actually used during fine-tuning of SimCLRv1, however, need to make sure that the transformations keep the bounding boxes
-transform3 = A.Compose([
     A.augmentations.geometric.resize.SmallestMaxSize(max_size=224, interpolation=cv2.INTER_CUBIC, always_apply=False, p=1),
-    A.CenterCrop(height=224, width=224),
+    A.RandomSizedBBoxSafeCrop(height=224, width=224, erosion_rate=0.0),
     A.HorizontalFlip(p=0.5),
     A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
     ToTensorV2(),  # convert PIL to Pytorch Tensor
@@ -164,7 +144,7 @@ def main():
     valid_dataset = LabeledDataset(
         root=VALID_DATASET_PATH,
         split=SPLIT,
-        transforms=transform3, # albumentations transformation
+        transforms=transform, # albumentations transformation
     )
 
     valid_loader = torch.utils.data.DataLoader(
