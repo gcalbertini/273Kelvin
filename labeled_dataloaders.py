@@ -18,6 +18,7 @@ from torchvision.utils import draw_bounding_boxes
 
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+import cv2
 
 VALID_DATASET_PATH = "./labeled_data/" # this is the path where our images and labels are
 BATCH_SIZE = 1
@@ -62,8 +63,8 @@ unnormalize = transforms.Normalize(
     std=[1/0.229, 1/0.224, 1/0.225]
 )
 
+
 # Albumentations library
-#Con: too many transformations applied, not used in SimCLR paper 
 transform = A.Compose([
     A.Resize(224, 224),
     A.HorizontalFlip(p=0.5),
@@ -75,8 +76,6 @@ transform = A.Compose([
 ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
 
 # Below is the one actually used during fine-tuning of SimCLRv1
-#Pro: Doesn't cut bounding boxes
-#Con: Image aspect ratio not maintained
 transform2 = A.Compose([
     A.RandomSizedBBoxSafeCrop(width=224, height=224, erosion_rate=0.2),
     A.HorizontalFlip(p=0.5),
@@ -84,10 +83,9 @@ transform2 = A.Compose([
     ToTensorV2(),  # convert PIL to Pytorch Tensor
 ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
 
-#Pro: Image aspect ratio is maintained
-#Con: May cut bounding boxes
+# Below is the one actually used during fine-tuning of SimCLRv1, however, need to make sure that the transformations keep the bounding boxes
 transform3 = A.Compose([
-    A.resize.SmallestMaxSize(max_size=224, interpolation=1, always_apply=False, p=1),
+    A.augmentations.geometric.resize.SmallestMaxSize(max_size=224, interpolation=cv2.INTER_CUBIC, always_apply=False, p=1),
     A.CenterCrop(height=224, width=224),
     A.HorizontalFlip(p=0.5),
     A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
@@ -166,7 +164,7 @@ def main():
     valid_dataset = LabeledDataset(
         root=VALID_DATASET_PATH,
         split=SPLIT,
-        transforms=transform, # albumentations transformation
+        transforms=transform3, # albumentations transformation
     )
 
     valid_loader = torch.utils.data.DataLoader(
@@ -184,7 +182,7 @@ def main():
 
 if __name__ == "__main__":
     data_loader = main()
+    # uncomment below to print image with bounding boxes
     #img = next(data_loader)
     #drawn_boxes = draw_bounding_boxes((unnormalize(img[0][0]) * 255).to(torch.uint8), img[1][0]['boxes'], colors="red")
-    # uncomment below to print image with bounding boxes
     #show(drawn_boxes) 
