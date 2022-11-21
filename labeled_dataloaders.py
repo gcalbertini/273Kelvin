@@ -99,6 +99,23 @@ transform = A.Compose([
     ToTensorV2(),  # convert PIL to Pytorch Tensor
 ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
 
+# Below is the one actually used during fine-tuning of SimCLRv1
+transform2 = A.Compose([
+    A.RandomSizedBBoxSafeCrop(width=224, height=224, erosion_rate=0.2),
+    A.HorizontalFlip(p=0.5),
+    #A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+    ToTensorV2(),  # convert PIL to Pytorch Tensor
+], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
+
+# Below is the one actually used during fine-tuning of SimCLRv1, however, need to make sure that the transformations keep the bounding boxes
+transform3 = A.Compose([
+    A.resize.SmallestMaxSize(max_size=224, interpolation=1, always_apply=False, p=1),
+    A.CenterCrop(height=224, width=224),
+    A.HorizontalFlip(p=0.5),
+    #A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+    ToTensorV2(),  # convert PIL to Pytorch Tensor
+], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
+
 class LabeledDataset(torch.utils.data.Dataset):
     def __init__(self, root, split, transforms):
         r"""
