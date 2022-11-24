@@ -232,6 +232,3 @@ class MetricLogger(object):
         print('{} Total time: {} ({:.4f} s / it)'.format(
             header, total_time_str, total_time / len(iterable)))
 
-
-def collate_fn(batch):
-    return tuple(zip(*batch))
