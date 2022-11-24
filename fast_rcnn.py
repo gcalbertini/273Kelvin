@@ -71,17 +71,16 @@ class tuned_FasterRCNN():
                                                              canonical_scale=224)
 
         # put the pieces together inside a FasterRCNN model
-        model = FasterRCNN(backbone,
+        model = FasterRCNN(backbone=self.backbone,
                            num_classes=self.num_classes,
                            rpn_anchor_generator=self.anchor_generator,
                            box_roi_pool=self.roi_pooler)
         return model
 
-    def train(self, VALID_DATASET_PATH, EPOCHS=10, LR=0.0005, MOM=0.9, DECAY=0.0005, BATCH_SIZE=1, NUM_WORKERS=2, SHUFFLE=False, verbose=True):
+    def train_tuned(self, model, VALID_DATASET_PATH, EPOCHS=1, LR=0.001, MOM=0.9, DECAY=0.0005, BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=False, print_freq=50, verbose=True):
 
         device = torch.device(
             'cuda') if torch.cuda.is_available() else torch.device('cpu')
-        model = self.get_model()
 
         train_dataset = LabeledDataset(
             root=VALID_DATASET_PATH,
@@ -125,17 +124,16 @@ class tuned_FasterRCNN():
             print("Optimizer's state_dict:")
             for var_name in optimizer.state_dict():
                 print(var_name, "\t", optimizer.state_dict()[var_name])
-            print_freq = 10
+            #TODO defintely change this or where this be
             print('Model Summary:')
-
+            print(model)
         else:
             print_freq = 0
 
-        # USe a learning rate scheduler: this means that we will decay the learning rate every <step_size> epoch by a factor of <gamma>
-        lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
+        # Use a learning rate scheduler: this means that we will decay the learning rate every <step_size> epoch by a factor of <gamma>
+        lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.2)
 
         for epoch in range(EPOCHS):
-        # TODO Verify this is compatible with Matteo's DL format
             train_one_epoch(model, optimizer, train_loader, device, epoch, print_freq)
         # update the learning rate
             lr_scheduler.step()
@@ -144,13 +142,16 @@ class tuned_FasterRCNN():
         # Save model weights
         torch.save({model.state_dict()}, f"scratch_tmp/$USER/model__mom_{MOM}_decay_{DECAY}_epoch_{epoch+1}_lr_{LR}_backbone_DEFAULT.pt")
 
+        return model
+
 
 
 def sample_main():
-    # For demo purposes only; will have class imported elsewhere
+    # For demo purposes only; will have class imported elsewhere so then drop the tuned_FasterRCNN() calls
     model_object_example = tuned_FasterRCNN()
-    model = model_object_example.get_model()
-    model.train(VALID_DATASET_PATH='../nyu_dl/datasets/labeled_data/')
+    bare_FasterRCNN = model_object_example.get_model()
+    # TODO Get this damn labeled dataset copied over from Drive to Greene to GCP
+    tuned_FasterRCNN = tuned_FasterRCNN().train_tuned(model=bare_FasterRCNN, VALID_DATASET_PATH='../nyu_dl/datasets/labeled_data/')
     
 
 if __name__ == "__main__":

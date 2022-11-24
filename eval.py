@@ -1,5 +1,3 @@
-eval.py
-
 # Please do not change this file.
 # We will use this file to benchmark your model.
 # If you find a bug, post it on campuswire.
