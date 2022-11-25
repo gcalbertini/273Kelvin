@@ -10,44 +10,64 @@ from tqdm import tqdm
 import torch.optim.lr_scheduler as lr_scheduler
 import torch.nn.functional as F
 from loss_SimCLR import SimCLR_Loss
-
+from unlabeled_dataloaders import main
 from network_SimCLR import PreModel
 
-#Optimizer
+#Hyper parameters
 learning_rate = 0.01
 batch_size = 128
 optimizer = optim.Adam(lr=learning_rate)
-
-# "decay the learning rate with the cosine decay schedule without restarts"
-#SCHEDULER OR LINEAR EWARMUP
-#warmupscheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda epoch : (epoch+1)/10.0, verbose = True)
-#SCHEDULER FOR COSINE DECAY
-#mainscheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, 500, eta_min=0.05, last_epoch=-1, verbose = True)
+current_epoch = 0
+epochs = 100
 
 #loss function
 criterion = SimCLR_Loss(batch_size, temperature = 0.5)
 
-def save_model(model, optimizer, scheduler, current_epoch, name):
-    out = os.path.join('/273KELVIN/saved_models/',name.format(current_epoch))
+#model
+model_SimCLR = PreModel('resnet50').to('cuda:0')
 
-    torch.save({'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'scheduler_state_dict':scheduler.state_dict()}, out)
+#helper function
+# def save_model(model, optimizer, scheduler, current_epoch, name):
+#     out = os.path.join('/273KELVIN/saved_models/',name.format(current_epoch))
 
-model = PreModel('resnet50').to('cuda:0')
+#     torch.save({'model_state_dict': model.state_dict(),
+#                 'optimizer_state_dict': optimizer.state_dict(),
+#                 'scheduler_state_dict':scheduler.state_dict()}, out)
 
-nr = 0
-current_epoch = 0
-epochs = 100
-train_loss = []
-val_loss = []
+train_loader = main()
 
-for e in range(epochs):
+def train(model):
+    train_loss = []
+
+    for e in range(epochs):
+        print(f"Epoch [{e}/{epochs}]\t")
+        stime = time.time()
+
+        model.train()
+        train_loss_epoch = 0
+    
+        for img in train_loader:
+            #optimizer.zero_grad()
+            x_i = img[0]
+            x_j = img[1]
+            x_i = x_i.squeeze().to('cuda:0').float()
+            x_j = x_j.squeeze().to('cuda:0').float()
         
-    print(f"Epoch [{e}/{epochs}]\t")
-    stime = time.time()
+            # positive pair, with encoding
+            z_i = model(x_i)
+            z_j = model(x_j)
 
-    model.train()
-    train_loss_epoch = 0
-    
-    
+            loss = criterion(z_i, z_j)
+            loss.backward()
+            optimizer.step()
+
+            train_loss_epoch += loss.item()
+
+        train_loss.append(train_loss_epoch / len(dl))
+        print(f"Epoch [{e}/{epochs}]\t Training Loss: {train_loss_epoch / len(train_loader)}\t ")
+
+        time_taken = (time.time()-stime)/60
+        print(f"Epoch [{e}/{epochs}]\t Time Taken: {time_taken} minutes")
+
+    #save_model(model, optimizer, mainscheduler, current_epoch, "trained_SimCLR")
+    return model

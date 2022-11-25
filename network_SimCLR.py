@@ -43,47 +43,4 @@ class PreModel(nn.Module):
         x_projection = self.projector(torch.squeeze(out))
         return x_projection
 
-# class BB_model(nn.Module):
-#     def __init__(self):
-#         super(BB_model, self).__init__()
-#         resnet = models.resnet34(pretrained=True)
-#         layers = list(resnet.children())[:8]
-#         self.features1 = nn.Sequential(*layers[:6])
-#         self.features2 = nn.Sequential(*layers[6:])
-#         self.classifier = nn.Sequential(nn.BatchNorm1d(512), nn.Linear(512, 4))
-#         self.bb = nn.Sequential(nn.BatchNorm1d(512), nn.Linear(512, 4))
-        
-#     def forward(self, x):
-#         x = self.features1(x)
-#         x = self.features2(x)
-#         x = F.relu(x)
-#         x = nn.AdaptiveAvgPool2d((1,1))(x)
-#         x = x.view(x.shape[0], -1)
-#         return self.classifier(x), self.bb(x)
-
-# class Identity(nn.Module):
-#     def __init__(self):
-#         super(Identity, self).__init__()
-
-#     def forward(self, x):
-#         return x
-
-# class LinearLayer(nn.Module):
-#     def __init__(self, in_features, out_features, use_bias = True, **kwargs):
-#         super(LinearLayer, self).__init__(**kwargs)
-
-#         self.in_features = in_features
-#         self.out_features = out_features
-#         self.use_bias = use_bias
-        
-#         self.linear = nn.Linear(self.in_features, 
-#                                 self.out_features, 
-#                                 bias = self.use_bias and not self.use_bn)
-        
-#         self.bn = nn.BatchNorm1d(self.out_features)
-
-#     def forward(self,x):
-#         x = self.linear(x)
-#         x = self.bn(x)
-#         return x
 
