@@ -77,7 +77,7 @@ class tuned_FasterRCNN():
                            box_roi_pool=self.roi_pooler)
         return model
 
-    def train_tuned(self, model, VALID_DATASET_PATH, EPOCHS=1, LR=0.001, MOM=0.9, DECAY=0.0005, BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=False, print_freq=50, verbose=True):
+    def train_tuned(self, model, VALID_DATASET_PATH, EPOCHS=10, LR=0.001, MOM=0.9, DECAY=0.0005, BATCH_SIZE=32, NUM_WORKERS=2, SHUFFLE=True, print_freq=50, verbose=True, drop_last=True):
 
         device = torch.device(
             'cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -85,13 +85,15 @@ class tuned_FasterRCNN():
         train_dataset = LabeledDataset(
             root=VALID_DATASET_PATH,
             split="training",
-            transforms=transform  # albumentations transformation
+            transforms=transform,  # albumentations transformation
+            drop_last=True
             )
 
         valid_dataset = LabeledDataset(
             root=VALID_DATASET_PATH,
             split="validation",
-            transforms=transform  # albumentations transformation
+            transforms=transform,  # albumentations transformation
+            drop_last=True
             )
 
         valid_loader = torch.utils.data.DataLoader(
