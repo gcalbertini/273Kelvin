@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 import torchvision.transforms.functional as F
 import math
 
-VALID_DATASET_PATH = "./unlabeled_data/" # this is the path where our images and labels are
-BATCH_SIZE = 2
-NUM_WORKERS = 2
-SHUFFLE = False # whether we want to shiffle the dataset, should change to True as in SimCLRv1
+#VALID_DATASET_PATH = "./unlabeled_data/" # this is the path where our images and labels are
+#BATCH_SIZE = 2
+#NUM_WORKERS = 2
+#SHUFFLE = False # whether we want to shiffle the dataset, should change to True as in SimCLRv1
 IMAGE_SIZE = 112
 S = 1.0 # strength of color distortion
 
@@ -34,7 +34,7 @@ def collate_fn(batch):
 transform = transforms.Compose([
         transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.08, 1.0)),
         transforms.RandomHorizontalFlip(p=0.5),
-        transforms.RandomApply([transforms.ColorJitter(brightness=0.8*S, hue=.8*S, saturation=.8*S, contrast=.2*S)], p=0.8),
+        transforms.RandomApply([transforms.ColorJitter(brightness=0.8*S, hue=.5*S, saturation=.8*S, contrast=.2*S)], p=0.8), # hue should be between [-0.5, 0.5]
         transforms.RandomGrayscale(p=0.2),
         transforms.GaussianBlur(math.floor(0.1*IMAGE_SIZE), sigma=(0.1, 2.0)),
         transforms.ToTensor(),
@@ -59,9 +59,9 @@ class UnlabeledDataset(torch.utils.data.Dataset):
         with open(os.path.join(self.image_dir, f"{idx}.PNG"), "rb") as f:
             img = Image.open(f).convert("RGB")
 
-        return torch.stack((transform(img), transform(img)))
+        return transform(img), transform(img)
 
-def main():
+def data_loader(BATCH_SIZE = 2, NUM_WORKERS = 2, SHUFFLE = False, VALID_DATASET_PATH="./unlabeled_data/"):
   
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -76,12 +76,13 @@ def main():
             shuffle=SHUFFLE,
             num_workers=NUM_WORKERS,
             collate_fn=None,
+            drop_last=True
     )
 
-    return iter(loader)
+    return loader
 
-if __name__ == "__main__":
-    data_loader = main()
+#if __name__ == "__main__":
+    #data_loader = main()
     # if batch = 2 then
     # 1st image -> has 2 augmentation, to get each augmentation index liek this: batch_images[0][0], batch_images[0][1]
     # 2nd image -> has 2 augmentation, to get each augmentation index liek this: batch_images[1][0], batch_images[1][1]
@@ -89,3 +90,5 @@ if __name__ == "__main__":
     # to display uncomment below
     #show((batch_images[0][0] * 255).to(torch.uint8)) # x_i
     #show((batch_images[0][1] * 255).to(torch.uint8)) # x_j
+    #show((batch_images[1][0] * 255).to(torch.uint8)) # x_i
+    #show((batch_images[1][1] * 255).to(torch.uint8)) # x_j
