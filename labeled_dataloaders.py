@@ -153,6 +153,7 @@ def main():
         shuffle=SHUFFLE,
         num_workers=NUM_WORKERS,
         collate_fn=collate_fn,
+        drop_last=True
     )
 
     return iter(valid_loader)
