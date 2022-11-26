@@ -86,14 +86,12 @@ class tuned_FasterRCNN():
             root=VALID_DATASET_PATH,
             split="training",
             transforms=transform,  # albumentations transformation
-            drop_last=True
             )
 
         valid_dataset = LabeledDataset(
             root=VALID_DATASET_PATH,
             split="validation",
             transforms=transform,  # albumentations transformation
-            drop_last=True
             )
 
         valid_loader = torch.utils.data.DataLoader(
@@ -102,6 +100,7 @@ class tuned_FasterRCNN():
             shuffle=SHUFFLE,
             num_workers=NUM_WORKERS,
             collate_fn=collate_fn,
+	    drop_last=True
         )
 
         train_loader = torch.utils.data.DataLoader(
@@ -110,6 +109,7 @@ class tuned_FasterRCNN():
             shuffle=SHUFFLE,
             num_workers=NUM_WORKERS,
             collate_fn=collate_fn,
+	    drop_last=True
         )
 
         model.to(device)
@@ -154,6 +154,7 @@ def sample_main():
     # TODO Get this damn labeled dataset copied over from Drive to Greene to GCP
     model_standin_import_temporary = tuned_FasterRCNN()
     model_default = model_standin_import_temporary.get_model()
+	# TODO wrong path!
     model_trained = model_standin_import_temporary.train_tuned(model=model_default, VALID_DATASET_PATH='../nyu_dl/datasets/labeled_data/')
     
 
