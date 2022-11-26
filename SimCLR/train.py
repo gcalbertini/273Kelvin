@@ -15,19 +15,9 @@ IMAGE_SIZE = 112
 S = 1.0
 EPOCHS = 20
 
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-print("device: ", device)
+def train(device, dataset, train_loader, model, criterion, optimizer):
 
-dataset, train_loader = data_loader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, IMAGE_SIZE, S)
-model = PreModel('resnet50').to(device)
-criterion = SimCLR_Loss(BATCH_SIZE, TEMPERATURE)
-optimizer = LARS(model.parameters(), lr=0.2, momentum=0.9, weight_decay=1e-6, max_epoch=EPOCHS)
-#optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-
-if __name__ == '__main__':
-
-    ### TRAINING SCRIPT ###
-
+    ### START TRAINING LOOP ###
     nr = 0
     current_epoch = 0
     epochs = EPOCHS
@@ -57,9 +47,9 @@ if __name__ == '__main__':
             
             if nr == 0 and step % 5 == 0:
                 print(f"Step [{step}/{len(train_loader)}]\t Loss: {round(loss.item(), 5)}")
-
+            
             tr_loss_epoch += loss.item()
-
+    
         if nr == 0:
             tr_loss.append(tr_loss_epoch / len(dataset))
             print(f"Epoch [{epoch}/{epochs}]\t Training Loss: {tr_loss_epoch / len(dataset)}\t")
@@ -67,3 +57,22 @@ if __name__ == '__main__':
         
         time_taken = (time.time()-stime)/60
         print(f"Epoch [{epoch}/{epochs}]\t Time Taken: {time_taken} minutes")
+
+    # saves model
+    torch.save(model.state_dict(), "./SimCLR.pt")
+
+
+if __name__ == '__main__':
+
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    print("device: ", device)
+
+    dataset, train_loader = data_loader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, IMAGE_SIZE, S)
+    model = PreModel('resnet50').to(device)
+    criterion = SimCLR_Loss(BATCH_SIZE, TEMPERATURE)
+    optimizer = LARS(model.parameters(), lr=0.2, momentum=0.9, weight_decay=1e-6, max_epoch=EPOCHS)
+    #optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+
+    train(device, dataset, train_loader, model, criterion, optimizer)
+
+
