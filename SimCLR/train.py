@@ -62,7 +62,7 @@ def train(device, dataset, train_loader, model, criterion, optimizer):
     torch.save(model.state_dict(), "./SimCLR.pt")
 
 
-if __name__ == '__main__':
+def backbone_pretraining():
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print("device: ", device)

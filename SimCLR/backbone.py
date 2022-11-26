@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from models import PreModel
+from train import backbone_pretraining
 
 class Backbone(nn.Module):
     def __init__(self,premodel):
@@ -13,7 +14,10 @@ class Backbone(nn.Module):
         out = self.premodel.pretrained(x)
         return out
 
-def load_backbone():
+def get_backbone(needs_pretraining=False):
+
+    if needs_pretraining:
+        backbone_pretraining()
     model = PreModel('resnet50')
     model.load_state_dict(torch.load('./SimCLR.pt')) # model need to be saved on directory first
     backbone = Backbone(model)
