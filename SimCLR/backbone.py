@@ -23,6 +23,9 @@ def get_backbone(needs_pretraining=False):
     backbone = Backbone(model)
     return backbone
 
+if __name__ == "__main__":
+    get_backbone(needs_pretraining=True)
+
 ## test ##
 # batch = torch.rand(16,3,244,244)
 # out = backbone(batch) # -> this is what gets fed to FastRCNN 

@@ -1,7 +1,7 @@
 import time
 import torch
 
-from unlabeled_dataloader import data_loader
+from unlabeled_dataloader import unlabeled_dataloader
 from loss import SimCLR_Loss
 from models import PreModel
 from lars import LARS
@@ -67,7 +67,7 @@ def backbone_pretraining():
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print("device: ", device)
 
-    dataset, train_loader = data_loader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, IMAGE_SIZE, S)
+    dataset, train_loader = unlabeled_dataloader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, IMAGE_SIZE, S)
     model = PreModel('resnet50').to(device)
     criterion = SimCLR_Loss(BATCH_SIZE, TEMPERATURE)
     optimizer = LARS(model.parameters(), lr=0.2, momentum=0.9, weight_decay=1e-6, max_epoch=EPOCHS)
