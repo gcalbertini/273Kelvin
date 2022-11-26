@@ -37,6 +37,7 @@ class UnlabeledDataset(torch.utils.data.Dataset):
                     transforms.RandomGrayscale(p=0.2),
                     transforms.GaussianBlur(math.floor(0.1*self.IMAGE_SIZE), sigma=(0.1, 2.0)),
                     transforms.ToTensor()])
+                    # should we normalise too?
 
     def __len__(self):
         return self.num_images
@@ -70,8 +71,8 @@ def unlabeled_dataloader(BATCH_SIZE=2, NUM_WORKERS=2, SHUFFLE=True, DATASET_PATH
 '''
 # if you want to display images
 if __name__ == "__main__":
-    data = data_loader()
-    batch_images = next(iter(data)) 
+    dataset, loader = unlabeled_dataloader()
+    batch_images = next(iter(loader)) 
 
     # if batch = 2 then
         # 1st image -> has 2 augmentation, to get each augmentation index liek this: batch_images[0][0], batch_images[0][1]
