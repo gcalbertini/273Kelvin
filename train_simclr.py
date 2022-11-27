@@ -57,8 +57,8 @@ def backbone_pretraining(device, DATASET_PATH="./unlabeled_data/", BATCH_SIZE=16
     dataset, train_loader = unlabeled_dataloader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, IMAGE_SIZE, S)
     model = PreModel('resnet50').to(device)
     criterion = SimCLR_Loss(BATCH_SIZE, TEMPERATURE)
-    optimizer = LARS(model.parameters(), lr=LR, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY, max_epoch=EPOCHS)
-    #optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    #optimizer = LARS(model.parameters(), lr=LR, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY, max_epoch=EPOCHS)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
     train(device, dataset, train_loader, model, criterion, optimizer, EPOCHS)
 
