@@ -1,0 +1,10 @@
+bboxes:
+- - 185
+  - 111
+  - 471
+  - 314
+image_size:
+- 500
+- 354
+labels:
+- cattle

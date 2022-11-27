@@ -1,0 +1,15 @@
+bboxes:
+- - 199
+  - 102
+  - 237
+  - 192
+- - 104
+  - 152
+  - 150
+  - 197
+image_size:
+- 500
+- 333
+labels:
+- traffic light
+- traffic light

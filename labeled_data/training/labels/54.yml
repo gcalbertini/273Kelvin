@@ -1,0 +1,10 @@
+bboxes:
+- - 31
+  - 33
+  - 225
+  - 181
+image_size:
+- 380
+- 253
+labels:
+- rabbit

@@ -1,0 +1,20 @@
+bboxes:
+- - 117
+  - 107
+  - 168
+  - 160
+- - 193
+  - 167
+  - 277
+  - 237
+- - 321
+  - 212
+  - 419
+  - 294
+image_size:
+- 500
+- 334
+labels:
+- strawberry
+- strawberry
+- strawberry

@@ -1,0 +1,10 @@
+bboxes:
+- - 4
+  - 24
+  - 492
+  - 298
+image_size:
+- 500
+- 333
+labels:
+- motorcycle

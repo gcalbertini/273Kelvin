@@ -1,0 +1,10 @@
+bboxes:
+- - 49
+  - 26
+  - 378
+  - 228
+image_size:
+- 425
+- 308
+labels:
+- tv or monitor

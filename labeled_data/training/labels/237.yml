@@ -1,0 +1,15 @@
+bboxes:
+- - 121
+  - 45
+  - 453
+  - 455
+- - 52
+  - 45
+  - 128
+  - 267
+image_size:
+- 500
+- 500
+labels:
+- piano
+- microphone

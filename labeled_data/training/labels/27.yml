@@ -1,0 +1,10 @@
+bboxes:
+- - 26
+  - 57
+  - 309
+  - 475
+image_size:
+- 333
+- 500
+labels:
+- koala bear

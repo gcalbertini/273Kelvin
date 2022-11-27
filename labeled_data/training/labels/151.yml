@@ -1,0 +1,15 @@
+bboxes:
+- - 51
+  - 46
+  - 253
+  - 272
+- - 253
+  - 71
+  - 452
+  - 320
+image_size:
+- 500
+- 375
+labels:
+- monkey
+- monkey

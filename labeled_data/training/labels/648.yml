@@ -1,0 +1,10 @@
+bboxes:
+- - 98
+  - 10
+  - 340
+  - 313
+image_size:
+- 500
+- 333
+labels:
+- bell pepper

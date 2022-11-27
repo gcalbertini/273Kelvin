@@ -1,0 +1,10 @@
+bboxes:
+- - 51
+  - 72
+  - 482
+  - 213
+image_size:
+- 500
+- 375
+labels:
+- car

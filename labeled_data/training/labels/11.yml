@@ -1,0 +1,20 @@
+bboxes:
+- - 291
+  - 87
+  - 348
+  - 163
+- - 100
+  - 140
+  - 337
+  - 325
+- - 133
+  - 85
+  - 358
+  - 305
+image_size:
+- 500
+- 354
+labels:
+- helmet
+- motorcycle
+- person

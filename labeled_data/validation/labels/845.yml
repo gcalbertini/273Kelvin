@@ -1,0 +1,10 @@
+bboxes:
+- - 247
+  - 173
+  - 261
+  - 200
+image_size:
+- 500
+- 332
+labels:
+- chair

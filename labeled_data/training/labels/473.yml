@@ -1,0 +1,10 @@
+bboxes:
+- - 47
+  - 178
+  - 429
+  - 343
+image_size:
+- 500
+- 344
+labels:
+- microphone

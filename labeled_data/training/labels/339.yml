@@ -1,0 +1,10 @@
+bboxes:
+- - 147
+  - 267
+  - 279
+  - 462
+image_size:
+- 333
+- 500
+labels:
+- fig

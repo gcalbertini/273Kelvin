@@ -1,0 +1,10 @@
+bboxes:
+- - 0
+  - 0
+  - 499
+  - 332
+image_size:
+- 500
+- 333
+labels:
+- computer keyboard

@@ -1,0 +1,15 @@
+bboxes:
+- - 1
+  - 76
+  - 167
+  - 218
+- - 251
+  - 5
+  - 499
+  - 225
+image_size:
+- 500
+- 281
+labels:
+- cup or mug
+- cup or mug

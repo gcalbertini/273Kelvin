@@ -1,0 +1,10 @@
+bboxes:
+- - 20
+  - 21
+  - 112
+  - 83
+image_size:
+- 128
+- 85
+labels:
+- domestic cat

@@ -1,0 +1,10 @@
+bboxes:
+- - 7
+  - 161
+  - 494
+  - 414
+image_size:
+- 500
+- 499
+labels:
+- butterfly

@@ -1,0 +1,10 @@
+bboxes:
+- - 133
+  - 13
+  - 335
+  - 185
+image_size:
+- 375
+- 500
+labels:
+- hat with a wide brim

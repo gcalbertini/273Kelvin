@@ -1,0 +1,10 @@
+bboxes:
+- - 71
+  - 93
+  - 400
+  - 374
+image_size:
+- 500
+- 375
+labels:
+- camel

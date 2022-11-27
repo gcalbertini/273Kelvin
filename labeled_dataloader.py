@@ -46,7 +46,7 @@ class LabeledDataset(torch.utils.data.Dataset):
         if self.split == "training":
             offset = 1
         if self.split == "validation":
-            offset = 30001
+            offset = 701
 
         with open(os.path.join(self.image_dir, f"{idx + offset}.JPEG"), "rb") as f:
             img = Image.open(f).convert("RGB")

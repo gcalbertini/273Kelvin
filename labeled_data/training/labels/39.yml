@@ -1,0 +1,10 @@
+bboxes:
+- - 73
+  - 47
+  - 244
+  - 168
+image_size:
+- 300
+- 200
+labels:
+- frog

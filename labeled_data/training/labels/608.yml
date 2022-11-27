@@ -1,0 +1,10 @@
+bboxes:
+- - 243
+  - 243
+  - 368
+  - 498
+image_size:
+- 375
+- 500
+labels:
+- banana

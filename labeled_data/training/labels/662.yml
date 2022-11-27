@@ -1,0 +1,10 @@
+bboxes:
+- - 301
+  - 128
+  - 499
+  - 311
+image_size:
+- 500
+- 333
+labels:
+- laptop

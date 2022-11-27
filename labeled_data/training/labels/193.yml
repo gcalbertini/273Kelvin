@@ -1,0 +1,10 @@
+bboxes:
+- - 48
+  - 44
+  - 139
+  - 263
+image_size:
+- 190
+- 340
+labels:
+- tie

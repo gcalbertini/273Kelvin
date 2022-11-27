@@ -1,0 +1,10 @@
+bboxes:
+- - 165
+  - 79
+  - 215
+  - 95
+image_size:
+- 231
+- 155
+labels:
+- whale

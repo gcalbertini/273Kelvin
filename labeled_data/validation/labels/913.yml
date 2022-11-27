@@ -1,0 +1,10 @@
+bboxes:
+- - 1
+  - 15
+  - 312
+  - 334
+image_size:
+- 314
+- 340
+labels:
+- tiger

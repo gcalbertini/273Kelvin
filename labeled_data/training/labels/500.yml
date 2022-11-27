@@ -1,0 +1,10 @@
+bboxes:
+- - 257
+  - 114
+  - 474
+  - 275
+image_size:
+- 500
+- 312
+labels:
+- dragonfly

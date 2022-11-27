@@ -1,0 +1,10 @@
+bboxes:
+- - 70
+  - 212
+  - 274
+  - 415
+image_size:
+- 352
+- 500
+labels:
+- ski

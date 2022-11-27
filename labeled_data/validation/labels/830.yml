@@ -1,0 +1,10 @@
+bboxes:
+- - 28
+  - 36
+  - 296
+  - 260
+image_size:
+- 350
+- 350
+labels:
+- baby bed

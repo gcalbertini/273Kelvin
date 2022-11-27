@@ -1,0 +1,55 @@
+bboxes:
+- - 14
+  - 1
+  - 70
+  - 26
+- - 118
+  - 69
+  - 167
+  - 116
+- - 238
+  - 159
+  - 287
+  - 194
+- - 125
+  - 162
+  - 179
+  - 211
+- - 232
+  - 257
+  - 292
+  - 300
+- - 401
+  - 203
+  - 460
+  - 241
+- - 86
+  - 69
+  - 195
+  - 319
+- - 144
+  - 346
+  - 205
+  - 374
+- - 219
+  - 157
+  - 294
+  - 374
+- - 351
+  - 27
+  - 424
+  - 259
+image_size:
+- 500
+- 375
+labels:
+- hat with a wide brim
+- hat with a wide brim
+- hat with a wide brim
+- miniskirt
+- miniskirt
+- miniskirt
+- person
+- person
+- person
+- person

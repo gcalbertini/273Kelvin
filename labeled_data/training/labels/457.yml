@@ -1,0 +1,10 @@
+bboxes:
+- - 238
+  - 39
+  - 456
+  - 150
+image_size:
+- 500
+- 274
+labels:
+- sunglasses

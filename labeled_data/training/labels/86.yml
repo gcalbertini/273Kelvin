@@ -1,0 +1,10 @@
+bboxes:
+- - 121
+  - 119
+  - 284
+  - 188
+image_size:
+- 500
+- 375
+labels:
+- skunk

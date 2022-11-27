@@ -1,0 +1,10 @@
+bboxes:
+- - 113
+  - 246
+  - 229
+  - 303
+image_size:
+- 333
+- 500
+labels:
+- miniskirt

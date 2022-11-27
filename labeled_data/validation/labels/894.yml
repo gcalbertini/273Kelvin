@@ -1,0 +1,25 @@
+bboxes:
+- - 261
+  - 34
+  - 456
+  - 374
+- - 43
+  - 0
+  - 217
+  - 373
+- - 228
+  - 274
+  - 244
+  - 291
+- - 203
+  - 265
+  - 215
+  - 281
+image_size:
+- 500
+- 375
+labels:
+- person
+- person
+- croquet ball
+- croquet ball
