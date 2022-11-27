@@ -27,9 +27,6 @@ def train(backbone="SimCLR", BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=True, DATASET_
         print("Optimizer's state_dict:")
         for var_name in optimizer.state_dict():
             print(var_name, "\t", optimizer.state_dict()[var_name])
-        #TODO defintely change this or where this be
-        print('Model Summary:')
-        print(model)
     else:
         print_freq = 10
 

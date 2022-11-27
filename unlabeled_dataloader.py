@@ -49,7 +49,7 @@ class UnlabeledDataset(torch.utils.data.Dataset):
         return self.transform(img), self.transform(img)
 
 
-def unlabeled_dataloader(BATCH_SIZE=2, NUM_WORKERS=2, SHUFFLE=True, DATASET_PATH="./unlabeled_data/", IMAGE_SIZE=112, S=1.0):
+def unlabeled_dataloader(BATCH_SIZE=2, NUM_WORKERS=2, SHUFFLE=True, DATASET_PATH="./unlabeled_data/", IMAGE_SIZE=224, S=1.0):
 
     unlabeled_dataset = UnlabeledDataset(
         DATASET_PATH,

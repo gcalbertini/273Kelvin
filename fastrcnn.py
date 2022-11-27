@@ -13,7 +13,7 @@ def get_model(backbone=None, num_classes=100):
         output_size = 7
 
     else:
-        backbone = get_backbone(train=False)
+        backbone = get_backbone(train=True)
         backbone.out_channels = 2048
         output_size = 1
 
@@ -22,7 +22,7 @@ def get_model(backbone=None, num_classes=100):
 
 
     roi_pooler = torchvision.ops.MultiScaleRoIAlign(featmap_names=['0'],
-                                                    output_size=output_size,  # TODO change this as *ResNet*-based RCNN adopts RoI pooling to extract 7×7 features, with prev backbone was 7
+                                                    output_size=output_size,
                                                     sampling_ratio=2,
                                                     canonical_level=4,
                                                     canonical_scale=224)
