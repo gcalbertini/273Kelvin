@@ -6,15 +6,6 @@ from loss import SimCLR_Loss
 from models import PreModel
 from lars import LARS
 
-DATASET_PATH = "./unlabeled_data/" 
-BATCH_SIZE = 16
-TEMPERATURE = 0.5
-NUM_WORKERS = 2
-SHUFFLE = True
-IMAGE_SIZE = 112
-S = 1.0
-EPOCHS = 20
-
 def train(device, dataset, train_loader, model, criterion, optimizer, epochs):
 
     ### START TRAINING LOOP ###
@@ -68,7 +59,6 @@ def backbone_pretraining(device, DATASET_PATH="./unlabeled_data/", BATCH_SIZE=16
     criterion = SimCLR_Loss(BATCH_SIZE, TEMPERATURE)
     optimizer = LARS(model.parameters(), lr=LR, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY, max_epoch=EPOCHS)
     #optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-
 
     train(device, dataset, train_loader, model, criterion, optimizer, EPOCHS)
 

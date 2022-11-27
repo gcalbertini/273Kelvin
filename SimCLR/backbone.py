@@ -13,6 +13,8 @@ class Backbone(nn.Module):
 
     def forward(self,x):
         out = self.premodel.pretrained(x)
+        out = out.unsqueeze(2)
+        out = out.unsqueeze(3)
         return out
 
 def get_backbone(train=False, **kwargs):
