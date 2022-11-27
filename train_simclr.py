@@ -49,7 +49,7 @@ def train(device, dataset, train_loader, model, criterion, optimizer, epochs):
         print(f"Epoch [{epoch}/{epochs}]\t Time Taken: {time_taken} minutes")
 
         # saves model *weights* for every epoch
-        torch.save(model.state_dict(), f"./SimCLR_{epoch}.pt")
+        torch.save(model.state_dict(), f"/scratch_tmp/$USER/SimCLR_{epoch}.pt")
     
 
 

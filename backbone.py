@@ -41,7 +41,7 @@ def get_backbone(train=False, **kwargs):
         
     model = PreModel('resnet50')
     #TODO Update path to whichever saved epoch weights needed
-    model.load_state_dict(torch.load('./SimCLR_0.pt', map_location=device)) # model need to be saved on directory first
+    model.load_state_dict(torch.load('/scratch_tmp/$USER/SimCLR_0.pt', map_location=device)) # model need to be saved on directory first
     backbone = Backbone(model)
     return backbone
 
