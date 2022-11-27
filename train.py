@@ -5,7 +5,7 @@ from labeled_dataloader import labeled_dataloader
 from utils import train_one_epoch
 from eval import evaluate
 
-def train(backbone="SimCLR", BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=True, DATASET_PATH="./labeled_data/", EPOCHS=1, LR=0.001, MOM=0.9, DECAY=0.0005, print_freq=10, verbose=False):
+def train(backbone="SimCLR", BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=True, DATASET_PATH="./labeled_data/", EPOCHS=1, LR=0.001, MOM=0.9, DECAY=0.0005, print_freq=10, verbose=True):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
@@ -31,14 +31,14 @@ def train(backbone="SimCLR", BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=True, DATASET_
         print('Model Summary:')
         print(model)
     else:
-        print_freq = 0
+        print_freq = 10
 
     for epoch in range(EPOCHS):
         train_one_epoch(model, optimizer, train_dataloader, device, epoch, print_freq)
         lr_scheduler.step()
         evaluate(model, validation_dataloader, device)
 
-    torch.save(model.state_dict(), f"scratch_tmp/$USER/model__mom_{MOM}_decay_{DECAY}_epoch_{epoch+1}_lr_{LR}_backbone_{backbone}.pt")
+    torch.save(model.state_dict(), f"./model__mom_{MOM}_decay_{DECAY}_epoch_{epoch+1}_lr_{LR}_backbone_{backbone}.pt")
 
     return model
 
