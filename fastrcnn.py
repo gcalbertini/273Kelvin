@@ -2,10 +2,7 @@ import warnings
 import torchvision
 from torchvision.models.detection import FasterRCNN
 from torchvision.models.detection.rpn import AnchorGenerator
-
-import sys
-sys.path.append("..")
-import SimCLR
+from backbone import get_backbone
 
 def get_model(backbone=None, num_classes=100):
 
@@ -16,7 +13,7 @@ def get_model(backbone=None, num_classes=100):
         output_size = 7
 
     else:
-        backbone = SimCLR.backbone.get_backbone(train=False) #assumes it is already trained, if you want to train need to specify params (explained in SimCLR/backbone.py)
+        backbone = get_backbone(train=False)
         backbone.out_channels = 2048
         output_size = 1
 

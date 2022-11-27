@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
+from train_simclr import backbone_pretraining
 from models import PreModel
-from train import backbone_pretraining
 
 class Backbone(nn.Module):
     def __init__(self,premodel):
