@@ -40,4 +40,6 @@ def train(backbone="SimCLR", BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=True, DATASET_
 
     torch.save(model.state_dict(), f"scratch_tmp/$USER/model__mom_{MOM}_decay_{DECAY}_epoch_{epoch+1}_lr_{LR}_backbone_{backbone}.pt")
 
+    return model
+
 
