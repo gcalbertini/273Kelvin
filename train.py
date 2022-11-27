@@ -38,6 +38,7 @@ def train(backbone="SimCLR", BATCH_SIZE=16, NUM_WORKERS=2, SHUFFLE=True, DATASET
     return model
 
 def main():
-    train()
+    train()
+
 if __name__=="__main__":
-    main()
+    main()

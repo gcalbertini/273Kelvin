@@ -3,8 +3,8 @@
 #SBATCH --account=csci_ga_2572-2022fa
 #SBATCH --partition=n1s8-v100-1
 #SBATCH --time=1:00:00
-#SBATCH --mem=1GB
-#SBATCH --job-name=load_test
+#SBATCH --mem=25GB
+#SBATCH --job-name=HOPE
 #SBATCH --gres=gpu:1
 #SBATCH --output=slurm_%j.out
 
