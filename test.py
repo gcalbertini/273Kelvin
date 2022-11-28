@@ -31,39 +31,32 @@ def setup(rank, world_size):
 def cleanup():
     dist.destroy_process_group()
 
-class ToyMpModel(nn.Module):
-    def __init__(self, dev0, dev1):
-        super(ToyMpModel, self).__init__()
-        self.dev0 = dev0
-        self.dev1 = dev1
-        self.net1 = torch.nn.Linear(10, 10).to(dev0)
-        self.relu = torch.nn.ReLU()
-        self.net2 = torch.nn.Linear(10, 5).to(dev1)
+class ToyModel(nn.Module):
+    def __init__(self):
+        super(ToyModel, self).__init__()
+        self.net1 = nn.Linear(10, 10)
+        self.relu = nn.ReLU()
+        self.net2 = nn.Linear(10, 5)
 
     def forward(self, x):
-        x = x.to(self.dev0)
-        x = self.relu(self.net1(x))
-        x = x.to(self.dev1)
-        return self.net2(x)
+        return self.net2(self.relu(self.net1(x)))
 
 
-def demo_model_parallel(rank, world_size):
-    print(f"Running DDP with model parallel example on rank {rank}.")
+def demo_basic(rank, world_size):
+    print(f"Running basic DDP example on rank {rank}.")
+    print("rank: ", rank)
     setup(rank, world_size)
 
-    # setup mp_model and devices for this process
-    dev0 = (rank * 2) % world_size
-    dev1 = (rank * 2 + 1) % world_size
-    mp_model = ToyMpModel(dev0, dev1)
-    ddp_mp_model = DDP(mp_model)
+    # create model and move it to GPU with id rank
+    model = ToyModel().to(rank)
+    ddp_model = DDP(model, device_ids=[rank])
 
     loss_fn = nn.MSELoss()
-    optimizer = optim.SGD(ddp_mp_model.parameters(), lr=0.001)
+    optimizer = optim.SGD(ddp_model.parameters(), lr=0.001)
 
     optimizer.zero_grad()
-    # outputs will be on dev1
-    outputs = ddp_mp_model(torch.randn(20, 10))
-    labels = torch.randn(20, 5).to(dev1)
+    outputs = ddp_model(torch.randn(20, 10))
+    labels = torch.randn(20, 5).to(rank)
     loss_fn(outputs, labels).backward()
     optimizer.step()
 
@@ -79,7 +72,7 @@ def run_demo(demo_fn, world_size):
 def main():
     n_gpus = torch.cuda.device_count()
     print(n_gpus)
-    run_demo(demo_model_parallel, world_size=2)
+    run_demo(demo_basic, 2)
 
 if __name__=="__main__":
     main()

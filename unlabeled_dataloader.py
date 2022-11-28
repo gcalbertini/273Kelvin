@@ -7,6 +7,11 @@ import torchvision.transforms.functional as F
 import matplotlib.pyplot as plt
 from PIL import Image
 
+#from helper_data import collate_fn
+
+from dataset import Dataset
+from dataloader import DataLoader
+
 # use if you want to display images
 def show(imgs):
     plt.rcParams["savefig.bbox"] = "tight"
@@ -19,7 +24,7 @@ def show(imgs):
         axs[0, i].imshow(np.asarray(img))
         axs[0, i].set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
 
-class UnlabeledDataset(torch.utils.data.Dataset):
+class UnlabeledDataset(Dataset):
     def __init__(self, root, IMAGE_SIZE, S):
         r"""
         Args:
@@ -50,7 +55,7 @@ class UnlabeledDataset(torch.utils.data.Dataset):
             img = Image.open(f).convert("RGB")
         return self.transform(img), self.transform(img)
 
-def unlabeled_dataloader(BATCH_SIZE=2, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH="./unlabeled_data/", IMAGE_SIZE=112, S=1.0):
+def unlabeled_dataloader(BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH="./unlabeled_data/", IMAGE_SIZE=112, S=1.0):
 
     unlabeled_dataset = UnlabeledDataset(
         DATASET_PATH,
@@ -58,13 +63,13 @@ def unlabeled_dataloader(BATCH_SIZE=2, NUM_WORKERS=2, SHUFFLE=False, DATASET_PAT
         S
     )
 
-    unlabeled_dataloader = torch.utils.data.DataLoader(
+    unlabeled_dataloader = DataLoader(
             unlabeled_dataset,
             batch_size=BATCH_SIZE,
             shuffle=SHUFFLE,
             num_workers=NUM_WORKERS,
-            collate_fn=None,
-            drop_last=True
+            #collate_fn=None,
+            #drop_last=True
     )
 
     return unlabeled_dataset, unlabeled_dataloader

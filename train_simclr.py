@@ -27,6 +27,9 @@ def train(device, dataset, train_loader, model, criterion, optimizer, epochs):
         
             optimizer.zero_grad()
 
+            print(x_i.size())
+            print(x_j.size())
+
             x_i = x_i.to(device)
             x_j = x_j.to(device)
 
@@ -68,7 +71,7 @@ def main():
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print("device: ", device)
 
-    backbone_pretraining(device, NUM_WORKERS=0, EPOCHS=1, DATASET_PATH="/unlabeled/unlabeled", SHUFFLE=False, IMAGE_SIZE=224, BATCH_SIZE=2)
+    backbone_pretraining(device, BATCH_SIZE=2, NUM_WORKERS=0, EPOCHS=1, DATASET_PATH="./unlabeled/unlabeled", SHUFFLE=False, IMAGE_SIZE=224)
 
 if __name__=="__main__":
     main()
