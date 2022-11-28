@@ -28,7 +28,7 @@ class UnlabeledDataset(torch.utils.data.Dataset):
         """
         self.image_dir = root
         #self.num_images = len(os.listdir(self.image_dir))
-        self.num_images = 1000
+        self.num_images = 512000
         self.IMAGE_SIZE = IMAGE_SIZE
         self.S = S # this is colour distortion, applied to ColorJitter
         self.transform = transforms.Compose([
@@ -45,6 +45,7 @@ class UnlabeledDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         # the idx of labeled image is from 0
+        print("idx: ", idx)
         with open(os.path.join(self.image_dir, f"{idx}.PNG"), "rb") as f:
             img = Image.open(f).convert("RGB")
         print("idx:", idx)

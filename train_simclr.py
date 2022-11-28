@@ -20,8 +20,10 @@ def train(device, dataset, train_loader, model, criterion, optimizer, epochs):
         stime = time.time()
         model.train()
         tr_loss_epoch = 0
-        
+
+        print("enter_epoch")
         for step, (x_i, x_j) in enumerate(train_loader):
+            print("enter_loop")
 
             optimizer.zero_grad()
 
@@ -48,9 +50,8 @@ def train(device, dataset, train_loader, model, criterion, optimizer, epochs):
         time_taken = (time.time()-stime)/60
         print(f"Epoch [{epoch}/{epochs}]\t Time Taken: {time_taken} minutes")
 
-    # saves model
-    torch.save(model.state_dict(), "./SimCLR.pt")
-
+        # saves model *weights* for every epoch
+        torch.save(model.state_dict(), f"/scratch_tmp/$USER/SimCLR_{epoch}.pt")
 
 def backbone_pretraining(device, DATASET_PATH="./unlabeled_data/", BATCH_SIZE=16, TEMPERATURE=0.5, NUM_WORKERS=2, SHUFFLE=False, IMAGE_SIZE=112, S=1.0, EPOCHS=20, LR=0.2, MOMENTUM=0.9, WEIGHT_DECAY=1e-6):
 

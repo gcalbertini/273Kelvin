@@ -39,8 +39,13 @@ def get_backbone(train=False, **kwargs):
     if train:
         backbone_pretraining(device, **kwargs)
         
-    model = PreModel('resnet50')
-    model.load_state_dict(torch.load('./SimCLR.pt', map_location=device)) # model need to be saved on directory first
-    backbone = Backbone(model)
-    return backbone
+    #model = PreModel('resnet50')
+    #model.load_state_dict(torch.load("/scratch_tmp/$USER/SimCLR_0.pt", map_location=device)) # model need to be saved on directory first
+    #backbone = Backbone(model)
+    #return backbone
 
+def main():
+    model = get_backbone(train=True, EPOCHS=1, DATASET_PATH="./unlabeled/unlabeled/", SHUFFLE=False, IMAGE_SIZE=224, BATCH_SIZE=4)
+
+if __name__=="__main__":
+    main()
