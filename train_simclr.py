@@ -53,7 +53,7 @@ def train(device, dataset, train_loader, model, criterion, optimizer, epochs):
         # saves model *weights* for every epoch
         torch.save(model.state_dict(), f"/scratch_tmp/$USER/SimCLR_{epoch}.pt")
 
-def backbone_pretraining(device, DATASET_PATH="./unlabeled_data/", BATCH_SIZE=16, TEMPERATURE=0.5, NUM_WORKERS=2, SHUFFLE=False, IMAGE_SIZE=112, S=1.0, EPOCHS=20, LR=0.2, MOMENTUM=0.9, WEIGHT_DECAY=1e-6):
+def backbone_pretraining(device, DATASET_PATH="/unlabeled_data/", BATCH_SIZE=16, TEMPERATURE=0.5, NUM_WORKERS=2, SHUFFLE=False, IMAGE_SIZE=112, S=1.0, EPOCHS=20, LR=0.2, MOMENTUM=0.9, WEIGHT_DECAY=1e-6):
 
     dataset, train_loader = unlabeled_dataloader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, IMAGE_SIZE, S)
     model = PreModel('resnet50').to(device)
