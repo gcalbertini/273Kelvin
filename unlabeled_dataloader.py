@@ -50,7 +50,7 @@ class UnlabeledDataset(torch.utils.data.Dataset):
             img = Image.open(f).convert("RGB")
         return self.transform(img), self.transform(img)
 
-def unlabeled_dataloader(BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH="./unlabeled_data/", IMAGE_SIZE=112, S=1.0):
+def unlabeled_dataloader(BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH="./unlabeled_data/", IMAGE_SIZE=224, S=1.0):
 
     unlabeled_dataset = UnlabeledDataset(
         DATASET_PATH,
@@ -63,7 +63,6 @@ def unlabeled_dataloader(BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=False, DATASET_PAT
             batch_size=BATCH_SIZE,
             shuffle=SHUFFLE,
             num_workers=NUM_WORKERS,
-            collate_fn=None,
             drop_last=True
     )
 
