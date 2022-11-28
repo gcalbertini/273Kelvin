@@ -6,6 +6,7 @@
 #SBATCH --mem=25GB
 #SBATCH --job-name=BACKBONE_SIMCLR_TRAINING
 #SBATCH --gres=gpu:2
+#SBATCH -N 2
 #SBATCH --output=slurm_%j.out
 
 singularity exec --nv --overlay /scratch/DL22FA/overlay_11-16.ext3:ro \
