@@ -6,6 +6,7 @@ from torchvision import transforms
 import torchvision.transforms.functional as F
 import matplotlib.pyplot as plt
 from PIL import Image
+from torch.utils.data.distributed import DistributedSampler
 
 # use if you want to display images
 def show(imgs):
@@ -57,8 +58,11 @@ def unlabeled_dataloader(BATCH_SIZE=2, NUM_WORKERS=2, SHUFFLE=True, DATASET_PATH
         S
     )
 
+    unlabeled_parallel_dataset = DistributedSampler(dataset=unlabeled_dataset, shuffle=True)
+
     unlabeled_dataloader = torch.utils.data.DataLoader(
             unlabeled_dataset,
+            sampler=unlabeled_parallel_dataset,
             batch_size=BATCH_SIZE,
             shuffle=SHUFFLE,
             num_workers=NUM_WORKERS,
@@ -66,7 +70,7 @@ def unlabeled_dataloader(BATCH_SIZE=2, NUM_WORKERS=2, SHUFFLE=True, DATASET_PATH
             drop_last=True
     )
 
-    return unlabeled_dataset, unlabeled_dataloader
+    return unlabeled_parallel_dataset, unlabeled_dataloader
 
 '''
 # if you want to display images
