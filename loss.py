@@ -8,6 +8,7 @@ class SimCLR_Loss(nn.Module):
         super().__init__()
         self.batch_size = batch_size
         self.temperature = temperature
+        self.world_size = 2 # number of GPUs
 
         self.mask = self.mask_correlated_samples(batch_size)
         self.criterion = nn.CrossEntropyLoss(reduction="sum")
@@ -26,24 +27,24 @@ class SimCLR_Loss(nn.Module):
 
     def forward(self, z_i, z_j):
 
-          N = 2 * self.batch_size
+        N = 2 * self.batch_size
 
-          z = torch.cat((z_i, z_j), dim=0)
+        z = torch.cat((z_i, z_j), dim=0)
 
-          sim = self.similarity_f(z.unsqueeze(1), z.unsqueeze(0)) / self.temperature
+        sim = self.similarity_f(z.unsqueeze(1), z.unsqueeze(0)) / self.temperature
 
-          sim_i_j = torch.diag(sim, self.batch_size)
-          sim_j_i = torch.diag(sim, -self.batch_size)
-          
-          # We have 2N samples, but with Distributed training every GPU gets N examples too, resulting in: 2xNxN
-          positive_samples = torch.cat((sim_i_j, sim_j_i), dim=0).reshape(N, 1)
-          negative_samples = sim[self.mask].reshape(N, -1)
-          
-          #SIMCLR
-          labels = torch.from_numpy(np.array([0]*N)).reshape(-1).to(positive_samples.device).long() #.float()
-          
-          logits = torch.cat((positive_samples, negative_samples), dim=1)
-          loss = self.criterion(logits, labels)
-          loss /= N
-          
-          return loss
+        sim_i_j = torch.diag(sim, self.batch_size)
+        sim_j_i = torch.diag(sim, -self.batch_size)
+        
+        # We have 2N samples, but with Distributed training every GPU gets N examples too, resulting in: 2xNxN
+        positive_samples = torch.cat((sim_i_j, sim_j_i), dim=0).reshape(N, 1)
+        negative_samples = sim[self.mask].reshape(N, -1)
+        
+        #SIMCLR
+        labels = torch.from_numpy(np.array([0]*N)).reshape(-1).to(positive_samples.device).long() #.float()
+        
+        logits = torch.cat((positive_samples, negative_samples), dim=1)
+        loss = self.criterion(logits, labels)
+        loss /= N
+        
+        return loss
