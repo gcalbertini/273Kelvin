@@ -3,7 +3,7 @@
 #SBATCH --account=csci_ga_2572-2022fa
 #SBATCH --partition=n1s8-v100-1
 #SBATCH --time=1:00:00
-#SBATCH --mem=50GB
+#SBATCH --mem=40GB
 #SBATCH --job-name=BACKBONE
 #SBATCH --gres=gpu:1
 #SBATCH --output=slurm_%j.out
