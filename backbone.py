@@ -45,7 +45,7 @@ def get_backbone(train=False, **kwargs):
     #return backbone
 
 def main():
-    model = get_backbone(train=True, EPOCHS=1, DATASET_PATH="./unlabeled/unlabeled", SHUFFLE=False, IMAGE_SIZE=224, BATCH_SIZE=2)
+    model = get_backbone(train=True, EPOCHS=1, DATASET_PATH="/unlabeled/unlabeled", SHUFFLE=False, IMAGE_SIZE=224, BATCH_SIZE=2)
 
 if __name__=="__main__":
     main()
