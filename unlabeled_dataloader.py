@@ -6,8 +6,6 @@ from torchvision import transforms
 import torchvision.transforms.functional as F
 import matplotlib.pyplot as plt
 from PIL import Image
-from PIL import ImageFile
-ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # use if you want to display images
 def show(imgs):
