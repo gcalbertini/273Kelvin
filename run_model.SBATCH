@@ -9,7 +9,7 @@
 #SBATCH --output=slurm_%j.out
 
 singularity exec --nv --overlay /scratch/DL22FA/overlay_11-16.ext3:ro \
-            -B /scratch/DL22FA/unlabeled_112.sqsh:/unlabeled:image-src=/ \
+            -B /scratch/DL22FA/unlabeled_224.sqsh:/unlabeled:image-src=/ \
             -B /scratch/DL22FA/labeled.sqsh:/labeled:image-src=/ \
             -B /scratch -B /scratch_tmp \
             /scratch/DL22FA/cuda11.2.2-cudnn8-devel-ubuntu20.04.sif \
