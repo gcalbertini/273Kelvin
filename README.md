@@ -6,6 +6,7 @@
 - sbatch run_model.SBATCH 
 - squeue -u $USER
 - cat slurm_100963.out
+- scancel id
 
 - :wq
 - ls
