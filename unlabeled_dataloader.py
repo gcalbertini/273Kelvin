@@ -46,7 +46,7 @@ class UnlabeledDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         # the idx of labeled image is from 0
         print("idx: ", idx)
-        with open(os.path.join(self.image_dir, f"{idx+1}.PNG"), "rb") as f:
+        with open(os.path.join(self.image_dir, f"{idx}.PNG"), "rb") as f:
             img = Image.open(f).convert("RGB")
         return self.transform(img), self.transform(img)
 
