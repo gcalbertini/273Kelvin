@@ -66,8 +66,8 @@ def backbone_pretraining(device, DATASET_PATH="/unlabeled_data/", BATCH_SIZE=16,
 def main():
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print("device: ", device)
-    
-    backbone_pretraining(device, NUM_WORKERS=8, EPOCHS=1, DATASET_PATH="/unlabeled/unlabeled", SHUFFLE=False, IMAGE_SIZE=224, BATCH_SIZE=2)
+
+    backbone_pretraining(device, NUM_WORKERS=0, EPOCHS=1, DATASET_PATH="/unlabeled/unlabeled", SHUFFLE=False, IMAGE_SIZE=224, BATCH_SIZE=2)
 
 if __name__=="__main__":
     main()
