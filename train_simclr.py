@@ -21,14 +21,11 @@ def train(device, dataset, train_loader, model, criterion, optimizer, epochs):
         model.train()
         tr_loss_epoch = 0
 
-        print("enter_epoch")
+        #print("enter_epoch")
         for step, (x_i, x_j) in enumerate(train_loader):
-            print("enter_loop")
+            #print("enter_loop")
         
             optimizer.zero_grad()
-
-            print(x_i.size())
-            print(x_j.size())
 
             x_i = x_i.to(device)
             x_j = x_j.to(device)

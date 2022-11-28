@@ -7,11 +7,6 @@ import torchvision.transforms.functional as F
 import matplotlib.pyplot as plt
 from PIL import Image
 
-#from helper_data import collate_fn
-
-from dataset import Dataset
-from dataloader import DataLoader
-
 # use if you want to display images
 def show(imgs):
     plt.rcParams["savefig.bbox"] = "tight"
@@ -24,7 +19,7 @@ def show(imgs):
         axs[0, i].imshow(np.asarray(img))
         axs[0, i].set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
 
-class UnlabeledDataset(Dataset):
+class UnlabeledDataset(torch.utils.data.Dataset):
     def __init__(self, root, IMAGE_SIZE, S):
         r"""
         Args:
@@ -33,7 +28,7 @@ class UnlabeledDataset(Dataset):
         """
         self.image_dir = root
         #self.num_images = len(os.listdir(self.image_dir))
-        self.num_images = 512000
+        self.num_images = 1000
         self.IMAGE_SIZE = IMAGE_SIZE
         self.S = S # this is colour distortion, applied to ColorJitter
         self.transform = transforms.Compose([
@@ -41,7 +36,7 @@ class UnlabeledDataset(Dataset):
                     transforms.RandomHorizontalFlip(p=0.5),
                     transforms.RandomApply([transforms.ColorJitter(brightness=0.8*self.S, hue=.5*self.S, saturation=.8*self.S, contrast=.2*self.S)], p=0.8), # hue should be between [-0.5, 0.5]
                     transforms.RandomGrayscale(p=0.2),
-                    transforms.GaussianBlur(math.ceil(0.1*self.IMAGE_SIZE), sigma=(0.1, 2.0)),
+                    transforms.GaussianBlur(math.floor(0.1*self.IMAGE_SIZE), sigma=(0.1, 2.0)),
                     transforms.ToTensor()])
                     # should we normalise too?
 
@@ -50,7 +45,7 @@ class UnlabeledDataset(Dataset):
 
     def __getitem__(self, idx):
         # the idx of labeled image is from 0
-        print("idx: ", idx)
+        #print("idx: ", idx)
         with open(os.path.join(self.image_dir, f"{idx}.PNG"), "rb") as f:
             img = Image.open(f).convert("RGB")
         return self.transform(img), self.transform(img)
@@ -63,7 +58,7 @@ def unlabeled_dataloader(BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=False, DATASET_PAT
         S
     )
 
-    unlabeled_dataloader = DataLoader(
+    unlabeled_dataloader = torch.utils.data.DataLoader(
             unlabeled_dataset,
             batch_size=BATCH_SIZE,
             shuffle=SHUFFLE,
