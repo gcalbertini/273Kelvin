@@ -64,6 +64,7 @@ def backbone_pretraining(device, DATASET_PATH="/unlabeled_data/", BATCH_SIZE=16,
     train(device, dataset, train_loader, model, criterion, optimizer, EPOCHS)
 
 def main():
+    print("start")
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print("device: ", device)
 
