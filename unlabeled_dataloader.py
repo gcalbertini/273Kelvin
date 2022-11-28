@@ -27,7 +27,8 @@ class UnlabeledDataset(torch.utils.data.Dataset):
             transform: the transform you want to applied to the images.
         """
         self.image_dir = root
-        self.num_images = len(os.listdir(self.image_dir))
+        #self.num_images = len(os.listdir(self.image_dir))
+        self.num_images = 1000
         self.IMAGE_SIZE = IMAGE_SIZE
         self.S = S # this is colour distortion, applied to ColorJitter
         self.transform = transforms.Compose([
@@ -46,10 +47,10 @@ class UnlabeledDataset(torch.utils.data.Dataset):
         # the idx of labeled image is from 0
         with open(os.path.join(self.image_dir, f"{idx}.PNG"), "rb") as f:
             img = Image.open(f).convert("RGB")
+        print("idx:", idx)
         return self.transform(img), self.transform(img)
 
-
-def unlabeled_dataloader(BATCH_SIZE=2, NUM_WORKERS=2, SHUFFLE=True, DATASET_PATH="./unlabeled_data/", IMAGE_SIZE=112, S=1.0):
+def unlabeled_dataloader(BATCH_SIZE=2, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH="./unlabeled_data/", IMAGE_SIZE=112, S=1.0):
 
     unlabeled_dataset = UnlabeledDataset(
         DATASET_PATH,
