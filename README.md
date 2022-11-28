@@ -10,6 +10,4 @@
 - :wq
 - ls
 
-
-
-- git 
+- git reset HEAD -- SimCLR.pt
