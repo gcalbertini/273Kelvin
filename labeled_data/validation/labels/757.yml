@@ -1,0 +1,10 @@
+bboxes:
+- - 29
+  - 128
+  - 495
+  - 277
+image_size:
+- 500
+- 333
+labels:
+- ray

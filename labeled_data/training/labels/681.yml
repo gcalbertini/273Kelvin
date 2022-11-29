@@ -1,0 +1,10 @@
+bboxes:
+- - 109
+  - 43
+  - 319
+  - 311
+image_size:
+- 500
+- 333
+labels:
+- sheep

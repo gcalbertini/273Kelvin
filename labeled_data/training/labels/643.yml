@@ -1,0 +1,10 @@
+bboxes:
+- - 0
+  - 67
+  - 295
+  - 252
+image_size:
+- 380
+- 253
+labels:
+- bear

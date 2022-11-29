@@ -1,0 +1,10 @@
+bboxes:
+- - 26
+  - 34
+  - 289
+  - 332
+image_size:
+- 500
+- 333
+labels:
+- person

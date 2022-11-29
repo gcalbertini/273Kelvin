@@ -1,0 +1,10 @@
+bboxes:
+- - 273
+  - 137
+  - 470
+  - 301
+image_size:
+- 500
+- 302
+labels:
+- snake

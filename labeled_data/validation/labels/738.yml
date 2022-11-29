@@ -1,0 +1,15 @@
+bboxes:
+- - 53
+  - 139
+  - 81
+  - 374
+- - 158
+  - 184
+  - 218
+  - 374
+image_size:
+- 500
+- 375
+labels:
+- crutch
+- crutch

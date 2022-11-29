@@ -1,0 +1,10 @@
+bboxes:
+- - 93
+  - 72
+  - 451
+  - 216
+image_size:
+- 500
+- 333
+labels:
+- nail

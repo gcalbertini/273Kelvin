@@ -1,0 +1,10 @@
+bboxes:
+- - 29
+  - 67
+  - 190
+  - 276
+image_size:
+- 230
+- 277
+labels:
+- beaker

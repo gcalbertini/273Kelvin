@@ -1,0 +1,10 @@
+bboxes:
+- - 16
+  - 57
+  - 132
+  - 270
+image_size:
+- 220
+- 296
+labels:
+- otter

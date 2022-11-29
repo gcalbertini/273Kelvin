@@ -1,0 +1,10 @@
+bboxes:
+- - 38
+  - 124
+  - 166
+  - 252
+image_size:
+- 250
+- 261
+labels:
+- flower pot

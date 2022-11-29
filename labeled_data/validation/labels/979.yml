@@ -1,0 +1,10 @@
+bboxes:
+- - 63
+  - 33
+  - 466
+  - 155
+image_size:
+- 500
+- 200
+labels:
+- train

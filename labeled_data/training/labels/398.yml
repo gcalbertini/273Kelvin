@@ -1,0 +1,10 @@
+bboxes:
+- - 21
+  - 12
+  - 471
+  - 331
+image_size:
+- 500
+- 332
+labels:
+- drum

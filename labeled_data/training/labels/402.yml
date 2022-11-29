@@ -1,0 +1,10 @@
+bboxes:
+- - 143
+  - 118
+  - 319
+  - 273
+image_size:
+- 500
+- 350
+labels:
+- bird

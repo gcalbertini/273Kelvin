@@ -1,0 +1,25 @@
+bboxes:
+- - 194
+  - 8
+  - 217
+  - 21
+- - 1
+  - 90
+  - 497
+  - 361
+- - 374
+  - 71
+  - 499
+  - 141
+- - 151
+  - 1
+  - 245
+  - 102
+image_size:
+- 500
+- 362
+labels:
+- sunglasses
+- airplane
+- airplane
+- person

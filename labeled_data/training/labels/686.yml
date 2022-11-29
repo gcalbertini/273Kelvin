@@ -1,0 +1,10 @@
+bboxes:
+- - 166
+  - 146
+  - 362
+  - 281
+image_size:
+- 500
+- 333
+labels:
+- lizard

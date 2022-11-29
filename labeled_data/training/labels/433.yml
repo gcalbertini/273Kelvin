@@ -1,0 +1,15 @@
+bboxes:
+- - 216
+  - 0
+  - 423
+  - 86
+- - 2
+  - 0
+  - 215
+  - 156
+image_size:
+- 500
+- 333
+labels:
+- apple
+- apple

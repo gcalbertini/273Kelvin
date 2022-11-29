@@ -1,0 +1,15 @@
+bboxes:
+- - 50
+  - 67
+  - 367
+  - 497
+- - 375
+  - 278
+  - 473
+  - 498
+image_size:
+- 475
+- 500
+labels:
+- artichoke
+- artichoke

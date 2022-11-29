@@ -1,0 +1,10 @@
+bboxes:
+- - 9
+  - 36
+  - 452
+  - 244
+image_size:
+- 500
+- 333
+labels:
+- watercraft

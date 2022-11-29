@@ -1,0 +1,30 @@
+bboxes:
+- - 105
+  - 123
+  - 119
+  - 138
+- - 72
+  - 107
+  - 85
+  - 119
+- - 61
+  - 69
+  - 74
+  - 82
+- - 89
+  - 120
+  - 101
+  - 134
+- - 74
+  - 123
+  - 87
+  - 135
+image_size:
+- 180
+- 180
+labels:
+- croquet ball
+- croquet ball
+- croquet ball
+- croquet ball
+- croquet ball

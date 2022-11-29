@@ -1,0 +1,10 @@
+bboxes:
+- - 73
+  - 1
+  - 497
+  - 306
+image_size:
+- 500
+- 357
+labels:
+- dog

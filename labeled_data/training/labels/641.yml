@@ -1,0 +1,10 @@
+bboxes:
+- - 187
+  - 8
+  - 344
+  - 307
+image_size:
+- 364
+- 320
+labels:
+- stove

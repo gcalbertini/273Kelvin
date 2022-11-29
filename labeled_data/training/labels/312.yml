@@ -1,0 +1,20 @@
+bboxes:
+- - 178
+  - 113
+  - 296
+  - 208
+- - 338
+  - 157
+  - 444
+  - 229
+- - 63
+  - 162
+  - 120
+  - 212
+image_size:
+- 500
+- 333
+labels:
+- antelope
+- antelope
+- antelope

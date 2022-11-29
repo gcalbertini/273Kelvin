@@ -1,0 +1,10 @@
+bboxes:
+- - 157
+  - 75
+  - 372
+  - 308
+image_size:
+- 500
+- 333
+labels:
+- lemon

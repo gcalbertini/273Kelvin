@@ -1,0 +1,10 @@
+bboxes:
+- - 74
+  - 51
+  - 496
+  - 232
+image_size:
+- 500
+- 309
+labels:
+- airplane

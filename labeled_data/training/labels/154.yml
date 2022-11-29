@@ -1,0 +1,10 @@
+bboxes:
+- - 45
+  - 148
+  - 342
+  - 461
+image_size:
+- 360
+- 500
+labels:
+- table

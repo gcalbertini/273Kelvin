@@ -1,0 +1,10 @@
+bboxes:
+- - 119
+  - 126
+  - 417
+  - 271
+image_size:
+- 500
+- 378
+labels:
+- bus

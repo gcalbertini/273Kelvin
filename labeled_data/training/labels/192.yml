@@ -1,0 +1,25 @@
+bboxes:
+- - 112
+  - 261
+  - 132
+  - 276
+- - 191
+  - 245
+  - 212
+  - 253
+- - 107
+  - 232
+  - 296
+  - 467
+- - 147
+  - 220
+  - 297
+  - 487
+image_size:
+- 500
+- 500
+labels:
+- sunglasses
+- sunglasses
+- person
+- person

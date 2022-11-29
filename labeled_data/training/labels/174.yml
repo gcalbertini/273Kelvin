@@ -1,0 +1,10 @@
+bboxes:
+- - 149
+  - 81
+  - 199
+  - 123
+image_size:
+- 320
+- 213
+labels:
+- ladybug

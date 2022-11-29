@@ -1,0 +1,10 @@
+bboxes:
+- - 153
+  - 116
+  - 438
+  - 314
+image_size:
+- 500
+- 359
+labels:
+- bicycle

@@ -1,0 +1,10 @@
+bboxes:
+- - 18
+  - 21
+  - 453
+  - 488
+image_size:
+- 464
+- 500
+labels:
+- coffee maker

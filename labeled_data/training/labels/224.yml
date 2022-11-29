@@ -1,0 +1,10 @@
+bboxes:
+- - 144
+  - 53
+  - 218
+  - 179
+image_size:
+- 500
+- 333
+labels:
+- lamp

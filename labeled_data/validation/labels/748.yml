@@ -1,0 +1,10 @@
+bboxes:
+- - 0
+  - 0
+  - 299
+  - 283
+image_size:
+- 300
+- 284
+labels:
+- lobster

@@ -1,0 +1,10 @@
+bboxes:
+- - 0
+  - 213
+  - 192
+  - 490
+image_size:
+- 375
+- 500
+labels:
+- bookshelf

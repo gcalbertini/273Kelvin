@@ -1,0 +1,10 @@
+bboxes:
+- - 48
+  - 13
+  - 348
+  - 495
+image_size:
+- 382
+- 500
+labels:
+- backpack

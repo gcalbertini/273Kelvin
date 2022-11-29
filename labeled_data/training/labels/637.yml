@@ -1,0 +1,10 @@
+bboxes:
+- - 5
+  - 120
+  - 305
+  - 372
+image_size:
+- 500
+- 375
+labels:
+- goldfish
