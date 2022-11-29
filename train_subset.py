@@ -32,4 +32,6 @@ def create_subset(DATASET_PATH="./unlabeled_data/"):
 
 def main():
     create_subset()
-    
+
+if __name__ == '__main__':
+    main()
