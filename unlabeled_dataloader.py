@@ -26,6 +26,16 @@ class UnlabeledDataset(torch.utils.data.Dataset):
             root: Location of the dataset folder, usually it is /unlabeled
             transform: the transform you want to applied to the images.
         """
+        self.root = root
+        path_to_data = self.root
+        self.images = 0
+        with open(path_to_data, "rb") as f:
+            # read whole file in uint8 chunks
+            everything = np.fromfile(f, dtype=np.uint8)
+            images = np.reshape(everything, (-1, 3, 224, 224))
+            images = np.transpose(images, (0, 1, 3, 2))
+            self.images = images
+            
         self.image_dir = root
         #self.num_images = len(os.listdir(self.image_dir))
         self.num_images = 512000
@@ -46,8 +56,10 @@ class UnlabeledDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         # the idx of labeled image is from 0
         #print("idx: ", idx)
-        with open(os.path.join(self.image_dir, f"{idx}.PNG"), "rb") as f:
-            img = Image.open(f).convert("RGB")
+        #with open(os.path.join(self.image_dir, f"{idx}.PNG"), "rb") as f:
+            #img = Image.open(f).convert("RGB")
+        print(idx)
+        img = self.data[idx]
         return self.transform(img), self.transform(img)
 
 def unlabeled_dataloader(BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH="./unlabeled_data/", IMAGE_SIZE=224, S=1.0):
