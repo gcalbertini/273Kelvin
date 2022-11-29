@@ -27,6 +27,7 @@ from torch.utils.data import DataLoader
 from torch.multiprocessing import cpu_count
 import torchvision.transforms as T
 import math
+from PIL import Image
 
 def default(val, def_val):
     return def_val if val is None else val
@@ -119,7 +120,7 @@ class UnlabeledDataset(torch.utils.data.Dataset):
                     T.RandomHorizontalFlip(p=0.5),
                     T.RandomApply([T.ColorJitter(brightness=0.8*self.S, hue=.5*self.S, saturation=.8*self.S, contrast=.2*self.S)], p=0.8), # hue should be between [-0.5, 0.5]
                     T.RandomGrayscale(p=0.2),
-                    T.GaussianBlur(math.floor(0.1*self.IMAGE_SIZE), sigma=(0.1, 2.0)),
+                    T.GaussianBlur(math.ceil(0.1*self.IMAGE_SIZE), sigma=(0.1, 2.0)),
                     T.ToTensor()])
                     # should we normalise too?
 
