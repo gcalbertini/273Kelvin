@@ -34,6 +34,7 @@ def train(backbone="SimCLR", BATCH_SIZE=32, NUM_WORKERS=cpu_count()//2, SHUFFLE=
     else:
         print_freq = 50
 
+    print("!!! FastRCNN Training START !!!")
     for epoch in range(EPOCHS):
         train_one_epoch(model, optimizer, train_dataloader, device, epoch, print_freq)
         lr_scheduler.step()
