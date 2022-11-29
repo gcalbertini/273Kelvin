@@ -28,7 +28,7 @@ def create_subset(DATASET_PATH="/unlabeled/"):
     trainset = UnlabeledDataset(DATASET_PATH, IMAGE_SIZE=224)
     train_indices = list(range(20000))
     train_subset = Subset(trainset, train_indices)
-    torch.save(train_subset, '/scratch_tmp/$USER/train_subset.pt')
+    torch.save(train_subset, '/scratch_tmp/hn2231/train_subset.pt')
 
 def main():
     create_subset()
