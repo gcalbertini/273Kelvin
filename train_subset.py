@@ -24,11 +24,11 @@ class UnlabeledDataset(torch.utils.data.Dataset):
             img = Image.open(f).convert("RGB")
         return img
 
-def create_subset(DATASET_PATH="./unlabeled_data/"):
+def create_subset(DATASET_PATH="/unlabeled/"):
     trainset = UnlabeledDataset(DATASET_PATH, IMAGE_SIZE=224)
     train_indices = list(range(20000))
     train_subset = Subset(trainset, train_indices)
-    torch.save(train_subset, './scratch_tmp/train._subset.pt')
+    torch.save(train_subset, '/scratch_tmp/train._subset.pt')
 
 def main():
     create_subset()
