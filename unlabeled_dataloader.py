@@ -35,7 +35,7 @@ class UnlabeledDataset(torch.utils.data.Dataset):
                     transforms.RandomHorizontalFlip(p=0.5),
                     transforms.RandomApply([transforms.ColorJitter(brightness=0.8*self.S, hue=.5*self.S, saturation=.8*self.S, contrast=.2*self.S)], p=0.8), # hue should be between [-0.5, 0.5]
                     transforms.RandomGrayscale(p=0.2),
-                    transforms.GaussianBlur(math.floor(0.1*self.IMAGE_SIZE), sigma=(0.1, 2.0)),
+                    transforms.GaussianBlur(math.ceil(0.1*self.IMAGE_SIZE), sigma=(0.1, 2.0)),
                     transforms.ToTensor()])
                     # should we normalise too?
 
