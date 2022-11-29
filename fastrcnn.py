@@ -7,7 +7,7 @@ from backbone import get_backbone
 def get_model(backbone=None, num_classes=100):
 
     if backbone is None:
-        warnings.warn("Using pretrained mobilenet_v2 backbone instead of simclr, deafult weights")
+        print("!!!! Using pretrained mobilenet_v2 backbone instead of simclr, deafult weights !!!!")
         backbone = torchvision.models.mobilenet_v2(weights="DEFAULT").features
         backbone.out_channels = 1280
         output_size = 7

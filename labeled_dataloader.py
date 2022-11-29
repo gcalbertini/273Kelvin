@@ -82,7 +82,7 @@ class LabeledDataset(torch.utils.data.Dataset):
         if self.split == "training":
             offset = 1
         if self.split == "validation":
-            offset = 701
+            offset = 30001
 
         with open(os.path.join(self.image_dir, f"{idx + offset}.JPEG"), "rb") as f:
             img = Image.open(f).convert("RGB")
@@ -116,7 +116,7 @@ class LabeledDataset(torch.utils.data.Dataset):
 
         return img, target
 
-def labeled_dataloader(BATCH_SIZE=2, NUM_WORKERS=2, SHUFFLE=True, DATASET_PATH="./labeled_data/", SPLIT="training", IMAGE_SIZE=224):
+def labeled_dataloader(BATCH_SIZE=16, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH="/labeled/labeled/", SPLIT="training", IMAGE_SIZE=224):
 
     labeled_dataset = LabeledDataset(
         root=DATASET_PATH,

@@ -4,8 +4,9 @@ from fastrcnn import get_model
 from labeled_dataloader import labeled_dataloader
 from utils import train_one_epoch
 from eval import evaluate
+from torch.multiprocessing import cpu_count
 
-def train(backbone="SimCLR", BATCH_SIZE=16, NUM_WORKERS=2, SHUFFLE=True, DATASET_PATH="/labeled/labeled", EPOCHS=1, LR=0.001, MOM=0.9, DECAY=0.0005, print_freq=10, verbose=True):
+def train(backbone="SimCLR", BATCH_SIZE=32, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", EPOCHS=1, LR=0.001, MOM=0.9, DECAY=0.0005, print_freq=10, verbose=False):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
@@ -31,7 +32,7 @@ def train(backbone="SimCLR", BATCH_SIZE=16, NUM_WORKERS=2, SHUFFLE=True, DATASET
         print('Model Summary:')
         print(model)
     else:
-        print_freq = 10
+        print_freq = 50
 
     for epoch in range(EPOCHS):
         train_one_epoch(model, optimizer, train_dataloader, device, epoch, print_freq)
