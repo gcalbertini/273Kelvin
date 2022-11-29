@@ -26,6 +26,7 @@ from torchvision.datasets import STL10
 from torch.utils.data import DataLoader
 from torch.multiprocessing import cpu_count
 import torchvision.transforms as T
+import math
 
 def default(val, def_val):
     return def_val if val is None else val
@@ -97,10 +98,58 @@ class Augment:
 
 
 
-def get_stl_dataloader(batch_size, transform=None, split="unlabeled"):
+#def get_stl_dataloader(batch_size, transform=None, split="unlabeled"):
 
-    stl10 = STL10("./", split=split, transform=transform, download=True)
-    return DataLoader(dataset=stl10, batch_size=batch_size, num_workers=cpu_count()//2)
+#    stl10 = STL10("./", split=split, transform=transform, download=True)
+#    return DataLoader(dataset=stl10, batch_size=batch_size, num_workers=cpu_count()//2)
+
+class UnlabeledDataset(torch.utils.data.Dataset):
+    def __init__(self, root, IMAGE_SIZE, S):
+        r"""
+        Args:
+            root: Location of the dataset folder, usually it is /unlabeled
+            transform: the transform you want to applied to the images.
+        """
+        self.image_dir = root
+        self.num_images = len(os.listdir(self.image_dir))
+        self.IMAGE_SIZE = IMAGE_SIZE
+        self.S = S # this is colour distortion, applied to ColorJitter
+        self.transform = T.Compose([
+                    T.RandomResizedCrop(self.IMAGE_SIZE, scale=(0.08, 1.0)),
+                    T.RandomHorizontalFlip(p=0.5),
+                    T.RandomApply([T.ColorJitter(brightness=0.8*self.S, hue=.5*self.S, saturation=.8*self.S, contrast=.2*self.S)], p=0.8), # hue should be between [-0.5, 0.5]
+                    T.RandomGrayscale(p=0.2),
+                    T.GaussianBlur(math.floor(0.1*self.IMAGE_SIZE), sigma=(0.1, 2.0)),
+                    T.ToTensor()])
+                    # should we normalise too?
+
+    def __len__(self):
+        return self.num_images
+
+    def __getitem__(self, idx):
+        # the idx of labeled image is from 0
+        with open(os.path.join(self.image_dir, f"{idx}.PNG"), "rb") as f:
+            img = Image.open(f).convert("RGB")
+        return self.transform(img), self.transform(img)
+
+def unlabeled_dataloader(BATCH_SIZE=2, NUM_WORKERS=2, SHUFFLE=True, DATASET_PATH="./unlabeled_data/", IMAGE_SIZE=224, S=1.0):
+
+    unlabeled_dataset = UnlabeledDataset(
+        DATASET_PATH,
+        IMAGE_SIZE,
+        S
+    )
+
+    unlabeled_dataloader = torch.utils.data.DataLoader(
+            unlabeled_dataset,
+            batch_size=BATCH_SIZE,
+            shuffle=SHUFFLE,
+            num_workers=NUM_WORKERS,
+            collate_fn=None,
+            drop_last=True
+    )
+
+    return unlabeled_dataset, unlabeled_dataloader
 
 import matplotlib.pyplot as plt
 
@@ -156,11 +205,11 @@ class ContrastiveLoss(nn.Module):
         loss = torch.sum(all_losses) / (2 * self.batch_size)
         return loss
 
-dataset = STL10("./", split='train', transform=Augment(96), download=True)
-imshow(dataset[99][0][0])
-imshow(dataset[99][0][0])
-imshow(dataset[99][0][0])
-imshow(dataset[99][0][0])
+#dataset = STL10("./", split='train', transform=Augment(96), download=True)
+#imshow(dataset[99][0][0])
+#imshow(dataset[99][0][0])
+#imshow(dataset[99][0][0])
+#imshow(dataset[99][0][0])
 
 """## Add projection Head for embedding and training logic with pytorch lightning model"""
 
@@ -295,19 +344,19 @@ save_name = filename + '.ckpt'
 model = SimCLR_pl(train_config, model=resnet18(pretrained=False), feat_dim=512)
 
 transform = Augment(train_config.img_size)
-data_loader = get_stl_dataloader(train_config.batch_size, transform)
+#data_loader = get_stl_dataloader(train_config.batch_size, transform)
+_, data_loader = unlabeled_dataloader()
 
 accumulator = GradientAccumulationScheduler(scheduling={0: train_config.gradient_accumulation_steps})
-checkpoint_callback = ModelCheckpoint(filename=filename, dirpath=save_model_path,every_n_val_epochs=2,
-                                        save_last=True, save_top_k=2,monitor='Contrastive loss_epoch',mode='min')
+#checkpoint_callback = ModelCheckpoint(filename=filename, dirpath=save_model_path,every_n_val_epochs=2,
+#                                        save_last=True, save_top_k=2,monitor='Contrastive loss_epoch',mode='min')
 
 if resume_from_checkpoint:
-  trainer = Trainer(callbacks=[accumulator, checkpoint_callback],
+  trainer = Trainer(
                   gpus=available_gpus,
-                  max_epochs=train_config.epochs,
-                  resume_from_checkpoint=train_config.checkpoint_path)
+                  max_epochs=train_config.epochs)
 else:
-  trainer = Trainer(callbacks=[accumulator, checkpoint_callback],
+  trainer = Trainer(
                   gpus=available_gpus,
                   max_epochs=train_config.epochs)
 
@@ -316,7 +365,7 @@ print("start_fit")
 trainer.fit(model, data_loader)
 print("end_fit")
 
-trainer.save_checkpoint(save_name)
+#trainer.save_checkpoint(save_name)
 
 """## Save only backbone weights from Resnet18 that are only necessary for fine tuning"""
 
