@@ -14,7 +14,7 @@ def get_model(backbone=None, num_classes=100):
 
     else:
         backbone = get_backbone(train=False)
-        backbone.out_channels = 2048
+        #out_channels already set
         output_size = 1
 
     anchor_generator = AnchorGenerator(sizes=((32, 64, 128, 256, 512),),

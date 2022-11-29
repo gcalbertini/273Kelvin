@@ -294,46 +294,48 @@ from pytorch_lightning.callbacks import GradientAccumulationScheduler
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torchvision.models import  resnet18
 
-available_gpus = len([torch.cuda.device(i) for i in range(torch.cuda.device_count())])
-save_model_path = os.path.join(os.getcwd(), "saved_models/")
-print('available_gpus:',available_gpus)
-filename='SimCLR_ResNet18_adam_'
-resume_from_checkpoint = False
-train_config = Hparams()
+def train_backbone():
 
-reproducibility(train_config)
-save_name = filename + '.ckpt'
+    available_gpus = len([torch.cuda.device(i) for i in range(torch.cuda.device_count())])
+    save_model_path = os.path.join(os.getcwd(), "saved_models/")
+    print('available_gpus:',available_gpus)
+    filename='SimCLR_ResNet18_adam_'
+    resume_from_checkpoint = False
+    train_config = Hparams()
 
-model = SimCLR_pl(train_config, model=resnet18(pretrained=False), feat_dim=512)
+    reproducibility(train_config)
+    save_name = filename + '.ckpt'
 
-transform = Augment(train_config.img_size)
-data_loader = get_stl_dataloader(train_config.batch_size, transform)
+    model = SimCLR_pl(train_config, model=resnet18(pretrained=False), feat_dim=512)
 
-accumulator = GradientAccumulationScheduler(scheduling={0: train_config.gradient_accumulation_steps})
-checkpoint_callback = ModelCheckpoint(filename=filename, dirpath=save_model_path,
-                                        save_last=True, save_top_k=2,monitor='Contrastive loss_epoch',mode='min')
+    transform = Augment(train_config.img_size)
+    data_loader = get_stl_dataloader(train_config.batch_size, transform)
 
-if resume_from_checkpoint:
-  trainer = Trainer(callbacks=[accumulator, checkpoint_callback],
-                  gpus=available_gpus,
-                  max_epochs=train_config.epochs,
-                  resume_from_checkpoint=train_config.checkpoint_path)
-else:
-  trainer = Trainer(callbacks=[accumulator, checkpoint_callback],
-                  gpus=available_gpus,
-                  max_epochs=train_config.epochs)
+    accumulator = GradientAccumulationScheduler(scheduling={0: train_config.gradient_accumulation_steps})
+    checkpoint_callback = ModelCheckpoint(filename=filename, dirpath=save_model_path,
+                                            save_last=True, save_top_k=2,monitor='Contrastive loss_epoch',mode='min')
 
-trainer.fit(model, data_loader)
+    if resume_from_checkpoint:
+        trainer = Trainer(callbacks=[accumulator, checkpoint_callback],
+                        gpus=available_gpus,
+                        max_epochs=train_config.epochs,
+                        resume_from_checkpoint=train_config.checkpoint_path)
+    else:
+        trainer = Trainer(callbacks=[accumulator, checkpoint_callback],
+                        gpus=available_gpus,
+                        max_epochs=train_config.epochs)
 
-trainer.save_checkpoint(save_name)
+    trainer.fit(model, data_loader)
 
-"""## Save only backbone weights from Resnet18 that are only necessary for fine tuning"""
+    trainer.save_checkpoint(save_name)
 
-model_pl = SimCLR_pl(train_config, model=resnet18(pretrained=False))
-model_pl = weights_update(model_pl, "SimCLR_ResNet18_adam_.ckpt")
+    """## Save only backbone weights from Resnet18 that are only necessary for fine tuning"""
 
-resnet18_backbone_weights = model_pl.model.backbone
-print(resnet18_backbone_weights)
-torch.save({
-            'model_state_dict': resnet18_backbone_weights.state_dict(),
-            }, 'resnet18_backbone_weights.ckpt')
+    model_pl = SimCLR_pl(train_config, model=resnet18(pretrained=False))
+    model_pl = weights_update(model_pl, "SimCLR_ResNet18_adam_.ckpt")
+
+    resnet18_backbone_weights = model_pl.model.backbone
+    print(resnet18_backbone_weights)
+    torch.save({
+                'model_state_dict': resnet18_backbone_weights.state_dict(),
+                }, 'resnet18_backbone_weights.ckpt')

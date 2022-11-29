@@ -13,4 +13,4 @@ singularity exec --nv --overlay /scratch/DL22FA/overlay_11-16.ext3:ro \
             -B /scratch/DL22FA/labeled.sqsh:/labeled:image-src=/ \
             -B /scratch -B /scratch_tmp \
             /scratch/DL22FA/cuda11.2.2-cudnn8-devel-ubuntu20.04.sif \
-            /bin/bash -c "source /ext3/env.sh; python lightning.py"
+            /bin/bash -c "source /ext3/env.sh; python train.py"
