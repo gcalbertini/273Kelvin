@@ -68,7 +68,7 @@ def main():
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print("device: ", device)
 
-    backbone_pretraining(device, BATCH_SIZE=2, NUM_WORKERS=0, EPOCHS=1, DATASET_PATH="/unlabeled/unlabeled", SHUFFLE=False, IMAGE_SIZE=224)
+    backbone_pretraining(device, BATCH_SIZE=2, NUM_WORKERS=0, EPOCHS=1, DATASET_PATH="/data/unlabeled", SHUFFLE=False, IMAGE_SIZE=224)
 
 if __name__=="__main__":
     main()

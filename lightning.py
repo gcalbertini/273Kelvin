@@ -98,7 +98,6 @@ class Augment:
         return self.train_transform(x), self.train_transform(x)
 
 
-
 #def get_stl_dataloader(batch_size, transform=None, split="unlabeled"):
 
 #    stl10 = STL10("./", split=split, transform=transform, download=True)
