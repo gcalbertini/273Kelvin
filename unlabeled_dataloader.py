@@ -26,6 +26,70 @@ class UnlabeledDataset(torch.utils.data.Dataset):
             root: Location of the dataset folder, usually it is /unlabeled
             transform: the transform you want to applied to the images.
         """
+        self.image_dir = root
+        self.num_images = len(os.listdir(self.image_dir))
+        self.IMAGE_SIZE = IMAGE_SIZE
+        self.S = S # this is colour distortion, applied to ColorJitter
+        self.transform = transforms.Compose([
+                    transforms.RandomResizedCrop(self.IMAGE_SIZE, scale=(0.08, 1.0)),
+                    transforms.RandomHorizontalFlip(p=0.5),
+                    transforms.RandomApply([transforms.ColorJitter(brightness=0.8*self.S, hue=.5*self.S, saturation=.8*self.S, contrast=.2*self.S)], p=0.8), # hue should be between [-0.5, 0.5]
+                    transforms.RandomGrayscale(p=0.2),
+                    transforms.GaussianBlur(math.floor(0.1*self.IMAGE_SIZE), sigma=(0.1, 2.0)),
+                    transforms.ToTensor()])
+                    # should we normalise too?
+
+    def __len__(self):
+        return self.num_images
+
+    def __getitem__(self, idx):
+        # the idx of labeled image is from 0
+        with open(os.path.join(self.image_dir, f"{idx}.PNG"), "rb") as f:
+            img = Image.open(f).convert("RGB")
+        return self.transform(img), self.transform(img)
+
+def unlabeled_dataloader(BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH="./unlabeled_data/", IMAGE_SIZE=224, S=1.0):
+
+    unlabeled_dataset = UnlabeledDataset(
+        DATASET_PATH,
+        IMAGE_SIZE,
+        S
+    )
+
+    unlabeled_dataloader = torch.utils.data.DataLoader(
+            unlabeled_dataset,
+            batch_size=BATCH_SIZE,
+            shuffle=SHUFFLE,
+            num_workers=NUM_WORKERS,
+            drop_last=True
+    )
+
+    return unlabeled_dataset, unlabeled_dataloader
+
+'''
+# if you want to display images
+if __name__ == "__main__":
+    dataset, loader = unlabeled_dataloader()
+    batch_images = next(iter(loader)) 
+
+    # if batch = 2 then
+        # 1st image -> has 2 augmentation, to get each augmentation index liek this: batch_images[0][0], batch_images[0][1]
+        # 2nd image -> has 2 augmentation, to get each augmentation index liek this: batch_images[1][0], batch_images[1][1]
+
+    show((batch_images[0][0] * 255).to(torch.uint8)) # x_i
+    show((batch_images[0][1] * 255).to(torch.uint8)) # x_j
+    show((batch_images[1][0] * 255).to(torch.uint8)) # x_i
+    show((batch_images[1][1] * 255).to(torch.uint8)) # x_j
+'''
+
+'''
+class UnlabeledDataset(torch.utils.data.Dataset):
+    def __init__(self, root, IMAGE_SIZE, S):
+        r"""
+        Args:
+            root: Location of the dataset folder, usually it is /unlabeled
+            transform: the transform you want to applied to the images.
+        """
         self.root = root
         path_to_data = self.root
         self.images = 0
@@ -61,37 +125,4 @@ class UnlabeledDataset(torch.utils.data.Dataset):
         print(idx)
         img = self.data[idx]
         return self.transform(img), self.transform(img)
-
-def unlabeled_dataloader(BATCH_SIZE=4, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH="./unlabeled_data/", IMAGE_SIZE=224, S=1.0):
-
-    unlabeled_dataset = UnlabeledDataset(
-        DATASET_PATH,
-        IMAGE_SIZE,
-        S
-    )
-
-    unlabeled_dataloader = torch.utils.data.DataLoader(
-            unlabeled_dataset,
-            batch_size=BATCH_SIZE,
-            shuffle=SHUFFLE,
-            num_workers=NUM_WORKERS,
-            drop_last=True
-    )
-
-    return unlabeled_dataset, unlabeled_dataloader
-
-'''
-# if you want to display images
-if __name__ == "__main__":
-    dataset, loader = unlabeled_dataloader()
-    batch_images = next(iter(loader)) 
-
-    # if batch = 2 then
-        # 1st image -> has 2 augmentation, to get each augmentation index liek this: batch_images[0][0], batch_images[0][1]
-        # 2nd image -> has 2 augmentation, to get each augmentation index liek this: batch_images[1][0], batch_images[1][1]
-
-    show((batch_images[0][0] * 255).to(torch.uint8)) # x_i
-    show((batch_images[0][1] * 255).to(torch.uint8)) # x_j
-    show((batch_images[1][0] * 255).to(torch.uint8)) # x_i
-    show((batch_images[1][1] * 255).to(torch.uint8)) # x_j
 '''
