@@ -72,7 +72,7 @@ class PreModel(nn.Module):
         self.base_model = base_model
         
         #PRETRAINED MODEL - don't make it pretrained
-        self.pretrained = torchvision.models.resnet50(weights=None)
+        self.pretrained = torchvision.models.resnet18(weights=None)
         
         self.pretrained.conv1 = nn.Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), bias=False)
         self.pretrained.maxpool = Identity()
