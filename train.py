@@ -32,15 +32,15 @@ def train(backbone="SimCLR", BATCH_SIZE=32, NUM_WORKERS=cpu_count()//2, SHUFFLE=
         print('Model Summary:')
         print(model)
     else:
-        print_freq = 50
+        print_freq = 20
 
-    print("!!! FastRCNN Training START !!!")
+    print("\nFastRCNN Training START")
     for epoch in range(EPOCHS):
         train_one_epoch(model, optimizer, train_dataloader, device, epoch, print_freq)
         lr_scheduler.step()
         evaluate(model, validation_dataloader, device)
 
-    torch.save(model.state_dict(), f"./model__mom_{MOM}_decay_{DECAY}_epoch_{epoch+1}_lr_{LR}_backbone_{backbone}.pt")
+        torch.save(model.state_dict(), f"./saved_models/model__mom_{MOM}_decay_{DECAY}_epoch_{epoch+1}_lr_{LR}_backbone_{backbone}.pt")
 
     return model
 
