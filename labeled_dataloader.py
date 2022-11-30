@@ -79,10 +79,19 @@ class LabeledDataset(torch.utils.data.Dataset):
         # the idx of training image is from 1 to 30000
         # the idx of validation image is from 30001 to 50000
 
-        if self.split == "training":
-            offset = 1
-        if self.split == "validation":
-            offset = 30001
+        # Use full dataset
+        try: 
+            assert self.image_dir <= 700
+            if self.split == "training":
+                offset = 1
+            if self.split == "validation":
+                offset = 30001
+        # Use toy dataset on main branch
+        except:
+            if self.split == "training":
+                offset = 1
+            if self.split == "validation":
+                offset = 701 
 
         with open(os.path.join(self.image_dir, f"{idx + offset}.JPEG"), "rb") as f:
             img = Image.open(f).convert("RGB")

@@ -1,3 +1,4 @@
+import sys
 import torch
 import torchvision.models as models
 import torch.nn as nn
@@ -5,14 +6,15 @@ import torch.nn as nn
 from lightning import train_backbone
 
 class Backbone(nn.Module):
-    def __init__(self, backbone):
+    def __init__(self, freeze, backbone):
         super().__init__()
         self.out_channels = 512
         self.premodel = backbone
+        self.freeze = freeze
 
-        # change this later
-        #for p in self.premodel.parameters():
-        #    p.requires_grad = False
+        if self.freeze:
+            for p in self.premodel.parameters():
+                p.requires_grad = False
 
     def forward(self,x):
         out = self.premodel(x)
@@ -20,14 +22,20 @@ class Backbone(nn.Module):
         out = out.unsqueeze(3)
         return out
 
-def get_backbone(train=False):
+def get_backbone(args, train):
 
     if train:
-        train_backbone()
+        print('Pretraining backbone...')
+        train_backbone(args)
 
     backbone = models.resnet18(weights=None)
     backbone.fc = nn.Identity()
-    checkpoint = torch.load('./resnet18_backbone_weights.ckpt')
-    backbone.load_state_dict(checkpoint['model_state_dict'])
 
-    return Backbone(backbone)
+    try:
+        checkpoint = torch.load('./resnet18_backbone_weights.ckpt')
+        backbone.load_state_dict(checkpoint['model_state_dict'])
+    except:
+        print('You need to have a trained backbone first!!')
+        sys.exit()
+
+    return Backbone(args.freeze, backbone)

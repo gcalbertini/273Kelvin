@@ -116,9 +116,9 @@ class Augment:
     def __call__(self, x):
         return self.train_transform(x), self.train_transform(x)
 
-def get_stl_dataloader(batch_size, transform=None):
+def get_stl_dataloader(path, batch_size, transform=None):
     #stl10 = STL10("./", split=split, transform=transform, download=True)
-    dataset = UnlabeledDataset("/unlabeled/unlabeled", transform=transform)
+    dataset = UnlabeledDataset(path, transform=transform) 
     return DataLoader(dataset=dataset, batch_size=batch_size, num_workers=cpu_count()//2)
 
 import matplotlib.pyplot as plt
@@ -269,21 +269,22 @@ class SimCLR_pl(pl.LightningModule):
 """## Hyperparameters, and configuration stuff"""
 
 # a lazy way to pass the config file
-class Hparams:
-    def __init__(self):
-        self.epochs = 1 # number of training epochs
-        self.seed = 77777 # randomness seed
-        self.cuda = True # use nvidia gpu
-        self.img_size = 224 #image shape
-        self.save = "./saved_models/" # save checkpoint
-        self.load = False # load pretrained checkpoint
-        self.gradient_accumulation_steps = 5 # gradient accumulation steps
-        self.batch_size = 200
-        self.lr = 3e-4 # for ADAm only
-        self.weight_decay = 1e-6
-        self.embedding_size= 128 # papers value is 128
-        self.temperature = 0.5 # 0.1 or 0.5
-        self.checkpoint_path = './SimCLR_ResNet18.ckpt' # replace checkpoint path here
+class Hparams():
+    def __init__(self, epochs, seed, cuda, img_size, save, load, gradient_accumulation_steps, batch_size, lr, weight_decay, embedding_size, temperature, checkpoint_path, checkpoint_resume):
+        self.epochs = epochs #number of training epochs
+        self.seed = seed #77777, randomness seed
+        self.cuda = cuda #True, use nvidia gpu
+        self.img_size = img_size #224, image shape
+        self.save = save #"saved_models/", save checkpoint
+        self.load = load #False, load pretrained checkpoint
+        self.gradient_accumulation_steps = gradient_accumulation_steps #5, gradient accumulation steps
+        self.batch_size = batch_size #200
+        self.lr = lr #3e-4, for ADAm only
+        self.weight_decay = weight_decay#1e-6
+        self.embedding_size= embedding_size # papers value is 128
+        self.temperature = temperature # 0.1 or 0.5
+        self.checkpoint_path = checkpoint_path # './SimCLR_ResNet18.ckpt' replace checkpoint path here
+        self.resume_checkpoint = checkpoint_resume # resume from checkpoint 
 
 """## Pretraining main logic"""
 
@@ -294,14 +295,29 @@ from pytorch_lightning.callbacks import GradientAccumulationScheduler
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torchvision.models import  resnet18
 
-def train_backbone():
+def train_backbone(args):
+
+    train_config = Hparams(
+        args.backbone_epochs, 
+        args.backbone_seed, 
+        args.backbone_cuda, 
+        args.backbone_img_size, 
+        args.backbone_save_directory, 
+        args.backbone_load_pretrained,
+        args.backbone_grad_accumulate_steps, 
+        args.backbone_batch_size, 
+        args.backbone_lr, 
+        args.backbone_weight_decay, 
+        args.backbone_embedding_size, 
+        args.backbone_temperature,
+        args.backbone_checkpoint_path,
+        args.backbone_resume)
 
     available_gpus = len([torch.cuda.device(i) for i in range(torch.cuda.device_count())])
-    save_model_path = os.path.join(os.getcwd(), "saved_models/")
+    save_model_path = os.path.join(os.getcwd(), train_config.save)
     print('available_gpus:',available_gpus)
     filename='SimCLR_ResNet18_adam_'
-    resume_from_checkpoint = False
-    train_config = Hparams()
+    resume_from_checkpoint = train_config.resume_checkpoint
 
     reproducibility(train_config)
     save_name = filename + '.ckpt'
@@ -309,7 +325,7 @@ def train_backbone():
     model = SimCLR_pl(train_config, model=resnet18(pretrained=False), feat_dim=512)
 
     transform = Augment(train_config.img_size)
-    data_loader = get_stl_dataloader(train_config.batch_size, transform)
+    data_loader = get_stl_dataloader(args.path_unlbl, train_config.batch_size, transform)
 
     accumulator = GradientAccumulationScheduler(scheduling={0: train_config.gradient_accumulation_steps})
     checkpoint_callback = ModelCheckpoint(filename=filename, dirpath=save_model_path,
