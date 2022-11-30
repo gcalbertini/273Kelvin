@@ -300,7 +300,7 @@ def train_backbone(args):
     train_config = Hparams(
         args.backbone_epochs, 
         args.backbone_seed, 
-        args.backbone_cuda, 
+        args.backbone_cuda_off, 
         args.backbone_img_size, 
         args.backbone_save_directory, 
         args.backbone_load_pretrained,
