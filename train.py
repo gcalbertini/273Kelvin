@@ -78,10 +78,10 @@ def main():
     parser.add_argument('-f', '--freeze', action='store_true', help='Freeze backbone weights; default is False')
 
     #=====================SIMCLR ONLY: EDIT THESE FOR BACKBONE TRAIN RUN===============================================================================
-    # NOTE these will come into play after --train_backbone is specified and doing something like: python train.py --train_backbone -bbe 5 -bbs 12345 --backbone_lr 1e-4
+    # NOTE these will come into play after --train_backbone is specified and doing something like: python train.py --train_backbone -bbe 5 -bbbs 12345 --backbone_lr 1e-4
 
     parser.add_argument('-bbe','--backbone_epochs', default=1, metavar='BACKBONE_EPOCHS', type=int, help="Default number of backbone epochs")
-    parser.add_argument('-bbc','--backbone_cuda', action='store_false', help="Use CUDA for backbone training")
+    parser.add_argument('-bbcoff','--backbone_cuda_off', action='store_false', help="Toggle CUDA for backbone training")
     parser.add_argument('-bbsd','--backbone_seed', default=77777, metavar='BACKBONE_SEED', type=int, help="Backbone seed for reproducibility")
     parser.add_argument('-bbimg','--backbone_img_size', default=224, metavar='BACKBONE_IMG_SIZE', type=int, help="Backbone img size")
     parser.add_argument('-bbsv','--backbone_save_directory', default='saved_models/', metavar='BACKBONE_SAVE_DIR_PATH', type=str, help="Backbone save checkpoint directory path")
