@@ -67,7 +67,7 @@ def main():
     parser.add_argument('--train_backbone', action='store_true', help='Train backbone toggle')
     parser.add_argument('-o', '--output_size', default=1, type=int, help="Output size for the backbone") #TODO is this 1?? See fastercnn.py
     parser.add_argument('-bb', '--backbone', default="SimCLR", type=str, metavar='BACKBONE', help = "Backbone to use; default is SimCLR. Set to 'None' for mobilenet_v2.")
-    parser.add_argument('-bs', '--batch_size', default=2, type=int, metavar='BATCH_SIZE', help='Batch size to use; default is 32')
+    parser.add_argument('-bs', '--batch_size', default=32, type=int, metavar='BATCH_SIZE', help='Batch size to use; default is 32') #HUGE CUDA MEM IMPACT
     parser.add_argument('-e', '--epochs', default=1, metavar='EPOCHS', type=int, help="Default number of epochs")
     parser.add_argument('-lr', '--learn_rate', default=0.001, metavar='LEARN_RATE', type=float, help="Default learning rate")
     parser.add_argument('-mom', '--momentum', default=0.9, metavar='MOMENTUM', type=float, help="Default momentum")
@@ -87,7 +87,7 @@ def main():
     parser.add_argument('-bbsv','--backbone_save_directory', default='saved_models/', metavar='BACKBONE_SAVE_DIR_PATH', type=str, help="Backbone save checkpoint directory path")
     parser.add_argument('-bblp','--backbone_load_pretrained', action='store_true', help="Backbone load pretraining")
     parser.add_argument('-bbg','--backbone_grad_accumulate_steps', type=int, default = 5, metavar='BACKBONE_GRAD_ACCUM_STEPS', help="Backbone gradient accumulation steps")
-    parser.add_argument('-bbbs', '--backbone_batch_size', default=200, type=int, metavar='BACKBONE_BATCH_SIZE', help='Backbone batch size to use; default is 200')
+    parser.add_argument('-bbbs', '--backbone_batch_size', default=200, type=int, metavar='BACKBONE_BATCH_SIZE', help='Backbone batch size to use; default is 200') #HUGE CUDA MEM IMPACT
     parser.add_argument('-bbemb','--backbone_embedding_size', type=int, default = 128, metavar='BACKBONE_EMBED_SIZE', help='Backbone embedding size')
     parser.add_argument('-bblr','--backbone_lr', type=float, default = 3e-4, metavar='BACKBONE_ADAM_LEARN_RATE', help='Backbone learning rate for ADAM')
     parser.add_argument('-bbdk','--backbone_weight_decay', type=float, default = 1e-6, metavar='BACKBONE_WEIGHT_DECAY', help='Backbone weight decay')
