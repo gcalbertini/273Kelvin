@@ -41,7 +41,7 @@ def get_model():
     parser.add_argument('-bbr','--backbone_resume', action='store_true', help="Backbone resume training from checkpoint; default is False")
 
     args = parser.parse_args()
-    model = rcnn_model(args, backbone=None, num_classes=100)
+    model = rcnn_model(args, backbone=args.backbone, num_classes=100)
     model.load_state_dict(torch.load("./saved_models/model__mom_0.9_decay_0.0005_epochs_5_lr_0.001_backbone_SimCLR.pt"))
     
     return model
