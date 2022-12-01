@@ -43,8 +43,8 @@ def train(args):
         train_one_epoch(model, optimizer, train_dataloader, device, epoch, args.print_freq)
         lr_scheduler.step()
         evaluate(model, validation_dataloader, device)
-    #torch.save(model.state_dict(), f"./saved_models/model__mom_{args.momentum}_decay_{args.weight_decay}_epochs_{epoch+1}_lr_{args.learn_rate}_backbone_{args.backbone}.pt")
-    torch.save(model.state_dict(), "./dummy_model.pt")
+    torch.save(model.state_dict(), f"./saved_models/model__mom_{args.momentum}_decay_{args.weight_decay}_epochs_{epoch+1}_lr_{args.learn_rate}_backbone_{args.backbone}.pt")
+    
     return model
 
 def main():
