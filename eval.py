@@ -25,7 +25,7 @@ from pycocotools.cocoeval import COCOeval
 
 # Edit this line with the path to your own labeled data.
 # We will overwrite it with the hidden test set when we grade.
-VALID_DATASET_PATH = "/data/labeled"
+VALID_DATASET_PATH = "/labeled/labeled"
 
 try:
     # YOU MUST IMPLEMENT YOUR PROJECT IN A WAY THAT THIS WORKS
