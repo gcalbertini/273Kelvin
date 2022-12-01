@@ -7,18 +7,21 @@ from labeled_dataloader import labeled_dataloader
 from utils import train_one_epoch
 from eval import evaluate
 from torch.multiprocessing import cpu_count
+from pytorch_lightning.utilities.warnings import PossibleUserWarning
 
+warnings.filterwarnings("ignore", category=PossibleUserWarning)
 
 def train(args):
-
+    #This function handles multi-gpu training 
     model = get_model(args, backbone=args.backbone, num_classes=args.classes) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
     _, train_dataloader = labeled_dataloader(args.batch_size, cpu_count()//2, args.shuffle, args.path_lbl, SPLIT="training")
     _, validation_dataloader = labeled_dataloader(args.batch_size, cpu_count()//2, args.shuffle, args.path_lbl, SPLIT="validation")
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-
-    model = model.to(device)
+    
+    #This train_one_epoch function needs to be able to determine world size. Pass in DP model.
+    model = torch.nn.DataParallel(model).to(device) #remove DP if you are running in local (1GPU) envto(device)
 
     optimizer = torch.optim.SGD(model.parameters(), lr=args.learn_rate, momentum=args.momentum, weight_decay=args.weight_decay)
     # Use a learning rate scheduler: this means that we will decay the learning rate every <step_size> epoch by a factor of <gamma>
@@ -55,7 +58,7 @@ def main():
     # Example python main.py                   --> Will not train backbone
     # Example python main.py --train_backbone  --> Trains backbone
 
-
+    #NOTE BATCH SIZES SHOULD BE A MULTIPLE OF GPUs USED AND GREATER THAN THE NUMBER OF GPUs. THE EFFECTIVE BATCH SIZE IS BATCH_SIZE_SPECIFIED*NUM_GPUS == BATCH_SIZE 
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_lbl', default="/labeled/labeled", metavar='DATA_PATH_LBL', type=str, help="Default path for labeled data; default used is '/labeled/labeled'; note toy set's is 'labeled_data/'")
     parser.add_argument('--path_unlbl', default="/unlabeled/unlabeled", metavar='DATA_PATH_UNLBL', type=str, help="Default path for unlabeled data; default used is'/unlabeled/unlabeled'; note toy set's is 'unlabeled_data/'")
@@ -67,7 +70,7 @@ def main():
     parser.add_argument('--train_backbone', action='store_true', help='Train backbone toggle')
     parser.add_argument('-o', '--output_size', default=1, type=int, help="Output size for the backbone") #TODO is this 1?? See fastercnn.py
     parser.add_argument('-bb', '--backbone', default="SimCLR", type=str, metavar='BACKBONE', help = "Backbone to use; default is SimCLR. Set to 'None' for mobilenet_v2.")
-    parser.add_argument('-bs', '--batch_size', default=32, type=int, metavar='BATCH_SIZE', help='Batch size to use; default is 32') #HUGE CUDA MEM IMPACT
+    parser.add_argument('-bs', '--batch_size', default=64, type=int, metavar='BATCH_SIZE', help='Batch size to use')
     parser.add_argument('-e', '--epochs', default=5, metavar='EPOCHS', type=int, help="Default number of epochs")
     parser.add_argument('-lr', '--learn_rate', default=0.001, metavar='LEARN_RATE', type=float, help="Default learning rate")
     parser.add_argument('-mom', '--momentum', default=0.9, metavar='MOMENTUM', type=float, help="Default momentum")
@@ -87,7 +90,7 @@ def main():
     parser.add_argument('-bbsv','--backbone_save_directory', default='saved_models/', metavar='BACKBONE_SAVE_DIR_PATH', type=str, help="Backbone save checkpoint directory path")
     parser.add_argument('-bblp','--backbone_load_pretrained', action='store_true', help="Backbone load pretraining")
     parser.add_argument('-bbg','--backbone_grad_accumulate_steps', type=int, default = 5, metavar='BACKBONE_GRAD_ACCUM_STEPS', help="Backbone gradient accumulation steps")
-    parser.add_argument('-bbbs', '--backbone_batch_size', default=200, type=int, metavar='BACKBONE_BATCH_SIZE', help='Backbone batch size to use; default is 200') #HUGE CUDA MEM IMPACT
+    parser.add_argument('-bbbs', '--backbone_batch_size', default=96, type=int, metavar='BACKBONE_BATCH_SIZE', help='Backbone batch size to use')
     parser.add_argument('-bbemb','--backbone_embedding_size', type=int, default = 128, metavar='BACKBONE_EMBED_SIZE', help='Backbone embedding size')
     parser.add_argument('-bblr','--backbone_lr', type=float, default = 3e-4, metavar='BACKBONE_ADAM_LEARN_RATE', help='Backbone learning rate for ADAM')
     parser.add_argument('-bbdk','--backbone_weight_decay', type=float, default = 1e-6, metavar='BACKBONE_WEIGHT_DECAY', help='Backbone weight decay')
