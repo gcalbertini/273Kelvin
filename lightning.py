@@ -10,7 +10,7 @@ Original file is located at
 
 ## Imports, basic utils, augmentations and Contrastive loss
 """
-
+import warnings
 import torch
 import torchvision.models as models
 import numpy as np
@@ -25,6 +25,9 @@ from torch.utils.data import DataLoader
 from torch.multiprocessing import cpu_count
 import torchvision.transforms as T
 from PIL import Image
+from pytorch_lightning.utilities.warnings import PossibleUserWarning
+
+warnings.filterwarnings("ignore", category=PossibleUserWarning)
 
 class UnlabeledDataset(torch.utils.data.Dataset):
     def __init__(self, root, transform=None):
