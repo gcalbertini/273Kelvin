@@ -1,0 +1,10 @@
+bboxes:
+- - 17
+  - 25
+  - 284
+  - 283
+image_size:
+- 300
+- 300
+labels:
+- bagel

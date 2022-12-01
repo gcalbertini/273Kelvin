@@ -1,0 +1,10 @@
+bboxes:
+- - 29
+  - 28
+  - 274
+  - 207
+image_size:
+- 275
+- 230
+labels:
+- seal

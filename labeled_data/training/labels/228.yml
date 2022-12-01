@@ -1,0 +1,10 @@
+bboxes:
+- - 24
+  - 31
+  - 808
+  - 555
+image_size:
+- 850
+- 696
+labels:
+- guitar

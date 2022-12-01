@@ -1,0 +1,10 @@
+bboxes:
+- - 0
+  - 79
+  - 350
+  - 220
+image_size:
+- 500
+- 375
+labels:
+- jellyfish

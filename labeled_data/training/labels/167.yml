@@ -1,0 +1,10 @@
+bboxes:
+- - 19
+  - 26
+  - 164
+  - 171
+image_size:
+- 180
+- 240
+labels:
+- bathing cap

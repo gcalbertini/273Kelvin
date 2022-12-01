@@ -1,8 +1,14 @@
-# 273Kelvin
-NYU Deep Learning Project
+- ssh mr6744@greene.hpc.nyu.edu
+- ssh burst
+- srun --account=csci_ga_2572-2022fa -p interactive --pty /bin/bash
+- cd /scratch_tmp/mr6744/273Kelvin/
 
-Steps to have the model:
-1. Build the SimCLR model and train on unlabelled data
-2. Freeze the weight of the trained SimCLR
-3. Transfer the weight to Bounding Box model and train it on labelled data
-4. Save the trained bounding box model and submit it
+- sbatch run_model.SBATCH 
+- squeue -u $USER
+- cat slurm_100963.out
+- scancel id
+
+- :wq
+- ls
+
+- git reset HEAD -- SimCLR.pt

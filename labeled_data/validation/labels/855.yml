@@ -1,0 +1,10 @@
+bboxes:
+- - 157
+  - 100
+  - 331
+  - 186
+image_size:
+- 333
+- 500
+labels:
+- wine bottle

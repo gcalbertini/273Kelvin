@@ -1,0 +1,10 @@
+bboxes:
+- - 4
+  - 1068
+  - 856
+  - 1596
+image_size:
+- 1200
+- 1600
+labels:
+- bench

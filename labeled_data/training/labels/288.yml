@@ -1,0 +1,15 @@
+bboxes:
+- - 121
+  - 63
+  - 186
+  - 114
+- - 125
+  - 66
+  - 280
+  - 241
+image_size:
+- 336
+- 500
+labels:
+- helmet
+- person

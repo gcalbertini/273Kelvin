@@ -1,0 +1,10 @@
+bboxes:
+- - 77
+  - 162
+  - 380
+  - 300
+image_size:
+- 451
+- 345
+labels:
+- sofa

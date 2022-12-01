@@ -1,0 +1,10 @@
+bboxes:
+- - 64
+  - 21
+  - 432
+  - 336
+image_size:
+- 500
+- 375
+labels:
+- pretzel

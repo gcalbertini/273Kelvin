@@ -1,0 +1,20 @@
+bboxes:
+- - 231
+  - 1
+  - 296
+  - 118
+- - 34
+  - 65
+  - 311
+  - 332
+- - 209
+  - 46
+  - 499
+  - 332
+image_size:
+- 500
+- 333
+labels:
+- microphone
+- person
+- person

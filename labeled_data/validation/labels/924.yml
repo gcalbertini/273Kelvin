@@ -1,0 +1,25 @@
+bboxes:
+- - 125
+  - 115
+  - 424
+  - 347
+- - 222
+  - 79
+  - 252
+  - 111
+- - 318
+  - 296
+  - 392
+  - 325
+- - 86
+  - 40
+  - 341
+  - 373
+image_size:
+- 500
+- 375
+labels:
+- guitar
+- microphone
+- microphone
+- person

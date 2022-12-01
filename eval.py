@@ -22,6 +22,7 @@ import yaml
 from PIL import Image
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
+from pycocotools import mask as coco_mask
 
 # Edit this line with the path to your own labeled data.
 # We will overwrite it with the hidden test set when we grade.
@@ -351,7 +352,9 @@ class CocoEvaluator(object):
 
     def accumulate(self):
         for coco_eval in self.coco_eval.values():
-            coco_eval.accumulate()
+            with open(os.devnull, "w") as devnull:
+                with contextlib.redirect_stdout(devnull):
+                    coco_eval.accumulate()
 
     def summarize(self):
         for iou_type, coco_eval in self.coco_eval.items():
@@ -458,26 +461,19 @@ def evaluate(model, data_loader, device):
     coco = convert_to_coco_api(data_loader.dataset)
     coco_evaluator = CocoEvaluator(coco, ["bbox"])
 
+    res = {}
+
     for images, targets in metric_logger.log_every(data_loader, 100, header):
         images = list(img.to(device) for img in images)
-        model_time = time.time()
-
         outputs = model(images)
         outputs = [{k: v.to(cpu_device) for k, v in t.items()} for t in outputs]
-        model_time = time.time() - model_time
-
-        res = {
-            target["image_id"].item(): output
-            for target, output in zip(targets, outputs)
-        }
-        evaluator_time = time.time()
-        coco_evaluator.update(res)
-        evaluator_time = time.time() - evaluator_time
-        metric_logger.update(model_time=model_time, evaluator_time=evaluator_time)
+        for target, output in zip(targets, outputs):
+            res[target["image_id"].item()] = output
+    coco_evaluator.update(res)
+    coco_evaluator.accumulate()
 
     # accumulate predictions from all images
     print("Averaged stats:", metric_logger)
-    coco_evaluator.accumulate()
     coco_evaluator.summarize()
     torch.set_num_threads(n_threads)
     return coco_evaluator

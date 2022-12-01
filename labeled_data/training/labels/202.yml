@@ -1,0 +1,10 @@
+bboxes:
+- - 27
+  - 58
+  - 266
+  - 407
+image_size:
+- 333
+- 500
+labels:
+- starfish

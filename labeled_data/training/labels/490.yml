@@ -1,0 +1,10 @@
+bboxes:
+- - 194
+  - 73
+  - 383
+  - 196
+image_size:
+- 500
+- 375
+labels:
+- swine

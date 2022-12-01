@@ -1,0 +1,10 @@
+bboxes:
+- - 45
+  - 30
+  - 403
+  - 422
+image_size:
+- 444
+- 448
+labels:
+- cream

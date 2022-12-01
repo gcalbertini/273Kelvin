@@ -1,0 +1,10 @@
+bboxes:
+- - 62
+  - 134
+  - 299
+  - 454
+image_size:
+- 311
+- 500
+labels:
+- fox

@@ -1,0 +1,10 @@
+bboxes:
+- - 251
+  - 28
+  - 397
+  - 277
+image_size:
+- 500
+- 307
+labels:
+- dumbbell

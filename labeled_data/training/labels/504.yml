@@ -1,0 +1,10 @@
+bboxes:
+- - 15
+  - 104
+  - 490
+  - 294
+image_size:
+- 500
+- 333
+labels:
+- elephant

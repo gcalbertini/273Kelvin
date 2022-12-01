@@ -1,0 +1,10 @@
+bboxes:
+- - 147
+  - 53
+  - 399
+  - 252
+image_size:
+- 500
+- 333
+labels:
+- turtle

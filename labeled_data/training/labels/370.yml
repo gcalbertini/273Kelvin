@@ -1,0 +1,10 @@
+bboxes:
+- - 81
+  - 138
+  - 301
+  - 498
+image_size:
+- 403
+- 500
+labels:
+- cucumber

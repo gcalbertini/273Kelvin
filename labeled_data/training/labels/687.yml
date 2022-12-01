@@ -1,0 +1,10 @@
+bboxes:
+- - 146
+  - 83
+  - 260
+  - 465
+image_size:
+- 375
+- 500
+labels:
+- axe

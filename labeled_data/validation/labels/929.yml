@@ -1,0 +1,10 @@
+bboxes:
+- - 133
+  - 60
+  - 362
+  - 106
+image_size:
+- 500
+- 333
+labels:
+- tape player

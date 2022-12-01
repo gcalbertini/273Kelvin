@@ -1,0 +1,10 @@
+bboxes:
+- - 146
+  - 93
+  - 361
+  - 295
+image_size:
+- 500
+- 392
+labels:
+- bowl

@@ -1,0 +1,10 @@
+bboxes:
+- - 6
+  - 1
+  - 498
+  - 396
+image_size:
+- 500
+- 400
+labels:
+- red panda

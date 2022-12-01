@@ -1,0 +1,15 @@
+bboxes:
+- - 187
+  - 125
+  - 305
+  - 248
+- - 84
+  - 1
+  - 430
+  - 355
+image_size:
+- 500
+- 357
+labels:
+- apple
+- person

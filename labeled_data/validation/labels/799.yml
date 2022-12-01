@@ -1,0 +1,15 @@
+bboxes:
+- - 287
+  - 152
+  - 331
+  - 185
+- - 277
+  - 155
+  - 341
+  - 306
+image_size:
+- 640
+- 410
+labels:
+- hat with a wide brim
+- person

@@ -1,0 +1,15 @@
+bboxes:
+- - 253
+  - 125
+  - 341
+  - 175
+- - 387
+  - 125
+  - 468
+  - 147
+image_size:
+- 500
+- 333
+labels:
+- hippopotamus
+- hippopotamus

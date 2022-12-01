@@ -1,0 +1,15 @@
+bboxes:
+- - 254
+  - 7
+  - 490
+  - 309
+- - 7
+  - 32
+  - 225
+  - 314
+image_size:
+- 500
+- 322
+labels:
+- salt or pepper shaker
+- salt or pepper shaker

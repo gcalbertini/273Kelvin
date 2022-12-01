@@ -1,0 +1,10 @@
+bboxes:
+- - 60
+  - 87
+  - 322
+  - 498
+image_size:
+- 375
+- 500
+labels:
+- mushroom

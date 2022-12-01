@@ -1,0 +1,10 @@
+bboxes:
+- - 2
+  - 0
+  - 456
+  - 355
+image_size:
+- 500
+- 357
+labels:
+- pitcher

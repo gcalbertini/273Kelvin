@@ -1,0 +1,10 @@
+bboxes:
+- - 3
+  - 0
+  - 73
+  - 56
+image_size:
+- 74
+- 57
+labels:
+- piano

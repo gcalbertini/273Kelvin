@@ -1,0 +1,10 @@
+bboxes:
+- - 669
+  - 408
+  - 1255
+  - 1047
+image_size:
+- 1600
+- 1074
+labels:
+- cart

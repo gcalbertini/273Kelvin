@@ -1,0 +1,10 @@
+bboxes:
+- - 0
+  - 12
+  - 480
+  - 362
+image_size:
+- 500
+- 376
+labels:
+- purse

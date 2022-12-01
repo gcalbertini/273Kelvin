@@ -1,0 +1,10 @@
+bboxes:
+- - 19
+  - 11
+  - 173
+  - 398
+image_size:
+- 300
+- 400
+labels:
+- harp

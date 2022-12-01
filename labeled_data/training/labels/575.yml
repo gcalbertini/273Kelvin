@@ -1,0 +1,10 @@
+bboxes:
+- - 1
+  - 42
+  - 305
+  - 402
+image_size:
+- 334
+- 500
+labels:
+- porcupine

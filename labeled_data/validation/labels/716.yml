@@ -1,0 +1,10 @@
+bboxes:
+- - 155
+  - 0
+  - 310
+  - 164
+image_size:
+- 500
+- 375
+labels:
+- helmet

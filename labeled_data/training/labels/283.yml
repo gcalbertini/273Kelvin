@@ -1,0 +1,15 @@
+bboxes:
+- - 6
+  - 250
+  - 299
+  - 436
+- - 75
+  - 195
+  - 313
+  - 298
+image_size:
+- 332
+- 500
+labels:
+- orange
+- orange
