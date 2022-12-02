@@ -27,7 +27,11 @@ import torchvision.transforms as T
 from PIL import Image
 
 import warnings
-warnings.filterwarnings('ignore') # setting ignore as a parameter
+import logging
+
+warnings.filterwarnings("ignore")
+logging.captureWarnings(capture=True)
+logging.getLogger("lightning").setLevel(logging.ERROR)
 
 class UnlabeledDataset(torch.utils.data.Dataset):
     def __init__(self, root, transform=None):
@@ -121,7 +125,7 @@ class Augment:
 
 def get_stl_dataloader(batch_size, transform=None):
     #stl10 = STL10("./", split=split, transform=transform, download=True)
-    dataset = UnlabeledDataset("/unlabeled/unlabeled", transform=transform)
+    dataset = UnlabeledDataset("./unlabeled_data/", transform=transform)
     return DataLoader(dataset=dataset, batch_size=batch_size, num_workers=cpu_count()//2)
 
 import matplotlib.pyplot as plt
@@ -315,7 +319,7 @@ def train_backbone():
     data_loader = get_stl_dataloader(train_config.batch_size, transform)
 
     accumulator = GradientAccumulationScheduler(scheduling={0: train_config.gradient_accumulation_steps})
-    checkpoint_callback = ModelCheckpoint(filename=filename, dirpath=save_model_path,
+    checkpoint_callback = ModelCheckpoint(filename=filename+'{epoch:02d}-{loss:.2f}', dirpath=save_model_path,
                                             save_last=True, save_top_k=2,monitor='Contrastive loss_epoch',mode='min')
 
     if resume_from_checkpoint:
