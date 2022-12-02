@@ -3,7 +3,7 @@
 #SBATCH --account=csci_ga_2572_2022fa_16
 #SBATCH --partition=n1c24m128-v100-4
 #SBATCH --time=48:00:00
-#SBATCH --mem=100GB
+#SBATCH --mem=125GB
 #SBATCH --job-name=TRAIN_BACKBONE
 #SBATCH --gres=gpu:4
 #SBATCH --output=slurm_%j.out
