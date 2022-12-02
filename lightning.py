@@ -271,7 +271,7 @@ class SimCLR_pl(pl.LightningModule):
 # a lazy way to pass the config file
 class Hparams:
     def __init__(self):
-        self.epochs = 100 # number of training epochs
+        self.epochs = 200 # number of training epochs
         self.seed = 77777 # randomness seed
         self.cuda = True # use nvidia gpu
         self.img_size = 224 #image shape
