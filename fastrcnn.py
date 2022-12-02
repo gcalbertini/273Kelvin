@@ -2,16 +2,18 @@ import torchvision
 from torchvision.models.detection import FasterRCNN
 from torchvision.models.detection.rpn import AnchorGenerator
 from backbone import get_backbone
+import torchvision.models as models
 
 def get_model(args, backbone=None, num_classes=100):
 
     if backbone is None:
-        print("!!!! Using pretrained mobilenet_v2 backbone instead of SimCLR, default weights !!!!")
+        print(f"!!!! Using pretrained mobilnet_v2 backbone instead of SimCLR!!!!")
         backbone = torchvision.models.mobilenet_v2(weights="DEFAULT").features
         backbone.out_channels = 1280
         output_size = 7
 
     else:
+        # SimCLR default
         backbone = get_backbone(args, train=args.train_backbone)
         #out_channels already set
         output_size = args.output_size

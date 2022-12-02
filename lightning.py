@@ -319,13 +319,13 @@ def train_backbone(args):
     available_gpus = len([torch.cuda.device(i) for i in range(torch.cuda.device_count())])
     save_model_path = os.path.join(os.getcwd(), train_config.save)
     print('available_gpus:',available_gpus)
-    filename='SimCLR_ResNet18_adam_'
+    filename='SimCLR_' + str(args.arch) + '_adam_'
     resume_from_checkpoint = train_config.resume_checkpoint
 
     reproducibility(train_config)
     save_name = filename + '.ckpt'
 
-    model = SimCLR_pl(train_config, model=resnet18(pretrained=False), feat_dim=512)
+    model = SimCLR_pl(train_config, model = models.__dict__[args.arch](pretrained=False), feat_dim=512)
 
     transform = Augment(train_config.img_size)
     data_loader = get_stl_dataloader(args.path_unlbl, train_config.batch_size, transform)
@@ -350,11 +350,12 @@ def train_backbone(args):
 
     """## Save only backbone weights from Resnet18 that are only necessary for fine tuning"""
 
-    model_pl = SimCLR_pl(train_config, model=resnet18(pretrained=False))
-    model_pl = weights_update(model_pl, "SimCLR_ResNet18_adam_.ckpt")
+    model_pl = SimCLR_pl(train_config, models.__dict__[args.arch](pretrained=False))
+    model_pl = weights_update(model_pl, save_name)
 
-    resnet18_backbone_weights = model_pl.model.backbone
-    print(resnet18_backbone_weights)
+    pretrained_backbone_weights = model_pl.model.backbone
+    pretrained_backbone_weights_name = str(args.arch) + '_backbone_weights.ckpt'
+    print(pretrained_backbone_weights)
     torch.save({
-                'model_state_dict': resnet18_backbone_weights.state_dict(),
-                }, 'resnet18_backbone_weights.ckpt')
+                'model_state_dict': pretrained_backbone_weights.state_dict(),
+                }, pretrained_backbone_weights_name)

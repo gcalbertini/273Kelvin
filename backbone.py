@@ -28,14 +28,19 @@ def get_backbone(args, train):
         print('Pretraining backbone...')
         train_backbone(args)
 
-    backbone = models.resnet18(weights=None)
+    backbone = models.__dict__[args.arch](weights=None)
     backbone.fc = nn.Identity()
 
+    # Assuming resnet18 as default
     try:
-        checkpoint = torch.load('./resnet18_backbone_weights.ckpt')
+        path = './' + str(args.arch)+'_backbone_weights.ckpt'
+        checkpoint = torch.load(path)
         backbone.load_state_dict(checkpoint['model_state_dict'])
     except:
         print('You need to have a trained backbone first!!')
         sys.exit()
 
     return Backbone(args.freeze, backbone)
+
+def get_num_correct(preds, labels):
+    return preds.argmax(dim=1).eq(labels).sum().item()
