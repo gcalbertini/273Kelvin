@@ -89,7 +89,7 @@ def main():
     parser.add_argument('-bbimg','--backbone_img_size', default=224, metavar='BACKBONE_IMG_SIZE', type=int, help="Backbone img size")
     parser.add_argument('-bbsv','--backbone_save_directory', default='saved_models/', metavar='BACKBONE_SAVE_DIR_PATH', type=str, help="Backbone save checkpoint directory path")
     parser.add_argument('-bblp','--backbone_load_pretrained', action='store_true', help="Backbone load pretraining")
-    parser.add_argument('-bbg','--backbone_grad_accumulate_steps', type=int, default = 5, metavar='BACKBONE_GRAD_ACCUM_STEPS', help="Backbone gradient accumulation steps")
+    parser.add_argument('-bbg','--backbone_grad_accumulate_steps', type=int, default = 1, metavar='BACKBONE_GRAD_ACCUM_STEPS', help="Backbone gradient accumulation steps")
     parser.add_argument('-bbbs', '--backbone_batch_size', default=16, type=int, metavar='BACKBONE_BATCH_SIZE', help='Backbone batch size to use')
     parser.add_argument('-bbemb','--backbone_embedding_size', type=int, default = 128, metavar='BACKBONE_EMBED_SIZE', help='Backbone embedding size')
     parser.add_argument('-bblr','--backbone_lr', type=float, default = 3e-4, metavar='BACKBONE_ADAM_LEARN_RATE', help='Backbone learning rate for ADAM')
