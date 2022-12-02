@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --account=csci_ga_2572-2022fa_16
+#SBATCH --account=csci_ga_2572_2022fa_16
 #SBATCH --partition=n1c24m128-v100-4
 #SBATCH --time=300:00:00
 #SBATCH --mem=100GB
