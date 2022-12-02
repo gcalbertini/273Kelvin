@@ -2,9 +2,13 @@ import torch
 import argparse
 from fastrcnn import get_model as rcnn_model
 
+ 
 def get_model():
-
+    #change the path to your model
+    PATH="./saved_models/model__mom_0.9_decay_0.0005_epochs_5_lr_0.001_backbone_SimCLR.pt"
+    
     parser = argparse.ArgumentParser()
+    #full model args
     parser.add_argument('--train_backbone', action='store_true', help='Train backbone toggle')
     parser.add_argument('-o', '--output_size', default=1, type=int, help="Output size for the backbone") #TODO is this 1?? See fastercnn.py
     parser.add_argument('-bb', '--backbone', default="SimCLR", type=str, metavar='BACKBONE', help = "Backbone to use; default is SimCLR. Set to 'None' for mobilenet_v2.")
@@ -17,14 +21,8 @@ def get_model():
     parser.add_argument('-s', '--step', default=50, metavar='SCHEDULER_STEP', type=int, help="Default step size for scheduler")
     parser.add_argument('-g', '--gamma', default=0.2, metavar='SCHEDULER_GAMMA', type=float, help="Default gamma factor for scheduler")
     parser.add_argument('-f', '--freeze', action='store_true', help='Freeze backbone weights; default is False')
-    # parser.add_argument('-cp','--checkpoint_path', default='./Fast_RCNN.ckpt', metavar='MODEL_CHECKPOINT_PATH', type=str, help="Full model checkpoint path")
-    # parser.add_argument('-r','--resume', action='store_true', help="Model resume training from checkpoint; default is False")
-    # parser.add_argument('-sv','--save_directory', default='saved_full_models/', metavar='FULL_MODEL_SAVE_DIR_PATH', type=str, help="Full model save checkpoint directory path")
-    # parser.add_argument('-lp','--load_pretrained', action='store_true', help="Model load pretraining")
 
-    #=====================SIMCLR ONLY: EDIT THESE FOR BACKBONE TRAIN RUN===============================================================================
-    # NOTE these will come into play after --train_backbone is specified and doing something like: python train.py --train_backbone -bbe 5 -bbbs 12345 --backbone_lr 1e-4
-
+    #backbone args
     parser.add_argument('-bbe','--backbone_epochs', default=10, metavar='BACKBONE_EPOCHS', type=int, help="Default number of backbone epochs")
     parser.add_argument('-bbcoff','--backbone_cuda_off', action='store_false', help="Toggle CUDA for backbone training")
     parser.add_argument('-bbsd','--backbone_seed', default=77777, metavar='BACKBONE_SEED', type=int, help="Backbone seed for reproducibility")
@@ -42,6 +40,6 @@ def get_model():
 
     args = parser.parse_args()
     model = rcnn_model(args, backbone=args.backbone, num_classes=100)
-    model.load_state_dict(torch.load("./saved_models/model__mom_0.9_decay_0.0005_epochs_5_lr_0.001_backbone_SimCLR.pt"))
+    model.load_state_dict(torch.load(PATH))
     
     return model
