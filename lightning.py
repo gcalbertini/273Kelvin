@@ -26,6 +26,9 @@ from torch.multiprocessing import cpu_count
 import torchvision.transforms as T
 from PIL import Image
 
+import warnings
+warnings.filterwarnings('ignore') # setting ignore as a parameter
+
 class UnlabeledDataset(torch.utils.data.Dataset):
     def __init__(self, root, transform=None):
         r"""
@@ -271,15 +274,15 @@ class SimCLR_pl(pl.LightningModule):
 # a lazy way to pass the config file
 class Hparams:
     def __init__(self):
-        self.epochs = 50 # number of training epochs
+        self.epochs = 20 # number of training epochs
         self.seed = 77777 # randomness seed
         self.cuda = True # use nvidia gpu
         self.img_size = 224 #image shape
         self.save = "./saved_models/" # save checkpoint
         self.load = False # load pretrained checkpoint
         self.gradient_accumulation_steps = 5 # gradient accumulation steps
-        self.batch_size = 128
-        self.lr = 8e-4 # for ADAm only
+        self.batch_size = 256
+        self.lr = 3e-4 # for ADAm only
         self.weight_decay = 1e-6
         self.embedding_size= 128 # papers value is 128
         self.temperature = 0.5 # 0.1 or 0.5
