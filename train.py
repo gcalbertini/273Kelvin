@@ -19,13 +19,13 @@ import torch.backends.cudnn as cudnn
 import torchvision
 from utils import *
 from torch.utils.tensorboard import SummaryWriter
-from torch.distributed import init_process_group, destroy_process_group
 
 warnings.filterwarnings("ignore", category=PossibleUserWarning)
 
 # REF https://debuggercafe.com/a-simple-pipeline-to-train-pytorch-faster-rcnn-object-detection-model/
 # REF https://github.dev/tczhangzhi/pytorch-distributed/blob/cd12856420858b14e02873e7d5c8cc7bb5aab5b0/distributed_slurm_main.py#L290
 # REF https://towardsdatascience.com/a-complete-guide-to-using-tensorboard-with-pytorch-53cb2301e8c3
+# REF https://pytorch.org/docs/stable/distributed.html
 
 model_names = sorted(name for name in models.__dict__
                      if name.islower() and not name.startswith("__")
@@ -42,7 +42,8 @@ parser = argparse.ArgumentParser(description='PyTorch FasterRCNN Training')
     # Example python main.py                   --> Will not train backbone
     # Example python main.py --train_backbone  --> Trains backbone
 
-    #NOTE BATCH SIZES SHOULD BE A MULTIPLE OF GPUs USED AND GREATER THAN THE NUMBER OF GPUs. THE EFFECTIVE BATCH SIZE IS BATCH_SIZE_SPECIFIED*NUM_GPUS == BATCH_SIZE 
+    #NOTE BATCH SIZES SHOULD BE A MULTIPLE OF GPUs USED AND GREATER THAN THE NUMBER OF GPUs. THE EFFECTIVE BATCH SIZE IS BATCH_SIZE_SPECIFIED*NUM_GPUS*GRAD_ACCUM_STEPS == BATCH_SIZE.
+    # EFFICIENCY IS DEPENDENT ON GPU HARDWARE ARCHITECTURE. 
 parser = argparse.ArgumentParser()
 parser.add_argument('--path_lbl', default="labeled_data/", metavar='DATA_PATH_LBL', type=str, help="Default path for labeled data; default used is '/labeled/labeled'; note toy set's is 'labeled_data/'")
 parser.add_argument('--path_unlbl', default="unlabeled_data/", metavar='DATA_PATH_UNLBL', type=str, help="Default path for unlabeled data; default used is'/unlabeled/unlabeled'; note toy set's is 'unlabeled_data/'")
@@ -53,10 +54,11 @@ parser.add_argument('-a','--arch',metavar='ARCH',default='resnet18',choices=mode
                 help='Pretrained (SimCLR) model weights come from this architecture: ' + ' | '.join(model_names) +
                 ' (default: resnet18)')
 parser.add_argument('-eval','--evaluate',dest='EVALUATE',action='store_true',help='evaluate model on validation set -- FINAL SUBMISSIONS EVAL CODE!')
-parser.add_argument('--dist-file',default=None,type=str,help='file used to initial distributed training')
 parser.add_argument('-opt','--optimizer',default='Adam',type=str,help='Adam (default) or SGD optimizer')
-parser.add_argument('--start-epoch',default=0,type=int,metavar='N', help='manual epoch number (useful on restarts)')
+parser.add_argument('--start_epoch',default=0,type=int,metavar='N', help='manual epoch number (useful on restarts)')
 parser.add_argument('-tb','--tensorboard', action='store_true', help='Tensorboard displays')
+parser.add_argument("--master_addr", required=True, type=str, help="Corresponds to MASTER_ADDR")
+parser.add_argument("--master_port", required=True, type=int, help="Corresponds to MASTER_PORT")
 #=====================FASTERCNN-SIMCLR: EDIT THESE FOR FULL MODEL RUN AFTER BACKBONE TRAIN===============================================================
 parser.add_argument('--train_backbone', action='store_true', help='Train backbone toggle')
 parser.add_argument('-o', '--output_size', default=1, type=int, help="Output size for the backbone") #TODO is this 1?? See fastercnn.py
@@ -163,11 +165,12 @@ def main():
 
     args.local_rank = int(os.environ["SLURM_PROCID"])
     args.world_size = int(os.environ["SLURM_NPROCS"])
+    print(f'Local rank is {args.local_rank} and world size is {args.world_size}')
     ngpus_per_node = torch.cuda.device_count()
+    print(f'Using {ngpus_per_node} GPUs per node')
 
     job_id = os.environ["SLURM_JOBID"]
-    args.dist_url = "file://{}.{}".format(os.path.realpath(args.dist_file),
-                                          job_id)
+    
     mp.spawn(main_worker, nprocs=ngpus_per_node, args=(ngpus_per_node, args))
 
 
@@ -177,7 +180,6 @@ def main_worker(gpu, ngpus_per_node, args):
     global best_acc1
     rank = args.local_rank * ngpus_per_node + gpu
     dist.init_process_group(backend='nccl',
-                            init_method=args.dist_url,
                             world_size=args.world_size,
                             rank=rank)
 
