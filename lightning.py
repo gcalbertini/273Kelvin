@@ -285,7 +285,7 @@ class Hparams:
         self.save = "./saved_models/" # save checkpoint
         self.load = False # load pretrained checkpoint
         self.gradient_accumulation_steps = 5 # gradient accumulation steps
-        self.batch_size = 512
+        self.batch_size = 256
         self.lr = 5e-4 # for ADAm only
         self.weight_decay = 1e-6
         self.embedding_size= 128 # papers value is 128
