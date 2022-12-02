@@ -320,7 +320,7 @@ def train_backbone():
 
     accumulator = GradientAccumulationScheduler(scheduling={0: train_config.gradient_accumulation_steps})
     checkpoint_callback = ModelCheckpoint(filename=filename+'{epoch:02d}-{loss:.2f}', dirpath=save_model_path,
-                                            save_last=True, save_top_k=2,monitor='Contrastive loss_epoch',mode='min')
+                                            save_last=True, save_top_k=2,monitor='Contrastive loss_epoch',mode='min', every_n_epochs=1)
 
     if resume_from_checkpoint:
         trainer = Trainer(callbacks=[accumulator, checkpoint_callback],
