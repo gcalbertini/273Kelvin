@@ -125,7 +125,7 @@ class Augment:
 
 def get_stl_dataloader(batch_size, transform=None):
     #stl10 = STL10("./", split=split, transform=transform, download=True)
-    dataset = UnlabeledDataset("./unlabeled_data/", transform=transform)
+    dataset = UnlabeledDataset("/unlabeled/unlabeled", transform=transform)
     return DataLoader(dataset=dataset, batch_size=batch_size, num_workers=cpu_count()//2)
 
 import matplotlib.pyplot as plt
@@ -285,7 +285,7 @@ class Hparams:
         self.save = "./saved_models/" # save checkpoint
         self.load = False # load pretrained checkpoint
         self.gradient_accumulation_steps = 5 # gradient accumulation steps
-        self.batch_size = 256
+        self.batch_size = 512
         self.lr = 5e-4 # for ADAm only
         self.weight_decay = 1e-6
         self.embedding_size= 128 # papers value is 128
