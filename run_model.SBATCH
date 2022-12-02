@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#SBATCH --account=csci_ga_2572_2022fa_16
-#SBATCH --partition=n1s16-v100-2
+#SBATCH --account=csci_ga_2572_2022fa
+#SBATCH --partition=n1s8-v100-1
 #SBATCH --time=48:00:00
-#SBATCH --mem=75GB
+#SBATCH --mem=50GB
 #SBATCH --job-name=TRAIN_BACKBONE
-#SBATCH --gres=gpu:2
+#SBATCH --gres=gpu:1
 #SBATCH --output=slurm_%j.out
 
 singularity exec --nv --overlay /scratch/DL22FA/overlay_11-16.ext3:ro \
