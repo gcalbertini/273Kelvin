@@ -282,7 +282,7 @@ class Hparams:
         self.load = False # load pretrained checkpoint
         self.gradient_accumulation_steps = 5 # gradient accumulation steps
         self.batch_size = 256
-        self.lr = 3e-4 # for ADAm only
+        self.lr = 5e-4 # for ADAm only
         self.weight_decay = 1e-6
         self.embedding_size= 128 # papers value is 128
         self.temperature = 0.5 # 0.1 or 0.5

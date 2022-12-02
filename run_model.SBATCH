@@ -2,7 +2,7 @@
 
 #SBATCH --account=csci_ga_2572_2022fa_16
 #SBATCH --partition=n1c24m128-v100-4
-#SBATCH --time=48:00:00
+#SBATCH --time=24:00:00
 #SBATCH --mem=125GB
 #SBATCH --job-name=TRAIN_BACKBONE
 #SBATCH --gres=gpu:4
@@ -13,4 +13,4 @@ singularity exec --nv --overlay /scratch/DL22FA/overlay_11-16.ext3:ro \
             -B /scratch/DL22FA/labeled.sqsh:/labeled:image-src=/ \
             -B /scratch -B /scratch_tmp \
             /scratch/DL22FA/cuda11.2.2-cudnn8-devel-ubuntu20.04.sif \
-            /bin/bash -c "source /ext3/env.sh; python lightning.py"
+            /bin/bash -c "source /ext3/env.sh; python -W ignore lightning.py"
