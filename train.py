@@ -44,7 +44,7 @@ def train(args):
         lr_scheduler.step()
         evaluate(model, validation_dataloader, device)
     torch.save(model.state_dict(), f"./saved_models/model__mom_{args.momentum}_decay_{args.weight_decay}_epochs_{epoch+1}_lr_{args.learn_rate}_backbone_{args.backbone}.pt")
-    
+
     return model
 
 def main():
@@ -79,10 +79,6 @@ def main():
     parser.add_argument('-s', '--step', default=50, metavar='SCHEDULER_STEP', type=int, help="Default step size for scheduler")
     parser.add_argument('-g', '--gamma', default=0.2, metavar='SCHEDULER_GAMMA', type=float, help="Default gamma factor for scheduler")
     parser.add_argument('-f', '--freeze', action='store_true', help='Freeze backbone weights; default is False')
-    # parser.add_argument('-cp','--checkpoint_path', default='./Fast_RCNN.ckpt', metavar='MODEL_CHECKPOINT_PATH', type=str, help="Full model checkpoint path")
-    # parser.add_argument('-r','--resume', action='store_true', help="Model resume training from checkpoint; default is False")
-    # parser.add_argument('-sv','--save_directory', default='saved_full_models/', metavar='FULL_MODEL_SAVE_DIR_PATH', type=str, help="Full model save checkpoint directory path")
-    # parser.add_argument('-lp','--load_pretrained', action='store_true', help="Model load pretraining")
 
     #=====================SIMCLR ONLY: EDIT THESE FOR BACKBONE TRAIN RUN===============================================================================
     # NOTE these will come into play after --train_backbone is specified and doing something like: python train.py --train_backbone -bbe 5 -bbbs 12345 --backbone_lr 1e-4
@@ -91,10 +87,10 @@ def main():
     parser.add_argument('-bbcoff','--backbone_cuda_off', action='store_false', help="Toggle CUDA for backbone training")
     parser.add_argument('-bbsd','--backbone_seed', default=77777, metavar='BACKBONE_SEED', type=int, help="Backbone seed for reproducibility")
     parser.add_argument('-bbimg','--backbone_img_size', default=224, metavar='BACKBONE_IMG_SIZE', type=int, help="Backbone img size")
-    parser.add_argument('-bbsv','--backbone_save_directory', default='saved_backbone_models/', metavar='BACKBONE_SAVE_DIR_PATH', type=str, help="Backbone save checkpoint directory path")
+    parser.add_argument('-bbsv','--backbone_save_directory', default='saved_models/', metavar='BACKBONE_SAVE_DIR_PATH', type=str, help="Backbone save checkpoint directory path")
     parser.add_argument('-bblp','--backbone_load_pretrained', action='store_true', help="Backbone load pretraining")
-    parser.add_argument('-bbg','--backbone_grad_accumulate_steps', type=int, default = 5, metavar='BACKBONE_GRAD_ACCUM_STEPS', help="Backbone gradient accumulation steps")
-    parser.add_argument('-bbbs', '--backbone_batch_size', default=96, type=int, metavar='BACKBONE_BATCH_SIZE', help='Backbone batch size to use')
+    parser.add_argument('-bbg','--backbone_grad_accumulate_steps', type=int, default = 1, metavar='BACKBONE_GRAD_ACCUM_STEPS', help="Backbone gradient accumulation steps")
+    parser.add_argument('-bbbs', '--backbone_batch_size', default=16, type=int, metavar='BACKBONE_BATCH_SIZE', help='Backbone batch size to use')
     parser.add_argument('-bbemb','--backbone_embedding_size', type=int, default = 128, metavar='BACKBONE_EMBED_SIZE', help='Backbone embedding size')
     parser.add_argument('-bblr','--backbone_lr', type=float, default = 3e-4, metavar='BACKBONE_ADAM_LEARN_RATE', help='Backbone learning rate for ADAM')
     parser.add_argument('-bbdk','--backbone_weight_decay', type=float, default = 1e-6, metavar='BACKBONE_WEIGHT_DECAY', help='Backbone weight decay')
