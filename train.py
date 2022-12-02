@@ -19,6 +19,7 @@ import torch.backends.cudnn as cudnn
 import torchvision
 from utils import *
 from torch.utils.tensorboard import SummaryWriter
+from torch.distributed import init_process_group, destroy_process_group
 
 warnings.filterwarnings("ignore", category=PossibleUserWarning)
 
@@ -43,8 +44,8 @@ parser = argparse.ArgumentParser(description='PyTorch FasterRCNN Training')
 
     #NOTE BATCH SIZES SHOULD BE A MULTIPLE OF GPUs USED AND GREATER THAN THE NUMBER OF GPUs. THE EFFECTIVE BATCH SIZE IS BATCH_SIZE_SPECIFIED*NUM_GPUS == BATCH_SIZE 
 parser = argparse.ArgumentParser()
-parser.add_argument('--path_lbl', default="/labeled/labeled", metavar='DATA_PATH_LBL', type=str, help="Default path for labeled data; default used is '/labeled/labeled'; note toy set's is 'labeled_data/'")
-parser.add_argument('--path_unlbl', default="/unlabeled/unlabeled", metavar='DATA_PATH_UNLBL', type=str, help="Default path for unlabeled data; default used is'/unlabeled/unlabeled'; note toy set's is 'unlabeled_data/'")
+parser.add_argument('--path_lbl', default="labeled_data/", metavar='DATA_PATH_LBL', type=str, help="Default path for labeled data; default used is '/labeled/labeled'; note toy set's is 'labeled_data/'")
+parser.add_argument('--path_unlbl', default="unlabeled_data/", metavar='DATA_PATH_UNLBL', type=str, help="Default path for unlabeled data; default used is'/unlabeled/unlabeled'; note toy set's is 'unlabeled_data/'")
 parser.add_argument('--shuffle', action='store_true', dest='SHUFFLE', help="Shuffle data toggle")
 parser.add_argument('-voff', '--verbose_off', action='store_false', dest='VERBOSE_OFF', help="Verbose mode toggle")
 parser.add_argument('-c', '--classes', default=100, type=int, metavar='NUM_CLASSES', help='Number of classes; default is 100')
@@ -148,8 +149,6 @@ best_acc1 = 0
 
 def main():
     args = parser.parse_args()
-    print()
-    print(args)
 
     if args.seed is not None:
         random.seed(args.seed)
@@ -170,6 +169,7 @@ def main():
     args.dist_url = "file://{}.{}".format(os.path.realpath(args.dist_file),
                                           job_id)
     mp.spawn(main_worker, nprocs=ngpus_per_node, args=(ngpus_per_node, args))
+
 
 
 def main_worker(gpu, ngpus_per_node, args):
