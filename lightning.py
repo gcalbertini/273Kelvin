@@ -253,11 +253,11 @@ class SimCLR_pl(pl.LightningModule):
 
     def configure_optimizers(self):
         max_epochs = int(self.config.epochs)
-        param_groups = define_param_groups(self.model, self.config.weight_decay, 'sgd')
+        param_groups = define_param_groups(self.model, self.config.weight_decay, 'adam')
         lr = self.config.lr
-        optimizer = SGD(param_groups, lr=lr, weight_decay=self.config.weight_decay)
+        optimizer = Adam(param_groups, lr=lr, weight_decay=self.config.weight_decay)
 
-        print(f'Optimizer SGD, '
+        print(f'Optimizer Adam, '
               f'Learning Rate {lr}, '
               f'Effective batch size {self.config.batch_size * self.config.gradient_accumulation_steps}')
 
@@ -271,16 +271,16 @@ class SimCLR_pl(pl.LightningModule):
 # a lazy way to pass the config file
 class Hparams:
     def __init__(self):
-        self.epochs = 200 # number of training epochs
+        self.epochs = 100 # number of training epochs
         self.seed = 77777 # randomness seed
         self.cuda = True # use nvidia gpu
         self.img_size = 224 #image shape
         self.save = "./saved_models/" # save checkpoint
         self.load = False # load pretrained checkpoint
         self.gradient_accumulation_steps = 5 # gradient accumulation steps
-        self.batch_size = 128
-        self.lr = 9e-4 # for ADAm only
-        self.weight_decay = 2e-6
+        self.batch_size = 256
+        self.lr = 8e-4 # for ADAm only
+        self.weight_decay = 1e-6
         self.embedding_size= 128 # papers value is 128
         self.temperature = 0.5 # 0.1 or 0.5
         self.checkpoint_path = './SimCLR_ResNet18.ckpt' # replace checkpoint path here
@@ -299,7 +299,7 @@ def train_backbone():
     available_gpus = len([torch.cuda.device(i) for i in range(torch.cuda.device_count())])
     save_model_path = os.path.join(os.getcwd(), "saved_models/")
     print('available_gpus:',available_gpus)
-    filename='SimCLR_ResNet18_sgd_'
+    filename='SimCLR_ResNet18_adam_'
     resume_from_checkpoint = False
     train_config = Hparams()
 
@@ -332,7 +332,7 @@ def train_backbone():
     """## Save only backbone weights from Resnet18 that are only necessary for fine tuning"""
 
     model_pl = SimCLR_pl(train_config, model=resnet18(pretrained=False))
-    model_pl = weights_update(model_pl, "SimCLR_ResNet18_sgd_.ckpt")
+    model_pl = weights_update(model_pl, "SimCLR_ResNet18_adam_.ckpt")
 
     resnet18_backbone_weights = model_pl.model.backbone
     print(resnet18_backbone_weights)
