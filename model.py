@@ -1,19 +1,18 @@
+import torch
 import argparse
-from fastrcnn import get_model
+from fastrcnn import get_model as rcnn_model
 
+ 
 def get_model():
+    #change the path to your model
+    PATH="./saved_models/model__mom_0.9_decay_0.0005_epochs_5_lr_0.001_backbone_SimCLR.pt"
+    
     parser = argparse.ArgumentParser()
-    parser.add_argument('--path_lbl', default="/labeled/labeled", metavar='DATA_PATH_LBL', type=str, help="Default path for labeled data; default used is '/labeled/labeled'; note toy set's is 'labeled_data/'")
-    parser.add_argument('--path_unlbl', default="/unlabeled/unlabeled", metavar='DATA_PATH_UNLBL', type=str, help="Default path for unlabeled data; default used is'/unlabeled/unlabeled'; note toy set's is 'unlabeled_data/'")
-    parser.add_argument('--shuffle', action='store_true', help="Shuffle data toggle")
-    parser.add_argument('-voff', '--verbose_off', action='store_false', help="Verbose mode toggle")
-    parser.add_argument('-c', '--classes', default=100, type=int, metavar='NUM_CLASSES', help='Number of classes; default is 100')
-
-    #model
+    #full model args
     parser.add_argument('--train_backbone', action='store_true', help='Train backbone toggle')
-    parser.add_argument('-o', '--output_size', default=1, type=int, help="Output size for the backbone")
+    parser.add_argument('-o', '--output_size', default=1, type=int, help="Output size for the backbone") #TODO is this 1?? See fastercnn.py
     parser.add_argument('-bb', '--backbone', default="SimCLR", type=str, metavar='BACKBONE', help = "Backbone to use; default is SimCLR. Set to 'None' for mobilenet_v2.")
-    parser.add_argument('-bs', '--batch_size', default=32, type=int, metavar='BATCH_SIZE', help='Batch size to use')
+    parser.add_argument('-bs', '--batch_size', default=64, type=int, metavar='BATCH_SIZE', help='Batch size to use')
     parser.add_argument('-e', '--epochs', default=5, metavar='EPOCHS', type=int, help="Default number of epochs")
     parser.add_argument('-lr', '--learn_rate', default=0.001, metavar='LEARN_RATE', type=float, help="Default learning rate")
     parser.add_argument('-mom', '--momentum', default=0.9, metavar='MOMENTUM', type=float, help="Default momentum")
@@ -22,14 +21,13 @@ def get_model():
     parser.add_argument('-s', '--step', default=50, metavar='SCHEDULER_STEP', type=int, help="Default step size for scheduler")
     parser.add_argument('-g', '--gamma', default=0.2, metavar='SCHEDULER_GAMMA', type=float, help="Default gamma factor for scheduler")
     parser.add_argument('-f', '--freeze', action='store_true', help='Freeze backbone weights; default is False')
-    args = parser.parse_args()
 
     #backbone args
     parser.add_argument('-bbe','--backbone_epochs', default=10, metavar='BACKBONE_EPOCHS', type=int, help="Default number of backbone epochs")
     parser.add_argument('-bbcoff','--backbone_cuda_off', action='store_false', help="Toggle CUDA for backbone training")
     parser.add_argument('-bbsd','--backbone_seed', default=77777, metavar='BACKBONE_SEED', type=int, help="Backbone seed for reproducibility")
     parser.add_argument('-bbimg','--backbone_img_size', default=224, metavar='BACKBONE_IMG_SIZE', type=int, help="Backbone img size")
-    parser.add_argument('-bbsv','--backbone_save_directory', default='saved_models/', metavar='BACKBONE_SAVE_DIR_PATH', type=str, help="Backbone save checkpoint directory path")
+    parser.add_argument('-bbsv','--backbone_save_directory', default='saved_backbone_models/', metavar='BACKBONE_SAVE_DIR_PATH', type=str, help="Backbone save checkpoint directory path")
     parser.add_argument('-bblp','--backbone_load_pretrained', action='store_true', help="Backbone load pretraining")
     parser.add_argument('-bbg','--backbone_grad_accumulate_steps', type=int, default = 5, metavar='BACKBONE_GRAD_ACCUM_STEPS', help="Backbone gradient accumulation steps")
     parser.add_argument('-bbbs', '--backbone_batch_size', default=96, type=int, metavar='BACKBONE_BATCH_SIZE', help='Backbone batch size to use')
@@ -40,6 +38,8 @@ def get_model():
     parser.add_argument('-bbcp','--backbone_checkpoint_path', default='./SimCLR_ResNet18.ckpt', metavar='BACKBONE_CHECKPOINT_PATH', type=str, help="Backbone checkpoint path")
     parser.add_argument('-bbr','--backbone_resume', action='store_true', help="Backbone resume training from checkpoint; default is False")
 
-    model = get_model(args, backbone=args.backbone, num_classes=args.classes)
+    args = parser.parse_args()
+    model = rcnn_model(args, backbone=args.backbone, num_classes=100)
+    model.load_state_dict(torch.load(PATH))
     
     return model
