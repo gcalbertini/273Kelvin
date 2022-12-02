@@ -15,9 +15,9 @@
 master_addr=$(hostname -i)
 master_port=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
 
-singularity exec --nv --overlay /scratch/DL22FA/overlay_11-16.ext3:ro \
+singularity exec --nv --overlay /scratch/DL22FA/overlay_12-02.ext3:ro \
             -B /scratch/DL22FA/unlabeled_224.sqsh:/unlabeled:image-src=/ \
             -B /scratch/DL22FA/labeled.sqsh:/labeled:image-src=/ \
             -B /scratch -B /scratch_tmp \
             /scratch/DL22FA/cuda11.2.2-cudnn8-devel-ubuntu20.04.sif \
-            /bin/bash -c "source /ext3/env.sh; python train.py --train_backbone --master_addr $master_addr --master_port $master_port"
+            /bin/bash -c "source /ext3/env.sh; python train.py"

@@ -19,6 +19,8 @@ import torch.backends.cudnn as cudnn
 import torchvision
 from utils import *
 from torch.utils.tensorboard import SummaryWriter
+import socket 
+
 
 warnings.filterwarnings("ignore", category=PossibleUserWarning)
 
@@ -57,8 +59,6 @@ parser.add_argument('-eval','--evaluate',dest='EVALUATE',action='store_true',hel
 parser.add_argument('-opt','--optimizer',default='Adam',type=str,help='Adam (default) or SGD optimizer')
 parser.add_argument('--start_epoch',default=0,type=int,metavar='N', help='manual epoch number (useful on restarts)')
 parser.add_argument('-tb','--tensorboard', action='store_true', help='Tensorboard displays')
-parser.add_argument("--master_addr", required=True, type=str, help="Corresponds to MASTER_ADDR")
-parser.add_argument("--master_port", required=True, type=int, help="Corresponds to MASTER_PORT")
 #=====================FASTERCNN-SIMCLR: EDIT THESE FOR FULL MODEL RUN AFTER BACKBONE TRAIN===============================================================
 parser.add_argument('--train_backbone', action='store_true', help='Train backbone toggle')
 parser.add_argument('-o', '--output_size', default=1, type=int, help="Output size for the backbone") #TODO is this 1?? See fastercnn.py
@@ -168,6 +168,8 @@ def main():
     print(f'Local rank is {args.local_rank} and world size is {args.world_size}')
     ngpus_per_node = torch.cuda.device_count()
     print(f'Using {ngpus_per_node} GPUs per node')
+    args.master_addr = eval(echo $(hostname -i))
+    
 
     job_id = os.environ["SLURM_JOBID"]
     
