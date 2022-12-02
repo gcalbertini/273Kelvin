@@ -319,7 +319,7 @@ def train_backbone():
     data_loader = get_stl_dataloader(train_config.batch_size, transform)
 
     accumulator = GradientAccumulationScheduler(scheduling={0: train_config.gradient_accumulation_steps})
-    checkpoint_callback = ModelCheckpoint(filename=filename+'{epoch:02d}-{loss:.2f}', dirpath=save_model_path,
+    checkpoint_callback = ModelCheckpoint(filename=filename, dirpath=save_model_path,
                                             save_last=True, save_top_k=2,monitor='Contrastive loss_epoch',mode='min', every_n_epochs=1)
 
     if resume_from_checkpoint:
