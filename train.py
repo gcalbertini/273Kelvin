@@ -185,10 +185,12 @@ def main():
     args.world_size = int(os.environ["SLURM_NPROCS"])
     ngpus_per_node = torch.cuda.device_count()
     
+
     s=socket.socket()
     s.bind(("", 0))
-    args.master_port = int(os.environ[str(eval("print(s.getsockname()[1]))"))])
+    args.master_port = int(s.getsockname()[1])
     s.close()
+    os.environ["MASTER_PORT"] = args.master_port
     dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
                                 world_size=args.world_size, rank=args.rank)
 
@@ -227,7 +229,7 @@ def main_worker(gpu, ngpus_per_node, args):
         # should always set the single device scope, otherwise,
         # DistributedDataParallel will use all available devices.
 
-     if args.gpu is not None:
+    if args.gpu is not None:
         torch.cuda.set_device(args.gpu)
         model.cuda(args.gpu)
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
