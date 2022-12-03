@@ -163,6 +163,7 @@ best_acc1 = 0
 
 def main():
     args = parser.parse_args()
+    print(args)
 
     if args.seed is not None:
         random.seed(args.seed)
@@ -207,10 +208,11 @@ def main():
         builtins.print = print_pass
 
     print(f'Local rank is {args.local_rank} and world size is {args.world_size}')
-    print(f'Using {ngpus_per_node} GPUs per node')
+    print(f'Using {ngpus_per_node} GPUs per node with {args.gpu} GPUs')
 
     job_id = os.environ["SLURM_JOBID"]
     print(f'Job: {job_id}')
+
 
     '''
     The srun command has two different modes of operation. First, if not run within an existing
@@ -233,15 +235,28 @@ def main_worker(gpu, ngpus_per_node, args):
 
     # create model - already does distributed GPU train from borrowed code
     model = get_model(args, backbone=args.backbone, num_classes=args.classes)
+    model_without_ddp = model
 
-    torch.cuda.set_device(gpu)
-    model.cuda(gpu)
+    if args.distributed:
+        # For multiprocessing distributed, DistributedDataParallel constructor
+        # should always set the single device scope, otherwise,
+        # DistributedDataParallel will use all available devices.
+
+        if args.gpu is not None:
+            torch.cuda.set_device(args.gpu)
+            model.cuda(args.gpu)
+            model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
+        else:
+            model.cuda()
+            model = torch.nn.parallel.DistributedDataParallel(model)
+            
+    else:
+        raise NotImplementedError("Only DistributedDataParallel is supported.")
+    
     # When using a single GPU per process and per
     # DistributedDataParallel, we need to divide the batch size
     # ourselves based on the total number of GPUs we have
     args.batch_size = int(args.batch_size / ngpus_per_node)
-    model = DDP(model, device_ids=[gpu])
-
 
     if args.optimizer == 'Adam':
         optimizer = torch.optim.Adam(model.parameters(),
@@ -256,7 +271,6 @@ def main_worker(gpu, ngpus_per_node, args):
     else:
         print('Dumbass.')
         sys.exit()
-
 
     cudnn.benchmark = True
 
