@@ -190,7 +190,6 @@ import torch.nn.functional as F
 from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 from torch.optim import SGD, Adam
 
-
 class AddProjection(nn.Module):
     def __init__(self, config, model=None, mlp_dim=512):
         super(AddProjection, self).__init__()
@@ -278,18 +277,18 @@ class SimCLR_pl(pl.LightningModule):
 # a lazy way to pass the config file
 class Hparams:
     def __init__(self):
-        self.epochs = 20 # number of training epochs
+        self.epochs = 40 # number of training epochs
         self.seed = 77777 # randomness seed
         self.cuda = True # use nvidia gpu
         self.img_size = 224 #image shape
         self.save = "./saved_models/" # save checkpoint
         self.load = False # load pretrained checkpoint
         self.gradient_accumulation_steps = 5 # gradient accumulation steps
-        self.batch_size = 256
-        self.lr = 5e-4 # for ADAm only
+        self.batch_size = 64
+        self.lr = 8e-3 # for ADAm only
         self.weight_decay = 1e-6
         self.embedding_size= 128 # papers value is 128
-        self.temperature = 0.5 # 0.1 or 0.5
+        self.temperature = 0.1 # 0.1 or 0.5
         self.checkpoint_path = './SimCLR_ResNet18.ckpt' # replace checkpoint path here
 
 """## Pretraining main logic"""
@@ -307,7 +306,7 @@ def train_backbone():
     save_model_path = os.path.join(os.getcwd(), "saved_models/")
     print('available_gpus:',available_gpus)
     filename='SimCLR_ResNet18_adam_'
-    resume_from_checkpoint = False
+    resume_from_checkpoint = True
     train_config = Hparams()
 
     reproducibility(train_config)
