@@ -15,7 +15,6 @@
 #SBATCH --time=12:00:00
 #SBATCH --mem=90GB
 #SBATCH --job-name=FULLRUN
-#SBATCH --chdir=/scratch_tmp/ga_947/273Kelvin/
 #SBATCH --output=slurm_%j.out
 #SBATCH --mail-type=begin        # send email when job begins
 #SBATCH --mail-type=end          # send email when job ends
@@ -26,7 +25,7 @@
 ### Can change 5-digit MASTER_PORT as you wish, slurm will raise Error if duplicated with others
 ### change WORLD_SIZE as gpus/node * num_nodes
 ### https://stackoverflow.com/questions/1365265/on-localhost-how-do-i-pick-a-free-port-number
-###export MASTER_PORT = 12340
+###export MASTER_PORT = 12340 but we are on GCP nodes so these are b-#-# as well, same as master address?
 export WORLD_SIZE=4
 
 ### get the first node name as master address - customized for vgg slurm

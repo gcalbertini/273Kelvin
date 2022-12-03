@@ -176,38 +176,25 @@ def main():
                       'You may see unexpected behavior when restarting '
                       'from checkpoints.')
 
-    args.distributed = args.world_size > 1
     if "WORLD_SIZE" in os.environ:
         args.world_size = int(os.environ["WORLD_SIZE"])
     else:
-        if args.distributed:
-            args.world_size = int(os.environ["SLURM_NPROCS"])
+         args.world_size = int(os.environ["SLURM_NPROCS"])
 
+    args.local_rank = int(os.environ["SLURM_PROCID"])
+    args.world_size = int(os.environ["SLURM_NPROCS"])
     ngpus_per_node = torch.cuda.device_count()
-
-    if args.distributed:
-        if args.local_rank != -1: # for torch.distributed.launch
-            args.rank = args.local_rank
-            args.gpu = args.local_rank
-        elif 'SLURM_PROCID' in os.environ: # for slurm scheduler
-            args.rank = int(os.environ['SLURM_PROCID'])
-            args.gpu = args.rank % torch.cuda.device_count()
-            s=socket.socket()
-            s.bind(("", 0))
-            args.master_port = int(os.environ[str(eval("print(s.getsockname()[1]))"))])
-            print(args.master_port)
-            s.close()
-        dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
+    
+    s=socket.socket()
+    s.bind(("", 0))
+    args.master_port = int(os.environ[str(eval("print(s.getsockname()[1]))"))])
+    s.close()
+    dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
                                 world_size=args.world_size, rank=args.rank)
 
-    # suppress printing if not on master gpu
-    if args.rank!=0:
-        def print_pass(*args):
-            pass
-        builtins.print = print_pass
 
     print(f'Local rank is {args.local_rank} and world size is {args.world_size}')
-    print(f'Using {ngpus_per_node} GPUs per node with {args.gpu} GPUs')
+    print(f'Using {ngpus_per_node} GPUs per node')
 
     job_id = os.environ["SLURM_JOBID"]
     print(f'Job: {job_id}')
@@ -236,21 +223,18 @@ def main_worker(gpu, ngpus_per_node, args):
     model = get_model(args, backbone=args.backbone, num_classes=args.classes)
     model_without_ddp = model
 
-    if args.distributed:
         # For multiprocessing distributed, DistributedDataParallel constructor
         # should always set the single device scope, otherwise,
         # DistributedDataParallel will use all available devices.
 
-        if args.gpu is not None:
-            torch.cuda.set_device(args.gpu)
-            model.cuda(args.gpu)
-            model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
-        else:
-            model.cuda()
-            model = torch.nn.parallel.DistributedDataParallel(model)
-            
+     if args.gpu is not None:
+        torch.cuda.set_device(args.gpu)
+        model.cuda(args.gpu)
+        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
     else:
-        raise NotImplementedError("Only DistributedDataParallel is supported.")
+        model.cuda()
+        model = torch.nn.parallel.DistributedDataParallel(model)
+            
     
     # When using a single GPU per process and per
     # DistributedDataParallel, we need to divide the batch size
@@ -296,8 +280,10 @@ def main_worker(gpu, ngpus_per_node, args):
 
     for epoch in range(args.start_epoch, args.epochs):
         epoch_start = time.time()
+        # fix sampling seed such that each gpu gets different part of dataset
+        if args.distributed: 
+            train_loader.sampler.set_epoch(epoch)
 
-        train_sampler.set_epoch(epoch)
         adjust_learning_rate(optimizer, epoch, args)
 
         # train for one epoch
