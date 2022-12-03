@@ -1,7 +1,9 @@
 import argparse
+import builtins
 import csv
 import os
 import random
+import socket
 import warnings
 import torch
 import time
@@ -27,8 +29,8 @@ warnings.filterwarnings("ignore", category=PossibleUserWarning)
 # REF https://github.dev/tczhangzhi/pytorch-distributed/blob/cd12856420858b14e02873e7d5c8cc7bb5aab5b0/distributed_slurm_main.py#L290
 # REF https://towardsdatascience.com/a-complete-guide-to-using-tensorboard-with-pytorch-53cb2301e8c3
 # REF https://pytorch.org/docs/stable/distributed.html
-# REF https://gist.github.dev/TengdaHan/1dd10d335c7ca6f13810fff41e809904
 # REF https://github.dev/lkskstlr/distributed_data_parallel_slurm_setup
+# REF https://gist.github.com/TengdaHan/1dd10d335c7ca6f13810fff41e809904
 
 model_names = sorted(name for name in models.__dict__
                      if name.islower() and not name.startswith("__")
@@ -61,12 +63,11 @@ parser.add_argument('-opt','--optimizer',default='Adam',type=str,help='Adam (def
 parser.add_argument('--start_epoch',default=0,type=int,metavar='N', help='manual epoch number (useful on restarts)')
 parser.add_argument('-tb','--tensorboard', action='store_true', help='Tensorboard displays')
 
-#DDP
 # DDP configs:
 parser.add_argument('--world-size', default=-1, type=int, help='number of nodes for distributed training')
 parser.add_argument('--rank', default=-1, type=int, help='node rank for distributed training')
 parser.add_argument('--dist-url', default='env://', type=str, help='url used to set up distributed training')
-parser.add_argument('--dist-backend', default='nccl', type=str, help='distributed backend')
+parser.add_argument('--dist-backend', default='nccl', type=str, help='distributed backend (default nccl or gloo)')
 parser.add_argument('--local_rank', default=-1, type=int, help='local rank for distributed training')
 #=====================FASTERCNN-SIMCLR: EDIT THESE FOR FULL MODEL RUN AFTER BACKBONE TRAIN===============================================================
 parser.add_argument('--train_backbone', action='store_true', help='Train backbone toggle')
@@ -126,10 +127,12 @@ def train(train_loader, model, optimizer, epoch, gpu, args, tb):
         images = images.cuda(gpu, non_blocking=True)
         label_target = label_target.cuda(gpu, non_blocking=True)
 
-        # compute output
+        # compute output and simple metrics
         preds = model(images)
         loss_dict = model(images, label_target)
         losses = sum(loss for loss in loss_dict.values())
+        total_loss+= losses.item()
+        total_correct+= get_num_correct(preds, label_target)
 
         # measure accuracy and record loss
         acc1, acc5 = accuracy(preds, label_target, topk=(1, 5))
@@ -175,6 +178,10 @@ def main():
      # DDP setting
     if "WORLD_SIZE" in os.environ:
         args.world_size = int(os.environ["WORLD_SIZE"])
+    else:
+        if args.distributed:
+            args.world_size = int(os.environ["SLURM_NPROCS"])
+
     args.distributed = args.world_size > 1
     ngpus_per_node = torch.cuda.device_count()
 
@@ -185,6 +192,11 @@ def main():
         elif 'SLURM_PROCID' in os.environ: # for slurm scheduler
             args.rank = int(os.environ['SLURM_PROCID'])
             args.gpu = args.rank % torch.cuda.device_count()
+            s=socket.socket()
+            s.bind(("", 0))
+            args.master_port = int(os.environ[eval("print(s.getsockname()[1]))")])
+            print(args.master_port)
+            s.close()
         dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
                                 world_size=args.world_size, rank=args.rank)
 
@@ -193,21 +205,20 @@ def main():
         def print_pass(*args):
             pass
         builtins.print = print_pass
-       
-    ### model ###
 
-    args.local_rank = int(os.environ["SLURM_PROCID"])
-    args.world_size = int(os.environ["SLURM_NPROCS"])
     print(f'Local rank is {args.local_rank} and world size is {args.world_size}')
-    ngpus_per_node = torch.cuda.device_count()
     print(f'Using {ngpus_per_node} GPUs per node')
-    args.master_addr = eval('echo $(hostname -i)')
-    args.master_addr =
-    
-    
 
     job_id = os.environ["SLURM_JOBID"]
-    
+    print(f'Job: {job_id}')
+
+    '''
+    The srun command has two different modes of operation. First, if not run within an existing
+    job (i.e. not within a Slurm job allocation created by salloc or sbatch),
+    then it will create a job allocation and spawn an application. 
+    If run within an existing allocation (as we are doing with the sbatch), the srun command only spawns the application so we 
+    must spawn ourselves as below.
+    '''
     mp.spawn(main_worker, nprocs=ngpus_per_node, args=(ngpus_per_node, args))
 
 
