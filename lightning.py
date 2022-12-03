@@ -19,15 +19,18 @@ import torch
 import torchvision.transforms as T
 import torch
 import torch.nn as nn
+import warnings
+import logging
 import torch.nn.functional as F
 from torchvision.datasets import STL10
 from torch.utils.data import DataLoader
 from torch.multiprocessing import cpu_count
 import torchvision.transforms as T
 from PIL import Image
-from pytorch_lightning.utilities.warnings import PossibleUserWarning
 
-warnings.filterwarnings("ignore", category=PossibleUserWarning)
+warnings.filterwarnings("ignore")
+logging.captureWarnings(capture=True)
+logging.getLogger("lightning").setLevel(logging.ERROR)
 
 class UnlabeledDataset(torch.utils.data.Dataset):
     def __init__(self, root, transform=None):

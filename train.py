@@ -19,7 +19,6 @@ import torch.backends.cudnn as cudnn
 import torchvision
 from utils import *
 from torch.utils.tensorboard import SummaryWriter
-import socket 
 
 
 warnings.filterwarnings("ignore", category=PossibleUserWarning)
@@ -28,6 +27,8 @@ warnings.filterwarnings("ignore", category=PossibleUserWarning)
 # REF https://github.dev/tczhangzhi/pytorch-distributed/blob/cd12856420858b14e02873e7d5c8cc7bb5aab5b0/distributed_slurm_main.py#L290
 # REF https://towardsdatascience.com/a-complete-guide-to-using-tensorboard-with-pytorch-53cb2301e8c3
 # REF https://pytorch.org/docs/stable/distributed.html
+# REF https://gist.github.dev/TengdaHan/1dd10d335c7ca6f13810fff41e809904
+# REF https://github.dev/lkskstlr/distributed_data_parallel_slurm_setup
 
 model_names = sorted(name for name in models.__dict__
                      if name.islower() and not name.startswith("__")
@@ -59,6 +60,14 @@ parser.add_argument('-eval','--evaluate',dest='EVALUATE',action='store_true',hel
 parser.add_argument('-opt','--optimizer',default='Adam',type=str,help='Adam (default) or SGD optimizer')
 parser.add_argument('--start_epoch',default=0,type=int,metavar='N', help='manual epoch number (useful on restarts)')
 parser.add_argument('-tb','--tensorboard', action='store_true', help='Tensorboard displays')
+
+#DDP
+# DDP configs:
+parser.add_argument('--world-size', default=-1, type=int, help='number of nodes for distributed training')
+parser.add_argument('--rank', default=-1, type=int, help='node rank for distributed training')
+parser.add_argument('--dist-url', default='env://', type=str, help='url used to set up distributed training')
+parser.add_argument('--dist-backend', default='nccl', type=str, help='distributed backend')
+parser.add_argument('--local_rank', default=-1, type=int, help='local rank for distributed training')
 #=====================FASTERCNN-SIMCLR: EDIT THESE FOR FULL MODEL RUN AFTER BACKBONE TRAIN===============================================================
 parser.add_argument('--train_backbone', action='store_true', help='Train backbone toggle')
 parser.add_argument('-o', '--output_size', default=1, type=int, help="Output size for the backbone") #TODO is this 1?? See fastercnn.py
@@ -143,8 +152,8 @@ def train(train_loader, model, optimizer, epoch, gpu, args, tb):
         batch_time.update(time.time() - end)
         end = time.time()
 
-        if i % args.print_freq == 0:
-            progress.display(i)
+        if batch_id % args.print_freq == 0:
+            progress.display(batch_id)
 
 
 best_acc1 = 0
@@ -163,12 +172,38 @@ def main():
                       'You may see unexpected behavior when restarting '
                       'from checkpoints.')
 
+     # DDP setting
+    if "WORLD_SIZE" in os.environ:
+        args.world_size = int(os.environ["WORLD_SIZE"])
+    args.distributed = args.world_size > 1
+    ngpus_per_node = torch.cuda.device_count()
+
+    if args.distributed:
+        if args.local_rank != -1: # for torch.distributed.launch
+            args.rank = args.local_rank
+            args.gpu = args.local_rank
+        elif 'SLURM_PROCID' in os.environ: # for slurm scheduler
+            args.rank = int(os.environ['SLURM_PROCID'])
+            args.gpu = args.rank % torch.cuda.device_count()
+        dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
+                                world_size=args.world_size, rank=args.rank)
+
+    # suppress printing if not on master gpu
+    if args.rank!=0:
+        def print_pass(*args):
+            pass
+        builtins.print = print_pass
+       
+    ### model ###
+
     args.local_rank = int(os.environ["SLURM_PROCID"])
     args.world_size = int(os.environ["SLURM_NPROCS"])
     print(f'Local rank is {args.local_rank} and world size is {args.world_size}')
     ngpus_per_node = torch.cuda.device_count()
     print(f'Using {ngpus_per_node} GPUs per node')
-    args.master_addr = eval(echo $(hostname -i))
+    args.master_addr = eval('echo $(hostname -i)')
+    args.master_addr =
+    
     
 
     job_id = os.environ["SLURM_JOBID"]
@@ -215,8 +250,8 @@ def main_worker(gpu, ngpus_per_node, args):
     cudnn.benchmark = True
 
     # Data loading code
-    train_dataset, train_dataloader = labeled_dataloader(args.batch_size, cpu_count()//2, args.shuffle, args.path_lbl, SPLIT="training")
-    _, validation_dataloader = labeled_dataloader(args.batch_size, cpu_count()//2, args.shuffle, args.path_lbl, SPLIT="validation")
+    train_dataset, train_dataloader = labeled_dataloader(args.batch_size, 4, args.shuffle, args.path_lbl, SPLIT="training")
+    _, validation_dataloader = labeled_dataloader(args.batch_size, 4, args.shuffle, args.path_lbl, SPLIT="validation")
 
     if args.tensorboard:
         images, _ = next(iter(train_dataloader)) 
