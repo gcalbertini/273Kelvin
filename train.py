@@ -190,7 +190,7 @@ def main():
     s.bind(("", 0))
     args.master_port = int(s.getsockname()[1])
     s.close()
-    os.environ["MASTER_PORT"] = args.master_port
+    os.environ["MASTER_PORT"] = str(args.master_port)
     dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
                                 world_size=args.world_size, rank=args.rank)
 
