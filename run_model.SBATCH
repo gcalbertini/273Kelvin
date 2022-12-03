@@ -26,7 +26,7 @@
 ### Can change 5-digit MASTER_PORT as you wish, slurm will raise Error if duplicated with others
 ### change WORLD_SIZE as gpus/node * num_nodes
 ### https://stackoverflow.com/questions/1365265/on-localhost-how-do-i-pick-a-free-port-number
-export MASTER_PORT=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()') #12340
+###export MASTER_PORT = 12340
 export WORLD_SIZE=4
 
 ### get the first node name as master address - customized for vgg slurm

@@ -176,14 +176,13 @@ def main():
                       'You may see unexpected behavior when restarting '
                       'from checkpoints.')
 
-     # DDP setting
+    args.distributed = args.world_size > 1
     if "WORLD_SIZE" in os.environ:
         args.world_size = int(os.environ["WORLD_SIZE"])
     else:
         if args.distributed:
             args.world_size = int(os.environ["SLURM_NPROCS"])
 
-    args.distributed = args.world_size > 1
     ngpus_per_node = torch.cuda.device_count()
 
     if args.distributed:
@@ -195,7 +194,7 @@ def main():
             args.gpu = args.rank % torch.cuda.device_count()
             s=socket.socket()
             s.bind(("", 0))
-            args.master_port = int(os.environ[eval("print(s.getsockname()[1]))")])
+            args.master_port = int(os.environ[str(eval("print(s.getsockname()[1]))"))])
             print(args.master_port)
             s.close()
         dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
