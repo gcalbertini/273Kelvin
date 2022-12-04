@@ -161,10 +161,12 @@ best_acc1 = 0
 
 def setup(rank, world_size):
     # Find free port - type 'netstat -lntu' to see free TCP ports
-    s=socket.socket(); 
-    s.bind(("", 0)); 
-    os.environ['MASTER_PORT'] = s.getsockname()[1]
-    s.close()
+    #s=socket.socket(); 
+    #s.bind(("", 0)); 
+    #port = s.getsockname()[1]
+    #print(f'MASTER PORT={port}')
+    #os.environ['MASTER_PORT'] = str(port)
+    #s.close()
 
     # initialize the process group
     dist.init_process_group("nccl", rank=rank, world_size=world_size)
@@ -207,22 +209,28 @@ def main():
     print(f"host: {gethostname()}, rank: {rank}, local_rank: {local_rank}")
 
      # Data loading code
+    print('Loading data...')
     train_dataset, train_dataloader = labeled_dataloader(args.batch_size, int(os.environ["SLURM_CPUS_PER_TASK"]), args.shuffle, args.path_lbl, SPLIT="training")
+    print('Done.')
 
     tb = None
     if args.tensorboard:
+        print('Creating Tensorboard summary writer and adding data...')
         tb = SummaryWriter()
         images, _ = next(iter(train_dataloader)) 
         grid = torchvision.utils.make_grid(images)
         tb.add_image("images", grid)
         tb.add_graph(model, images)
+        print('Done.')
 
     
     # TODO Consider making validation-set-specific batch size?
     _, val_loader = labeled_dataloader(args.batch_size, int(os.environ["SLURM_CPUS_PER_TASK"]), args.shuffle, args.path_lbl, SPLIT="validation")
 
     # Now make dataloader for DDP
+    print('Generating DDP loader...')
     train_dataloader = DDP.DistributedSampler(train_dataset, num_replicas=world_size, rank=rank)
+    print('Done.')
 
 
     # create model - already does distributed GPU train from borrowed code

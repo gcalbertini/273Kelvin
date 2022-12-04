@@ -25,12 +25,17 @@
 export WORLD_SIZE=$(($SLURM_NNODES * $SLURM_NTASKS_PER_NODE))
 echo "WORLD_SIZE="$WORLD_SIZE
 
+# For the port see: https://unix.stackexchange.com/questions/55913/whats-the-easiest-way-to-find-an-unused-local-port
+master_port=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
+export MASTER_PORT=$master_port
+echo "MASTER_ADDR="$MASTER_PORT
+
 master_addr=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
 export MASTER_ADDR=$master_addr
 echo "MASTER_ADDR="$MASTER_ADDR
 
 # srun included as each process generated for us, else have to include mp.spawn in code using main
-srun singularity exec --nv --overlay /scratch/DL22FA/overlay_12-02.ext3:ro \
+srun singularity exec --nv --overlay /scratch/DL22FA/overlay_12-01.ext3:ro \
             -B /scratch/DL22FA/unlabeled_224.sqsh:/unlabeled:image-src=/ \
             -B /scratch/DL22FA/labeled.sqsh:/labeled:image-src=/ \
             -B /scratch -B /scratch_tmp \
