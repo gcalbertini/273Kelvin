@@ -139,7 +139,8 @@ def labeled_dataloader(BATCH_SIZE=16, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH
         shuffle=SHUFFLE,
         num_workers=NUM_WORKERS,
         collate_fn=collate_fn,
-        drop_last=True
+        drop_last=True,
+        pin_memory = True
     )
 
     return labeled_dataset, labeled_dataloader

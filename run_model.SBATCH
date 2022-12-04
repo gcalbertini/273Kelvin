@@ -5,7 +5,7 @@
 ### no multi-threading but for the deep learning codes TensorFlow and PyTorch, optimal performance can only be achieved when multiple CPU-cores are used to keep the GPU 
 ### busy by feeding it dataloader. 125GB mem max on this node with 24 cores. 4 cpus/task * 1 task/node * 1 node / 24 CPU cores * 125 ~ 20GB node mem per GPU for total of 80GB estimate
 
-#SBATCH --account=csci_ga_2572_2022fa_16
+#SBATCH --account=csci_ga_2572_2022fa_16 
 #SBATCH --partition=n1c24m128-v100-4
 #SBATCH --nodes=1                        # please keep this default
 #SBATCH --ntasks=1                       # please keep this default
@@ -22,21 +22,16 @@
 #SBATCH --mail-user=ga947@nyu.edu
 
 
-### Can change 5-digit MASTER_PORT as you wish, slurm will raise Error if duplicated with others
-### change WORLD_SIZE as gpus/node * num_nodes
-### https://stackoverflow.com/questions/1365265/on-localhost-how-do-i-pick-a-free-port-number
-###export MASTER_PORT = 12340 but we are on GCP nodes so these are b-#-# as well, same as master address?
-export WORLD_SIZE=4
+export MASTER_PORT=$(expr 10000 + $(echo -n $SLURM_JOBID | tail -c 4))
+export WORLD_SIZE=$(($SLURM_NNODES * $SLURM_NTASKS_PER_NODE))
+echo "WORLD_SIZE="$WORLD_SIZE
 
-### get the first node name as master address - customized for vgg slurm
-### e.g. master(gnodee[2-5],gnoded1) == gnodee2
-echo "NODELIST="${SLURM_NODELIST}
 master_addr=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
 export MASTER_ADDR=$master_addr
 echo "MASTER_ADDR="$MASTER_ADDR
 
-
-singularity exec --nv --overlay /scratch/DL22FA/overlay_12-02.ext3:ro \
+# srun included as each process generated for us, else have to include mp.spawn in code using main
+srun singularity exec --nv --overlay /scratch/DL22FA/overlay_12-02.ext3:ro \
             -B /scratch/DL22FA/unlabeled_224.sqsh:/unlabeled:image-src=/ \
             -B /scratch/DL22FA/labeled.sqsh:/labeled:image-src=/ \
             -B /scratch -B /scratch_tmp \
