@@ -2,7 +2,6 @@ import torchvision
 from torchvision.models.detection import FasterRCNN
 from torchvision.models.detection.rpn import AnchorGenerator
 from backbone import get_backbone
-import torchvision.models as models
 
 def get_model(args, backbone=None, num_classes=100):
 

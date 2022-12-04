@@ -1,5 +1,4 @@
 import argparse
-import builtins
 import csv
 import os
 import random
@@ -18,6 +17,7 @@ import torch.backends.cudnn as cudnn
 import torchvision
 from utils import *
 from socket import gethostname
+from backbone import Backbone
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
 
@@ -48,6 +48,10 @@ parser = argparse.ArgumentParser(description='PyTorch FasterRCNN Training')
 # NOTE BATCH SIZES SHOULD BE A MULTIPLE OF GPUs USED AND GREATER THAN THE NUMBER OF GPUs. THE EFFECTIVE BATCH SIZE IS BATCH_SIZE_SPECIFIED*NUM_GPUS*GRAD_ACCUM_STEPS == BATCH_SIZE.
 # EFFICIENCY IS DEPENDENT ON GPU HARDWARE ARCHITECTURE.
 parser = argparse.ArgumentParser()
+# NOTE: Ensure this matches backbone arch of choice
+parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18', choices=model_names,
+                    help='Pretrained (SimCLR) model weights come from this architecture: ' + ' | '.join(model_names) +
+                    ' (default: resnet18)')
 parser.add_argument('--path_lbl', default="labeled_data/", metavar='DATA_PATH_LBL', type=str,
                     help="Default path for labeled data; default used is '/labeled/labeled'; note toy set's is 'labeled_data/'")
 parser.add_argument('--path_unlbl', default="unlabeled_data/", metavar='DATA_PATH_UNLBL', type=str,
@@ -68,12 +72,6 @@ parser.add_argument('--save_every', metavar='SAVE_EVERY_EPOCH',
                     default=1, help='Frequency of saving model (per epoch)')
 
 # =====================FASTERCNN-SIMCLR: EDIT THESE FOR FULL MODEL RUN AFTER BACKBONE TRAIN===============================================================
-parser.add_argument('--train_backbone', action='store_true',
-                    help='Train backbone toggle')
-parser.add_argument('-o', '--output_size', default=1, type=int,
-                    help="Output size for the backbone")  # TODO is this 1?? See fastercnn.py
-parser.add_argument('-bb', '--backbone', default="SimCLR", type=str, metavar='BACKBONE',
-                    help="Backbone to use; default is SimCLR. Set to 'None' for mobilenet_v2.")
 parser.add_argument('-bs', '--batch_size', default=64,
                     type=int, metavar='BATCH_SIZE', help='Batch size to use')
 parser.add_argument('-e', '--epochs', default=5, metavar='EPOCHS',
@@ -195,8 +193,7 @@ def main():
     print(world_size)
     print(rank)
     print(gpus_per_node)
-    print(len([torch.cuda.device(i)
-          for i in range(torch.cuda.device_count())]))
+    print(torch.cuda.device_count())
 
     assert gpus_per_node == len([torch.cuda.device(i)
                                 for i in range(torch.cuda.device_count())])
@@ -205,23 +202,12 @@ def main():
 
     print(
         'Loading in backbone to rank {rank} of {world_size} on {gethostname()}...')
-        path = './' + str(args.arch)+'_backbone_weights.ckpt'
-    model = torch.load()
+    path = './' + str(args.arch)+ '_backbone_weights.ckpt'
+    # load your model architecture/module
+    model = Backbone()
+    # fill your architecture with the trained weights
+    model.load_state_dict(torch.load(path))
     print('Done.')
-
-    tb = None
-    if args.tensorboard:
-        # Should be rank 0
-        print(
-            f'Creating Tensorboard summary writer to rank {rank} of {world_size} on {gethostname()} and adding data...')
-        tb = SummaryWriter()
-        _, train_dataloader = labeled_dataloader(args.batch_size, int(
-            os.environ["SLURM_CPUS_PER_TASK"]), args.shuffle, args.path_lbl, SPLIT="training")
-        images, _ = next(iter(train_dataloader))
-        grid = torchvision.utils.make_grid(images)
-        tb.add_image("images", grid)
-        tb.add_graph(model, images)
-        print('Done.')
 
     setup(rank, world_size)
     if rank == 0:
@@ -233,8 +219,7 @@ def main():
 
     # Data loading code
     print(f'Loading data to rank {rank} of {world_size} on {gethostname()}...')
-    train_dataset, train_dataloader = labeled_dataloader(args.batch_size, int(
-        os.environ["SLURM_CPUS_PER_TASK"]), args.shuffle, args.path_lbl, SPLIT="training")
+    train_dataset, train_dataloader = labeled_dataloader(args.batch_size, args.num_workers, args.shuffle, args.path_lbl, SPLIT="training")
     print('Done.')
 
     # TODO Consider making validation-set-specific batch size?
@@ -247,8 +232,6 @@ def main():
     train_dataloader = DDP.DistributedSampler(
         train_dataset, num_replicas=world_size, rank=rank)
     print('Done.')
-
-    #model_without_ddp = model
 
     model = model.to(local_rank)
     ddp_model = DDP(model, device_ids=[local_rank])
@@ -273,6 +256,20 @@ def main():
     cudnn.benchmark = True
 
     log_csv = "distributed.csv"
+
+    if rank == 0:
+        tb = None
+        if args.tensorboard:
+            print(
+                f'Creating Tensorboard summary writer to rank {rank} of {world_size} on {gethostname()} and adding data...')
+            tb = SummaryWriter()
+            _, train_dataloader = labeled_dataloader(args.batch_size, int(
+                os.environ["SLURM_CPUS_PER_TASK"]), args.shuffle, args.path_lbl, SPLIT="training")
+            images, _ = next(iter(train_dataloader))
+            grid = torchvision.utils.make_grid(images)
+            tb.add_image("images", grid)
+            tb.add_graph(model, images)
+            print('Done.')
 
     for epoch in range(args.start_epoch, args.epochs):
         epoch_start = time.time()
