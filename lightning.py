@@ -277,7 +277,7 @@ class SimCLR_pl(pl.LightningModule):
 # a lazy way to pass the config file
 class Hparams:
     def __init__(self):
-        self.epochs = 30 # number of training epochs
+        self.epochs = 40 # number of training epochs
         self.seed = 77777 # randomness seed
         self.cuda = True # use nvidia gpu
         self.img_size = 224 #image shape
@@ -289,7 +289,7 @@ class Hparams:
         self.weight_decay = 1e-6
         self.embedding_size= 128 # papers value is 128
         self.temperature = 0.1 # 0.1 or 0.5
-        self.checkpoint_path = './saved_models/last.ckpt' # replace checkpoint path here
+        self.checkpoint_path = './saved_models/SimCLR_ResNet18_adam_.ckpt' # replace checkpoint path here
 
 """## Pretraining main logic"""
 
