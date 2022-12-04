@@ -193,8 +193,9 @@ def main():
     print(world_size)
     print(rank)
     print(gpus_per_node)
+    print(len([torch.cuda.device(i) for i in range(torch.cuda.device_count())]))
 
-    assert gpus_per_node == torch.cuda.device_count()
+    assert gpus_per_node == len([torch.cuda.device(i) for i in range(torch.cuda.device_count())])
     print(f"Hello from rank {rank} of {world_size} on {gethostname()} where there are" \
           f" {gpus_per_node} allocated GPUs per node.", flush=True)
 
@@ -296,7 +297,7 @@ def main():
             tb.add_histogram(name, weight, epoch)
             tb.add_histogram(f'{name}.grad', weight.grad, epoch)
             tb.close()
-            
+
     if args.ta_evaluate:
         # TA code entry point
         TA_EVAL(ddp_model, val_loader, torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu'))

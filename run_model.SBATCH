@@ -20,6 +20,7 @@
 #SBATCH --mail-type=fail         # send email if job fails
 #SBATCH --mail-user=ga947@nyu.edu
 
+
 ### Alternatively, you could request --nodes=4 with 1 GPU each by setting nodes to 4 and --ntasks-per-node=1 OR --nodes=2 with 2 GPUs each. Just use proper partition and GPUs.
 export WORLD_SIZE=$(($SLURM_NNODES * $SLURM_NTASKS_PER_NODE))
 echo "WORLD_SIZE="$WORLD_SIZE
@@ -34,4 +35,4 @@ srun singularity exec --nv --overlay /scratch/DL22FA/overlay_12-02.ext3:ro \
             -B /scratch/DL22FA/labeled.sqsh:/labeled:image-src=/ \
             -B /scratch -B /scratch_tmp \
             /scratch/DL22FA/cuda11.2.2-cudnn8-devel-ubuntu20.04.sif \
-            /bin/bash -c "source /ext3/env.sh; torchrun train.py"
+            /bin/bash -c "source /ext3/env.sh; python train.py"
