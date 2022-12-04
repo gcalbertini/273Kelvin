@@ -277,14 +277,14 @@ class SimCLR_pl(pl.LightningModule):
 # a lazy way to pass the config file
 class Hparams:
     def __init__(self):
-        self.epochs = 40 # number of training epochs
+        self.epochs = 10 # number of training epochs
         self.seed = 77777 # randomness seed
         self.cuda = True # use nvidia gpu
         self.img_size = 224 #image shape
         self.save = "./saved_models/" # save checkpoint
         self.load = False # load pretrained checkpoint
         self.gradient_accumulation_steps = 5 # gradient accumulation steps
-        self.batch_size = 128
+        self.batch_size = 256
         self.lr = 8e-3 # for ADAm only
         self.weight_decay = 1e-6
         self.embedding_size= 128 # papers value is 128
