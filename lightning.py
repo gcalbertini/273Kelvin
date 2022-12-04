@@ -289,7 +289,7 @@ class Hparams:
         self.weight_decay = 1e-6
         self.embedding_size= 128 # papers value is 128
         self.temperature = 0.1 # 0.1 or 0.5
-        self.checkpoint_path = './saved_models/SimCLR_ResNet18_adam_-v3.ckpt' # replace checkpoint path here
+        self.checkpoint_path = './saved_models/last.ckpt' # replace checkpoint path here
 
 """## Pretraining main logic"""
 
