@@ -7,37 +7,20 @@
 
 #SBATCH --account=csci_ga_2572_2022fa_16 
 #SBATCH --cpus-per-task=4               # https://researchcomputing.princeton.edu/support/knowledge-base/pytorch on MNIST dataset dataloader with 4 workers and 4 here gave best performance; assumed here too as little time to analyze optimal wall times
-#SBATCH --partition=n1c24m128-v100-4    # Proper partition for num GPUs/node: n1s8-v100-1, n1s16-v100-2, or n1c24m128-v100-4
-#SBATCH --nodes=1                       # node count
-#SBATCH --ntasks-per-node=4             # total number of tasks per node (or --ntasks=4 for the single node we are allowed)          
+#SBATCH --partition=n1c24m128-v100-4    # Proper partition for num GPUs/node: n1s8-v100-1, n1s16-v100-2, or n1c24m128-v100-4         
 #SBATCH --gres=gpu:4                    # 4 GPUs per node
 #SBATCH --time=0:40:00
 #SBATCH --mem=90GB
-#SBATCH --job-name=FULLRUN
+#SBATCH --job-name=BACKBONE
 #SBATCH --output=slurm_%j.out
 #SBATCH --mail-type=begin        # send email when job begins
 #SBATCH --mail-type=end          # send email when job ends
 #SBATCH --mail-type=fail         # send email if job fails
 #SBATCH --mail-user=ga947@nyu.edu
 
-
-### Alternatively, you could request --nodes=4 with 1 GPU each by setting nodes to 4 and --ntasks-per-node=1 OR --nodes=2 with 2 GPUs each. Just use proper partition and GPUs.
-export WORLD_SIZE=$(($SLURM_NNODES * $SLURM_NTASKS_PER_NODE))
-echo "WORLD_SIZE="$WORLD_SIZE
-
-# For the port see: https://unix.stackexchange.com/questions/55913/whats-the-easiest-way-to-find-an-unused-local-port
-#master_port=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
-#export MASTER_PORT=$master_port
-#echo "MASTER_PORT="$MASTER_PORT
-
-master_addr=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
-export MASTER_ADDR=$master_addr
-echo "MASTER_ADDR="$MASTER_ADDR
-
-# srun included as each process generated for us, else have to include mp.spawn in code using main
-srun singularity exec --nv --overlay /scratch/DL22FA/overlay_12-01.ext3:ro \
+singularity exec --nv --overlay /scratch/DL22FA/overlay_12-01.ext3:ro \
             -B /scratch/DL22FA/unlabeled_224.sqsh:/unlabeled:image-src=/ \
             -B /scratch/DL22FA/labeled.sqsh:/labeled:image-src=/ \
             -B /scratch -B /scratch_tmp \
             /scratch/DL22FA/cuda11.2.2-cudnn8-devel-ubuntu20.04.sif \
-            /bin/bash -c "source /ext3/env.sh; python train_model.py --train_backbone"
+            /bin/bash -c "source /ext3/env.sh; python train_SimCLR.py --train_backbone"

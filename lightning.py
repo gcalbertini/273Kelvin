@@ -10,6 +10,14 @@ Original file is located at
 
 ## Imports, basic utils, augmentations and Contrastive loss
 """
+import matplotlib.pyplot as plt
+from torchvision.models import resnet18
+from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import GradientAccumulationScheduler
+from pytorch_lightning import Trainer
+from torch.optim import SGD, Adam
+from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
+import pytorch_lightning as pl
 import warnings
 import torch
 import torchvision.models as models
@@ -32,6 +40,7 @@ warnings.filterwarnings("ignore")
 logging.captureWarnings(capture=True)
 logging.getLogger("lightning").setLevel(logging.ERROR)
 
+
 class UnlabeledDataset(torch.utils.data.Dataset):
     def __init__(self, root, transform=None):
         r"""
@@ -51,11 +60,13 @@ class UnlabeledDataset(torch.utils.data.Dataset):
 
         with open(os.path.join(self.image_dir, f"{idx}.PNG"), "rb") as f:
             img = Image.open(f).convert("RGB")
-        
+
         return self.transform(img), -1
+
 
 def default(val, def_val):
     return def_val if val is None else val
+
 
 def reproducibility(config):
     SEED = int(config.seed)
@@ -74,10 +85,13 @@ def device_as(t1, t2):
     return t1.to(t2.device)
 
 # From https://github.com/PyTorchLightning/pytorch-lightning/issues/924
+
+
 def weights_update(model, checkpoint_path):
     checkpoint = torch.load(checkpoint_path)
     model_dict = model.state_dict()
-    pretrained_dict = {k: v for k, v in checkpoint['state_dict'].items() if k in model_dict}
+    pretrained_dict = {
+        k: v for k, v in checkpoint['state_dict'].items() if k in model_dict}
     model_dict.update(pretrained_dict)
     model.load_state_dict(model_dict)
     print(f'Checkpoint {checkpoint_path} was loaded')
@@ -101,33 +115,35 @@ class Augment:
 
         self.train_transform = T.Compose(
             [
-            T.RandomResizedCrop(size=img_size),
-            T.RandomHorizontalFlip(p=0.5),  # with 0.5 probability
-            T.RandomApply([color_jitter], p=0.8),
-            T.RandomApply([blur], p=0.5),
-            T.RandomGrayscale(p=0.2),
-            # imagenet stats
-            T.ToTensor(),
-            T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                T.RandomResizedCrop(size=img_size),
+                T.RandomHorizontalFlip(p=0.5),  # with 0.5 probability
+                T.RandomApply([color_jitter], p=0.8),
+                T.RandomApply([blur], p=0.5),
+                T.RandomGrayscale(p=0.2),
+                # imagenet stats
+                T.ToTensor(),
+                T.Normalize(mean=[0.485, 0.456, 0.406],
+                            std=[0.229, 0.224, 0.225])
             ]
         )
 
         self.test_transform = T.Compose(
             [
                 T.ToTensor(),
-                T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                T.Normalize(mean=[0.485, 0.456, 0.406],
+                            std=[0.229, 0.224, 0.225]),
             ]
         )
 
     def __call__(self, x):
         return self.train_transform(x), self.train_transform(x)
 
+
 def get_stl_dataloader(path, batch_size, transform=None):
     #stl10 = STL10("./", split=split, transform=transform, download=True)
-    dataset = UnlabeledDataset(path, transform=transform) 
+    dataset = UnlabeledDataset(path, transform=transform)
     return DataLoader(dataset=dataset, batch_size=batch_size, num_workers=cpu_count()//2)
 
-import matplotlib.pyplot as plt
 
 def imshow(img):
     """
@@ -141,16 +157,17 @@ def imshow(img):
     plt.show()
 
 
-
 class ContrastiveLoss(nn.Module):
     """
     Vanilla Contrastive loss, also called InfoNceLoss as in SimCLR paper
     """
+
     def __init__(self, batch_size, temperature=0.5):
         super().__init__()
         self.batch_size = batch_size
         self.temperature = temperature
-        self.mask = (~torch.eye(batch_size * 2, batch_size * 2, dtype=bool)).float()
+        self.mask = (~torch.eye(batch_size * 2,
+                     batch_size * 2, dtype=bool)).float()
 
     def calc_similarity_batch(self, a, b):
         representations = torch.cat([a, b], dim=0)
@@ -175,28 +192,25 @@ class ContrastiveLoss(nn.Module):
 
         nominator = torch.exp(positives / self.temperature)
 
-        denominator = device_as(self.mask, similarity_matrix) * torch.exp(similarity_matrix / self.temperature)
+        denominator = device_as(self.mask, similarity_matrix) * \
+            torch.exp(similarity_matrix / self.temperature)
 
         all_losses = -torch.log(nominator / torch.sum(denominator, dim=1))
         loss = torch.sum(all_losses) / (2 * self.batch_size)
         return loss
 
-"""## Add projection Head for embedding and training logic with pytorch lightning model"""
 
-import pytorch_lightning as pl
-import torch
-import torch.nn.functional as F
-from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
-from torch.optim import SGD, Adam
+"""## Add projection Head for embedding and training logic with pytorch lightning model"""
 
 
 class AddProjection(nn.Module):
     def __init__(self, config, model=None, mlp_dim=512):
         super(AddProjection, self).__init__()
         embedding_size = config.embedding_size
-        self.backbone = default(model, models.resnet18(pretrained=False, num_classes=config.embedding_size))
+        self.backbone = default(model, models.resnet18(
+            pretrained=False, num_classes=config.embedding_size))
         mlp_dim = default(mlp_dim, self.backbone.fc.in_features)
-        print('Dim MLP input:',mlp_dim)
+        print('Dim MLP input:', mlp_dim)
         self.backbone.fc = nn.Identity()
 
         # add mlp projection head
@@ -241,10 +255,11 @@ class SimCLR_pl(pl.LightningModule):
     def __init__(self, config, model=None, feat_dim=512):
         super().__init__()
         self.config = config
-        
+
         self.model = AddProjection(config, model=model, mlp_dim=feat_dim)
 
-        self.loss = ContrastiveLoss(config.batch_size, temperature=self.config.temperature)
+        self.loss = ContrastiveLoss(
+            config.batch_size, temperature=self.config.temperature)
 
     def forward(self, X):
         return self.model(X)
@@ -254,14 +269,17 @@ class SimCLR_pl(pl.LightningModule):
         z1 = self.model(x1)
         z2 = self.model(x2)
         loss = self.loss(z1, z2)
-        self.log('Contrastive loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.log('Contrastive loss', loss, on_step=True,
+                 on_epoch=True, prog_bar=True, logger=True)
         return loss
 
     def configure_optimizers(self):
         max_epochs = int(self.config.epochs)
-        param_groups = define_param_groups(self.model, self.config.weight_decay, 'adam')
+        param_groups = define_param_groups(
+            self.model, self.config.weight_decay, 'adam')
         lr = self.config.lr
-        optimizer = Adam(param_groups, lr=lr, weight_decay=self.config.weight_decay)
+        optimizer = Adam(param_groups, lr=lr,
+                         weight_decay=self.config.weight_decay)
 
         print(f'Optimizer Adam, '
               f'Learning Rate {lr}, '
@@ -272,80 +290,84 @@ class SimCLR_pl(pl.LightningModule):
 
         return [optimizer], [scheduler_warmup]
 
+
 """## Hyperparameters, and configuration stuff"""
 
 # a lazy way to pass the config file
+
+
 class Hparams():
     def __init__(self, epochs, seed, cuda, img_size, save, load, gradient_accumulation_steps, batch_size, lr, weight_decay, embedding_size, temperature, checkpoint_path, checkpoint_resume):
-        self.epochs = epochs #number of training epochs
-        self.seed = seed #77777, randomness seed
-        self.cuda = cuda #True, use nvidia gpu
-        self.img_size = img_size #224, image shape
-        self.save = save #"saved_models/", save checkpoint
-        self.load = load #False, load pretrained checkpoint
-        self.gradient_accumulation_steps = gradient_accumulation_steps #5, gradient accumulation steps
-        self.batch_size = batch_size #200
-        self.lr = lr #3e-4, for ADAm only
-        self.weight_decay = weight_decay#1e-6
-        self.embedding_size= embedding_size # papers value is 128
-        self.temperature = temperature # 0.1 or 0.5
-        self.checkpoint_path = checkpoint_path # './SimCLR_ResNet18.ckpt' replace checkpoint path here
-        self.resume_checkpoint = checkpoint_resume # resume from checkpoint 
+        self.epochs = epochs  # number of training epochs
+        self.seed = seed  # 77777, randomness seed
+        self.cuda = cuda  # True, use nvidia gpu
+        self.img_size = img_size  # 224, image shape
+        self.save = save  # "saved_models/", save checkpoint
+        self.load = load  # False, load pretrained checkpoint
+        # 5, gradient accumulation steps
+        self.gradient_accumulation_steps = gradient_accumulation_steps
+        self.batch_size = batch_size  # 200
+        self.lr = lr  # 3e-4, for ADAm only
+        self.weight_decay = weight_decay  # 1e-6
+        self.embedding_size = embedding_size  # papers value is 128
+        self.temperature = temperature  # 0.1 or 0.5
+        # './SimCLR_ResNet18.ckpt' replace checkpoint path here
+        self.checkpoint_path = checkpoint_path
+        self.resume_checkpoint = checkpoint_resume  # resume from checkpoint
+
 
 """## Pretraining main logic"""
 
-import torch
-from pytorch_lightning import Trainer
-import os
-from pytorch_lightning.callbacks import GradientAccumulationScheduler
-from pytorch_lightning.callbacks import ModelCheckpoint
-from torchvision.models import  resnet18
 
 def train_backbone(args):
 
     train_config = Hparams(
-        args.backbone_epochs, 
-        args.backbone_seed, 
-        args.backbone_cuda_off, 
-        args.backbone_img_size, 
-        args.backbone_save_directory, 
+        args.backbone_epochs,
+        args.backbone_seed,
+        args.backbone_cuda_off,
+        args.backbone_img_size,
+        args.backbone_save_directory,
         args.backbone_load_pretrained,
-        args.backbone_grad_accumulate_steps, 
-        args.backbone_batch_size, 
-        args.backbone_lr, 
-        args.backbone_weight_decay, 
-        args.backbone_embedding_size, 
+        args.backbone_grad_accumulate_steps,
+        args.backbone_batch_size,
+        args.backbone_lr,
+        args.backbone_weight_decay,
+        args.backbone_embedding_size,
         args.backbone_temperature,
         args.backbone_checkpoint_path,
         args.backbone_resume)
 
-    available_gpus = len([torch.cuda.device(i) for i in range(torch.cuda.device_count())])
+    available_gpus = len([torch.cuda.device(i)
+                         for i in range(torch.cuda.device_count())])
     save_model_path = os.path.join(os.getcwd(), train_config.save)
-    print('available_gpus:',available_gpus)
-    filename='SimCLR_' + str(args.arch) + '_adam_'
+    print('available_gpus:', available_gpus)
+    filename = 'SimCLR_' + str(args.arch) + '_adam_'
     resume_from_checkpoint = train_config.resume_checkpoint
 
     reproducibility(train_config)
     save_name = filename + '.ckpt'
 
-    model = SimCLR_pl(train_config, model = models.__dict__[args.arch](pretrained=False), feat_dim=512)
+    model = SimCLR_pl(train_config, model=models.__dict__[
+                      args.arch](pretrained=False), feat_dim=512)
 
     transform = Augment(train_config.img_size)
-    data_loader = get_stl_dataloader(args.path_unlbl, train_config.batch_size, transform)
+    data_loader = get_stl_dataloader(
+        args.path_unlbl, train_config.batch_size, transform)
 
-    accumulator = GradientAccumulationScheduler(scheduling={0: train_config.gradient_accumulation_steps})
+    accumulator = GradientAccumulationScheduler(
+        scheduling={0: train_config.gradient_accumulation_steps})
     checkpoint_callback = ModelCheckpoint(filename=filename, dirpath=save_model_path,
-                                            save_last=True, save_top_k=2,monitor='Contrastive loss_epoch',mode='min')
+                                          save_last=True, save_top_k=2, monitor='Contrastive loss_epoch', mode='min')
 
     if resume_from_checkpoint:
         trainer = Trainer(callbacks=[accumulator, checkpoint_callback],
-                        gpus=available_gpus,
-                        max_epochs=train_config.epochs,
-                        resume_from_checkpoint=train_config.checkpoint_path)
+                          gpus=available_gpus,
+                          max_epochs=train_config.epochs,
+                          resume_from_checkpoint=train_config.checkpoint_path)
     else:
         trainer = Trainer(callbacks=[accumulator, checkpoint_callback],
-                        gpus=available_gpus,
-                        max_epochs=train_config.epochs)
+                          gpus=available_gpus,
+                          max_epochs=train_config.epochs)
 
     trainer.fit(model, data_loader)
 
@@ -353,12 +375,14 @@ def train_backbone(args):
 
     """## Save only backbone weights from Resnet18 that are only necessary for fine tuning"""
 
-    model_pl = SimCLR_pl(train_config, models.__dict__[args.arch](pretrained=False))
+    model_pl = SimCLR_pl(train_config, models.__dict__[
+                         args.arch](pretrained=False))
     model_pl = weights_update(model_pl, save_name)
 
     pretrained_backbone_weights = model_pl.model.backbone
-    pretrained_backbone_weights_name = str(args.arch) + '_backbone_weights.ckpt'
+    pretrained_backbone_weights_name = str(
+        args.arch) + '_backbone_weights.ckpt'
     print(pretrained_backbone_weights)
     torch.save({
-                'model_state_dict': pretrained_backbone_weights.state_dict(),
-                }, pretrained_backbone_weights_name)
+        'model_state_dict': pretrained_backbone_weights.state_dict(),
+    }, pretrained_backbone_weights_name)

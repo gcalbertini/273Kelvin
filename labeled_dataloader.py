@@ -13,6 +13,7 @@ from torchvision import transforms
 #from torchvision.utils import draw_bounding_boxes
 #from helper_data import show, unnormalize
 
+
 def show(imgs):
     plt.rcParams["savefig.bbox"] = "tight"
     if not isinstance(imgs, list):
@@ -24,8 +25,10 @@ def show(imgs):
         axs[0, i].imshow(np.asarray(img))
         axs[0, i].set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
 
+
 def collate_fn(batch):
     return tuple(zip(*batch))
+
 
 # Inverse transformation: needed for plotting.
 unnormalize = transforms.Normalize(
@@ -48,6 +51,7 @@ class_dict = {
     "nail": 94, "axe": 95, "salt or pepper shaker": 96, "croquet ball": 97, "skunk": 98, "starfish": 99,
 }
 
+
 class LabeledDataset(torch.utils.data.Dataset):
     def __init__(self, root, split, img_size):
         r"""
@@ -59,14 +63,15 @@ class LabeledDataset(torch.utils.data.Dataset):
         self.IMAGE_SIZE = img_size
         self.split = split
         self.transforms = A.Compose([
-                            A.augmentations.geometric.resize.SmallestMaxSize(max_size=self.IMAGE_SIZE , interpolation=cv2.INTER_CUBIC, always_apply=False, p=1),
-                            A.RandomSizedBBoxSafeCrop(height=self.IMAGE_SIZE , width=self.IMAGE_SIZE , erosion_rate=0.0),
-                            A.HorizontalFlip(p=0.5),
-                            A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
-                            ToTensorV2(),  # convert PIL to Pytorch Tensor
-                        ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
+            A.augmentations.geometric.resize.SmallestMaxSize(
+                max_size=self.IMAGE_SIZE, interpolation=cv2.INTER_CUBIC, always_apply=False, p=1),
+            A.RandomSizedBBoxSafeCrop(
+                height=self.IMAGE_SIZE, width=self.IMAGE_SIZE, erosion_rate=0.0),
+            A.HorizontalFlip(p=0.5),
+            A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+            ToTensorV2(),  # convert PIL to Pytorch Tensor
+        ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
 
-        
         self.image_dir = os.path.join(root, split, "images")
         self.label_dir = os.path.join(root, split, "labels")
 
@@ -80,7 +85,7 @@ class LabeledDataset(torch.utils.data.Dataset):
         # the idx of validation image is from 30001 to 50000
 
         # Use toy dataset from main
-        try: 
+        try:
             assert self.image_dir <= 700
             if self.split == "training":
                 offset = 1
@@ -91,13 +96,13 @@ class LabeledDataset(torch.utils.data.Dataset):
             if self.split == "training":
                 offset = 1
             if self.split == "validation":
-                offset = 30001 
+                offset = 30001
 
         with open(os.path.join(self.image_dir, f"{idx + offset}.JPEG"), "rb") as f:
             img = Image.open(f).convert("RGB")
         with open(os.path.join(self.label_dir, f"{idx + offset}.yml"), "rb") as f:
             yamlfile = yaml.load(f, Loader=yaml.FullLoader)
-        
+
         num_objs = len(yamlfile["labels"])
         # xmin, ymin, xmax, ymax
         boxes = torch.as_tensor(yamlfile["bboxes"], dtype=torch.float32)
@@ -116,14 +121,18 @@ class LabeledDataset(torch.utils.data.Dataset):
         if self.transforms is not None:
             #img, target = self.transforms(img, target)
             img = np.array(img)
-            transformed = self.transforms(image=img, bboxes=target["boxes"], class_labels=target["labels"])
+            transformed = self.transforms(
+                image=img, bboxes=target["boxes"], class_labels=target["labels"])
             img = transformed['image']
-            target["boxes"] = torch.as_tensor(transformed['bboxes'], dtype=torch.float32)
-            target["labels"] = torch.as_tensor(transformed['class_labels'], dtype=torch.int64)
+            target["boxes"] = torch.as_tensor(
+                transformed['bboxes'], dtype=torch.float32)
+            target["labels"] = torch.as_tensor(
+                transformed['class_labels'], dtype=torch.int64)
             area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
             target["area"] = area
 
         return img, target
+
 
 def labeled_dataloader(BATCH_SIZE=16, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH="/labeled/labeled/", SPLIT="training", IMAGE_SIZE=224):
 
@@ -140,13 +149,13 @@ def labeled_dataloader(BATCH_SIZE=16, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH
         num_workers=NUM_WORKERS,
         collate_fn=collate_fn,
         drop_last=True,
-        pin_memory = True
+        pin_memory=True
     )
 
     return labeled_dataset, labeled_dataloader
 
-#if __name__ == "__main__":
+# if __name__ == "__main__":
     #dataset, loader = labeled_dataloader()
     #batch = next(iter(loader))
     #drawn_boxes = draw_bounding_boxes((unnormalize(batch[0][1]) * 255).to(torch.uint8), batch[1][1]['boxes'], colors="red")
-    #show(drawn_boxes)
+    # show(drawn_boxes)

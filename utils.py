@@ -1,6 +1,7 @@
 import shutil
-import torch 
-import time 
+import torch
+import time
+
 
 def validate(val_loader, model, gpu, args):
     batch_time = AverageMeter('Time', ':6.3f')
@@ -43,6 +44,7 @@ def validate(val_loader, model, gpu, args):
 
     return top1.avg
 
+
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     torch.save(state, filename)
     if is_best:
@@ -51,6 +53,7 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
+
     def __init__(self, name, fmt=':f'):
         self.name = name
         self.fmt = fmt
@@ -105,6 +108,7 @@ def accuracy(output, target, topk=(1, )):
             correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
+
 
 def get_num_correct(preds, labels):
     return preds.argmax(dim=1).eq(labels).sum().item()
