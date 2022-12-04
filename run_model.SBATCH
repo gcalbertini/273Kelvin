@@ -1,17 +1,16 @@
 #!/bin/bash
 
-### Request 1 node with 4 gpus, totals 4 gpus (WORLD_SIZE==4)
+### Request 1 node with 4 gpus, 4 gpus or 2 nodes with 2, or 4 nodes with 1 GPU each (to get WORLD_SIZE==4) 
 ### Note: --gres=gpu:x should equal to ntasks-per-node (or ntasks in our 1-node case) and keep nodes 1 because we are billed hours proportional to Nodes*GPUs/Node*Wall_time
 ### no multi-threading but for the deep learning codes TensorFlow and PyTorch, optimal performance can only be achieved when multiple CPU-cores are used to keep the GPU 
 ### busy by feeding it dataloader. 125GB mem max on this node with 24 cores. 4 cpus/task * 1 task/node * 1 node / 24 CPU cores * 125 ~ 20GB node mem per GPU for total of 80GB estimate
 
 #SBATCH --account=csci_ga_2572_2022fa_16 
-#SBATCH --partition=n1c24m128-v100-4
-#SBATCH --nodes=1                        # please keep this default
-#SBATCH --ntasks=1                       # please keep this default
-#SBATCH --ntasks-per-node=1              # please keep this default
-#SBATCH --cpus-per-task=4    # https://researchcomputing.princeton.edu/support/knowledge-base/pytorch on MNIST dataset dataloader with 4 workers and 4 here gave best performance; assumed here too as little time to analyze optimal wall times
-#SBATCH --gres=gpu:4
+#SBATCH --cpus-per-task=4               # https://researchcomputing.princeton.edu/support/knowledge-base/pytorch on MNIST dataset dataloader with 4 workers and 4 here gave best performance; assumed here too as little time to analyze optimal wall times
+#SBATCH --nodes=2                       # node count
+#SBATCH --ntasks-per-node=2             # total number of tasks per node          
+#SBATCH --gres=gpu:2                    # 2 GPUs per node
+#SBATCH --partition=n1s16-v100-2    # Proper partition for num GPUs/node: n1s8-v100-1, n1s16-v100-2, or n1c24m128-v100-4
 #SBATCH --time=12:00:00
 #SBATCH --mem=90GB
 #SBATCH --job-name=FULLRUN
@@ -20,6 +19,8 @@
 #SBATCH --mail-type=end          # send email when job ends
 #SBATCH --mail-type=fail         # send email if job fails
 #SBATCH --mail-user=ga947@nyu.edu
+
+### Alternatively, you could request --nodes=4 with 1 GPU each by setting nodes to 4 and --ntasks-per-node=1 OR --nodes=2 with 2 GPUs each. Just use proper partition and GPUs.
 
 
 export MASTER_PORT=$(expr 10000 + $(echo -n $SLURM_JOBID | tail -c 4))

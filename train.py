@@ -183,6 +183,11 @@ def main():
     rank          = int(os.environ["SLURM_PROCID"])
     gpus_per_node = int(os.environ["SLURM_GPUS_ON_NODE"])
 
+    print(args.num_workers)
+    print(world_size)
+    print(rank)
+    print(gpus_per_node)
+
     assert gpus_per_node == torch.cuda.device_count()
     print(f"Hello from rank {rank} of {world_size} on {gethostname()} where there are" \
           f" {gpus_per_node} allocated GPUs per node.", flush=True)
@@ -253,13 +258,6 @@ def main():
             is_best = acc1 > best_acc1
             best_acc1 = max(acc1, best_acc1)
 
-            save_checkpoint(
-                {
-                    'epoch': epoch + 1,
-                    'arch': args.arch,
-                    'state_dict': ddp_model.module.state_dict(),
-                    'best_acc1': best_acc1,
-                }, is_best)
 
         scheduler.step()
         
@@ -274,9 +272,16 @@ def main():
                 ]
                 csv_write.writerow(data_row)
 
-     
-    if rank == 0 and epoch % args.save_every == 0:
-        torch.save(ddp_model.state_dict(), "fasterRCNN_SimCLR.pt")
+            save_checkpoint(
+                {
+                    'epoch': epoch + 1,
+                    'arch': args.arch,
+                    'state_dict': ddp_model.module.state_dict(),
+                    'best_acc1': best_acc1,
+                }, is_best)
+
+            if epoch % args.save_every == 0:
+                torch.save(ddp_model.state_dict(), "fasterRCNN_SimCLR.pt")
 
     dist.destroy_process_group()
 
