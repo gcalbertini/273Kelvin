@@ -20,6 +20,8 @@ from pytorch_lightning.utilities.warnings import PossibleUserWarning
 import torch.backends.cudnn as cudnn
 import torchvision
 from utils import *
+from socket import gethostname
+from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -31,6 +33,7 @@ warnings.filterwarnings("ignore", category=PossibleUserWarning)
 # REF https://pytorch.org/docs/stable/distributed.html
 # REF https://github.dev/lkskstlr/distributed_data_parallel_slurm_setup
 # REF https://gist.github.com/TengdaHan/1dd10d335c7ca6f13810fff41e809904
+# REF REF https://github.com/PrincetonUniversity/multi_gpu_training/tree/main/02_pytorch_ddp
 
 model_names = sorted(name for name in models.__dict__
                      if name.islower() and not name.startswith("__")
@@ -58,17 +61,12 @@ parser.add_argument('-c', '--classes', default=100, type=int, metavar='NUM_CLASS
 parser.add_argument('-a','--arch',metavar='ARCH',default='resnet18',choices=model_names,
                 help='Pretrained (SimCLR) model weights come from this architecture: ' + ' | '.join(model_names) +
                 ' (default: resnet18)')
-parser.add_argument('-eval','--evaluate',dest='EVALUATE',action='store_true',help='evaluate model on validation set -- FINAL SUBMISSIONS EVAL CODE!')
+parser.add_argument('-teval','--ta-evaluate',dest='EVALUATE',action='store_true',help='evaluate model on validation set using course code -- FINAL SUBMISSIONS EVAL CODE!')
 parser.add_argument('-opt','--optimizer',default='Adam',type=str,help='Adam (default) or SGD optimizer')
 parser.add_argument('--start_epoch',default=0,type=int,metavar='N', help='manual epoch number (useful on restarts)')
 parser.add_argument('-tb','--tensorboard', action='store_true', help='Tensorboard displays')
+parser.add_argument('--save_every', metavar='SAVE_EVERY_EPOCH', default=1, help='Frequency of saving model (per epoch)')
 
-# DDP configs:
-parser.add_argument('--world-size', default=-1, type=int, help='number of nodes for distributed training')
-parser.add_argument('--rank', default=-1, type=int, help='node rank for distributed training')
-parser.add_argument('--dist-url', default='env://', type=str, help='url used to set up distributed training')
-parser.add_argument('--dist-backend', default='nccl', type=str, help='distributed backend (default nccl or gloo)')
-parser.add_argument('--local_rank', default=-1, type=int, help='local rank for distributed training')
 #=====================FASTERCNN-SIMCLR: EDIT THESE FOR FULL MODEL RUN AFTER BACKBONE TRAIN===============================================================
 parser.add_argument('--train_backbone', action='store_true', help='Train backbone toggle')
 parser.add_argument('-o', '--output_size', default=1, type=int, help="Output size for the backbone") #TODO is this 1?? See fastercnn.py
@@ -161,6 +159,10 @@ def train(train_loader, model, optimizer, epoch, gpu, args, tb):
 
 best_acc1 = 0
 
+def setup(rank, world_size):
+    # initialize the process group
+    dist.init_process_group("nccl", rank=rank, world_size=world_size)
+
 def main():
     args = parser.parse_args()
     print(args)
@@ -176,73 +178,48 @@ def main():
                       'You may see unexpected behavior when restarting '
                       'from checkpoints.')
 
-    if "WORLD_SIZE" in os.environ:
-        args.world_size = int(os.environ["WORLD_SIZE"])
-    else:
-         args.world_size = int(os.environ["SLURM_NPROCS"])
+    args.num_workers = int(os.environ["SLURM_CPUS_PER_TASK"])
+    world_size    = int(os.environ["WORLD_SIZE"])
+    rank          = int(os.environ["SLURM_PROCID"])
+    gpus_per_node = int(os.environ["SLURM_GPUS_ON_NODE"])
 
-    args.local_rank = int(os.environ["SLURM_PROCID"])
-    args.world_size = int(os.environ["SLURM_NPROCS"])
-    ngpus_per_node = torch.cuda.device_count()
+    assert gpus_per_node == torch.cuda.device_count()
+    print(f"Hello from rank {rank} of {world_size} on {gethostname()} where there are" \
+          f" {gpus_per_node} allocated GPUs per node.", flush=True)
+
+    setup(rank, world_size)
+    if rank == 0: print(f"Group initialized? {dist.is_initialized()}", flush=True)
+
+    local_rank = rank - gpus_per_node * (rank // gpus_per_node)
+    torch.cuda.set_device(local_rank)
+    print(f"host: {gethostname()}, rank: {rank}, local_rank: {local_rank}")
+
+     # Data loading code
+    train_dataset, train_dataloader = labeled_dataloader(args.batch_size, int(os.environ["SLURM_CPUS_PER_TASK"]), args.shuffle, args.path_lbl, SPLIT="training")
+
+    tb = None
+    if args.tensorboard:
+        tb = SummaryWriter()
+        images, _ = next(iter(train_dataloader)) 
+        grid = torchvision.utils.make_grid(images)
+        tb.add_image("images", grid)
+        tb.add_graph(model, images)
+
     
+    # TODO Consider making validation-set-specific batch size?
+    _, val_loader = labeled_dataloader(args.batch_size, int(os.environ["SLURM_CPUS_PER_TASK"]), args.shuffle, args.path_lbl, SPLIT="validation")
 
-    s=socket.socket()
-    s.bind(("", 0))
-    args.master_port = int(s.getsockname()[1])
-    s.close()
-    os.environ["MASTER_PORT"] = str(args.master_port)
-    dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
-                                world_size=args.world_size, rank=args.rank)
+    # Now make dataloader for DDP
+    train_dataloader = DDP.DistributedSampler(train_dataset, num_replicas=world_size, rank=rank)
 
-
-    print(f'Local rank is {args.local_rank} and world size is {args.world_size}')
-    print(f'Using {ngpus_per_node} GPUs per node')
-
-    job_id = os.environ["SLURM_JOBID"]
-    print(f'Job: {job_id}')
-
-
-    '''
-    The srun command has two different modes of operation. First, if not run within an existing
-    job (i.e. not within a Slurm job allocation created by salloc or sbatch),
-    then it will create a job allocation and spawn an application. 
-    If run within an existing allocation (as we are doing with the sbatch), the srun command only spawns the application so we 
-    must spawn ourselves as below.
-    '''
-    mp.spawn(main_worker, nprocs=ngpus_per_node, args=(ngpus_per_node, args))
-
-
-
-def main_worker(gpu, ngpus_per_node, args):
-    tb = SummaryWriter()
-    global best_acc1
-    rank = args.local_rank * ngpus_per_node + gpu
-    dist.init_process_group(backend='nccl',
-                            world_size=args.world_size,
-                            rank=rank)
 
     # create model - already does distributed GPU train from borrowed code
     model = get_model(args, backbone=args.backbone, num_classes=args.classes)
-    model_without_ddp = model
+    #model_without_ddp = model
 
-        # For multiprocessing distributed, DistributedDataParallel constructor
-        # should always set the single device scope, otherwise,
-        # DistributedDataParallel will use all available devices.
-
-    if args.gpu is not None:
-        torch.cuda.set_device(args.gpu)
-        model.cuda(args.gpu)
-        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
-    else:
-        model.cuda()
-        model = torch.nn.parallel.DistributedDataParallel(model)
-            
+    model = model.to(local_rank)
+    ddp_model = DDP(model, device_ids=[local_rank])
     
-    # When using a single GPU per process and per
-    # DistributedDataParallel, we need to divide the batch size
-    # ourselves based on the total number of GPUs we have
-    args.batch_size = int(args.batch_size / ngpus_per_node)
-
     if args.optimizer == 'Adam':
         optimizer = torch.optim.Adam(model.parameters(),
                                 args.lr,
@@ -257,71 +234,62 @@ def main_worker(gpu, ngpus_per_node, args):
         print('Dumbass.')
         sys.exit()
 
+    scheduler = StepLR(args.optimizer, step_size=args.step, gamma=args.gamma)
+
+    # https://discuss.pytorch.org/t/what-does-torch-backends-cudnn-benchmark-do/5936
     cudnn.benchmark = True
-
-    # Data loading code
-    train_dataset, train_dataloader = labeled_dataloader(args.batch_size, 4, args.shuffle, args.path_lbl, SPLIT="training")
-    _, validation_dataloader = labeled_dataloader(args.batch_size, 4, args.shuffle, args.path_lbl, SPLIT="validation")
-
-    if args.tensorboard:
-        images, _ = next(iter(train_dataloader)) 
-        grid = torchvision.utils.make_grid(images)
-        tb.add_image("images", grid)
-        tb.add_graph(model, images)
-
-    train_sampler = DDP.DistributedSampler(train_dataset)
-
-    
-    if args.evaluate:
-        # TA code entry point
-        TA_EVAL(model, validation_dataloader, torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu'))
-        return
 
     log_csv = "distributed.csv"
 
-
     for epoch in range(args.start_epoch, args.epochs):
         epoch_start = time.time()
-        # fix sampling seed such that each gpu gets different part of dataset
-        if args.distributed: 
-            train_loader.sampler.set_epoch(epoch)
 
-        adjust_learning_rate(optimizer, epoch, args)
+        train(train_dataloader, ddp_model, optimizer, epoch, local_rank, args, tb)
 
-        # train for one epoch
-        train(train_dataloader, model, optimizer, epoch, gpu, args, tb)
+        if rank == 0: 
+            # evaluate on validation set
+            acc1 = validate(val_loader, ddp_model, local_rank, args)
+            # remember best acc@1 and save checkpoint
+            is_best = acc1 > best_acc1
+            best_acc1 = max(acc1, best_acc1)
 
-        # evaluate on validation set
-        acc1 = validate(validation_dataloader, model, gpu, args)
+            save_checkpoint(
+                {
+                    'epoch': epoch + 1,
+                    'arch': args.arch,
+                    'state_dict': ddp_model.module.state_dict(),
+                    'best_acc1': best_acc1,
+                }, is_best)
 
-        # remember best acc@1 and save checkpoint
-        is_best = acc1 > best_acc1
-        best_acc1 = max(acc1, best_acc1)
-
+        scheduler.step()
+        
         epoch_end = time.time()
 
-        with open(log_csv, 'a+') as f:
-            csv_write = csv.writer(f)
-            data_row = [
-                time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(epoch_start)),
-                epoch_end - epoch_start
-            ]
-            csv_write.writerow(data_row)
+        if rank == 0: 
+            with open(log_csv, 'a+') as f:
+                csv_write = csv.writer(f)
+                data_row = [
+                    time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(epoch_start)),
+                    epoch_end - epoch_start
+                ]
+                csv_write.writerow(data_row)
 
-        save_checkpoint(
-            {
-                'epoch': epoch + 1,
-                'arch': args.arch,
-                'state_dict': model.module.state_dict(),
-                'best_acc1': best_acc1,
-            }, is_best)
+     
+    if rank == 0 and epoch % args.save_every == 0:
+        torch.save(ddp_model.state_dict(), "fasterRCNN_SimCLR.pt")
+
+    dist.destroy_process_group()
+
+    if args.ta_evaluate:
+        # TA code entry point
+        TA_EVAL(ddp_model, val_loader, torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu'))
+        return
 
     if args.tensorboard:
-        for name, weight in model.named_parameters():
+        for name, weight in ddp_model.named_parameters():
             tb.add_histogram(name, weight, epoch)
             tb.add_histogram(f'{name}.grad', weight.grad, epoch)
-
-    tb.close()
+            tb.close()
 
 
 if __name__=="__main__":

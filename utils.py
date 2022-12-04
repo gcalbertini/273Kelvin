@@ -90,13 +90,6 @@ class ProgressMeter(object):
         return '[' + fmt + '/' + fmt.format(num_batches) + ']'
 
 
-def adjust_learning_rate(optimizer, epoch, args):
-    """Example: Sets the learning rate to the initial LR decayed by 10 every 30 epochs: args.lr * (0.1**(epoch // 30))"""
-    lr = args.lr * (args.gamma**(epoch // args.step))
-    for param_group in optimizer.param_groups:
-        param_group['lr'] = lr
-
-
 def accuracy(output, target, topk=(1, )):
     """Computes the accuracy over the k top predictions for the specified values of k"""
     with torch.no_grad():
