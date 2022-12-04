@@ -160,6 +160,12 @@ def train(train_loader, model, optimizer, epoch, gpu, args, tb):
 best_acc1 = 0
 
 def setup(rank, world_size):
+    # Find free port - type 'netstat -lntu' to see free TCP ports
+    s=socket.socket(); 
+    s.bind(("", 0)); 
+    os.environ['MASTER_PORT'] = s.getsockname()[1]
+    s.close()
+
     # initialize the process group
     dist.init_process_group("nccl", rank=rank, world_size=world_size)
 
@@ -285,16 +291,17 @@ def main():
 
     dist.destroy_process_group()
 
-    if args.ta_evaluate:
-        # TA code entry point
-        TA_EVAL(ddp_model, val_loader, torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu'))
-        return
-
     if args.tensorboard:
         for name, weight in ddp_model.named_parameters():
             tb.add_histogram(name, weight, epoch)
             tb.add_histogram(f'{name}.grad', weight.grad, epoch)
             tb.close()
+            
+    if args.ta_evaluate:
+        # TA code entry point
+        TA_EVAL(ddp_model, val_loader, torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu'))
+        return
+
 
 
 if __name__=="__main__":

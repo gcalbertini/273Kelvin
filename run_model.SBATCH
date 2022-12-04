@@ -11,7 +11,7 @@
 #SBATCH --nodes=1                       # node count
 #SBATCH --ntasks-per-node=4             # total number of tasks per node (or --ntasks=4 for the single node we are allowed)          
 #SBATCH --gres=gpu:4                    # 4 GPUs per node
-#SBATCH --time=12:00:00
+#SBATCH --time=0:40:00
 #SBATCH --mem=90GB
 #SBATCH --job-name=FULLRUN
 #SBATCH --output=slurm_%j.out
@@ -21,7 +21,6 @@
 #SBATCH --mail-user=ga947@nyu.edu
 
 ### Alternatively, you could request --nodes=4 with 1 GPU each by setting nodes to 4 and --ntasks-per-node=1 OR --nodes=2 with 2 GPUs each. Just use proper partition and GPUs.
-#export MASTER_PORT=$(expr 10000 + $(echo -n $SLURM_JOBID | tail -c 4))
 export WORLD_SIZE=$(($SLURM_NNODES * $SLURM_NTASKS_PER_NODE))
 echo "WORLD_SIZE="$WORLD_SIZE
 
