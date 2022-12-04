@@ -277,14 +277,14 @@ class SimCLR_pl(pl.LightningModule):
 # a lazy way to pass the config file
 class Hparams:
     def __init__(self):
-        self.epochs = 40 # number of training epochs
+        self.epochs = 10 # number of training epochs
         self.seed = 77777 # randomness seed
         self.cuda = True # use nvidia gpu
         self.img_size = 224 #image shape
-        self.save = "./saved_models2/" # save checkpoint
+        self.save = "./saved_models/" # save checkpoint
         self.load = False # load pretrained checkpoint
         self.gradient_accumulation_steps = 5 # gradient accumulation steps
-        self.batch_size = 64
+        self.batch_size = 128
         self.lr = 8e-3 # for ADAm only
         self.weight_decay = 1e-6
         self.embedding_size= 128 # papers value is 128
@@ -318,8 +318,8 @@ def train_backbone():
     data_loader = get_stl_dataloader(train_config.batch_size, transform)
 
     accumulator = GradientAccumulationScheduler(scheduling={0: train_config.gradient_accumulation_steps})
-    checkpoint_callback = ModelCheckpoint(filename=filename, dirpath=save_model_path,
-                                            save_last=True, save_top_k=2,monitor='Contrastive loss_epoch',mode='min', every_n_epochs=1)
+    checkpoint_callback = ModelCheckpoint(filename=filename+'-{epoch:02d}-{train_loss:.2f}', dirpath=save_model_path,
+                                            save_last=True, save_top_k=2,monitor='train_loss',mode='min')
 
     if resume_from_checkpoint:
         trainer = Trainer(callbacks=[accumulator, checkpoint_callback],
