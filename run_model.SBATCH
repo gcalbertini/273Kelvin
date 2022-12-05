@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --account=csci_ga_2572_2022fa_16
-#SBATCH --partition=and n1c24m128-v100-4
+#SBATCH --partition=n1c24m128-v100-4
 #SBATCH --time=24:00:00
 #SBATCH --mem=125GB
 #SBATCH --job-name=TRAIN_BACKBONE
