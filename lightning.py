@@ -277,15 +277,15 @@ class SimCLR_pl(pl.LightningModule):
 # a lazy way to pass the config file
 class Hparams:
     def __init__(self):
-        self.epochs = 10 # number of training epochs
-        self.seed = 77777 # randomness seed
+        self.epochs = 1 # number of training epochs
+        self.seed = 45678 # randomness seed
         self.cuda = True # use nvidia gpu
         self.img_size = 224 #image shape
         self.save = "./saved_models/" # save checkpoint
         self.load = False # load pretrained checkpoint
         self.gradient_accumulation_steps = 5 # gradient accumulation steps
         self.batch_size = 128
-        self.lr = 1e-3 # for ADAm only
+        self.lr = 0.008 # for ADAm only
         self.weight_decay = 1e-6
         self.embedding_size= 128 # papers value is 128
         self.temperature = 0.1 # 0.1 or 0.5
@@ -306,7 +306,7 @@ def train_backbone():
     save_model_path = os.path.join(os.getcwd(), "saved_models/")
     print('available_gpus:',available_gpus)
     filename='SimCLR_ResNet18_adam_'
-    resume_from_checkpoint = True
+    resume_from_checkpoint = False
     train_config = Hparams()
 
     reproducibility(train_config)
@@ -318,7 +318,7 @@ def train_backbone():
     data_loader = get_stl_dataloader(train_config.batch_size, transform)
 
     accumulator = GradientAccumulationScheduler(scheduling={0: train_config.gradient_accumulation_steps})
-    checkpoint_callback = ModelCheckpoint(filename=filename+'-{epoch:02d}-{train_loss:.2f}', dirpath=save_model_path,
+    checkpoint_callback = ModelCheckpoint(filename=filename, dirpath=save_model_path,
                                             save_last=True, save_top_k=2,monitor='train_loss',mode='min')
 
     if resume_from_checkpoint:

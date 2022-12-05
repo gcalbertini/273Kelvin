@@ -40,7 +40,7 @@ def train(backbone="SimCLR", BATCH_SIZE=32, NUM_WORKERS=cpu_count()//2, SHUFFLE=
         lr_scheduler.step()
         evaluate(model, validation_dataloader, device)
 
-    torch.save(model.state_dict(), f"./model__mom_{MOM}_decay_{DECAY}_epoch_{epoch+1}_lr_{LR}_backbone_{backbone}.pt")
+    torch.save(model.state_dict(), f"./model__mom_{MOM}_decay_{DECAY}_epochs_{EPOCHS}_lr_{LR}_backbone_{backbone}.pt")
 
     return model
 
