@@ -15,7 +15,7 @@ def get_model(backbone=None, num_classes=100):
     else:
         backbone = get_backbone(train=False)
         #out_channels already set
-        output_size = 1
+        output_size = 7
 
     anchor_generator = AnchorGenerator(sizes=((32, 64, 128, 256, 512),),
                                        aspect_ratios=((0.5, 1.0, 2.0),))  # (1:2, 1:1, 2:1); 3 AR + 3 scales scales shown to work best in Faster RCNN paper wrt mAP; probably keep same

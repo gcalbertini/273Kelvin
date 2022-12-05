@@ -11,8 +11,8 @@ class Backbone(nn.Module):
         self.premodel = backbone
 
         # change this later
-        #for p in self.premodel.parameters():
-        #    p.requires_grad = False
+        for p in self.premodel.parameters():
+            p.requires_grad = False
 
     def forward(self,x):
         out = self.premodel(x)
