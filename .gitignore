@@ -1,5 +1,4 @@
 __pycache__
-resnet*
 SimCLR*
 saved_models/
 lightning_logs/

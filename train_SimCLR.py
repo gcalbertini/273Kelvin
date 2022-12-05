@@ -49,23 +49,20 @@ parser = argparse.ArgumentParser(
 # NOTE BATCH SIZES SHOULD BE A MULTIPLE OF GPUs USED AND GREATER THAN THE NUMBER OF GPUs. THE EFFECTIVE BATCH SIZE IS BATCH_SIZE_SPECIFIED*NUM_GPUS*GRAD_ACCUM_STEPS == BATCH_SIZE.
 # EFFICIENCY IS DEPENDENT ON GPU HARDWARE ARCHITECTURE.
 
-parser = argparse.ArgumentParser()
 parser.add_argument('--train_backbone', action='store_true',
                     help='Train backbone toggle')
 parser.add_argument('--path_lbl', default="labeled_data/", metavar='DATA_PATH_LBL', type=str,
                     help="Default path for labeled data; default used is '/labeled/labeled'; note toy set's is 'labeled_data/'")
 parser.add_argument('--path_unlbl', default="unlabeled_data/", metavar='DATA_PATH_UNLBL', type=str,
                     help="Default path for unlabeled data; default used is'/unlabeled/unlabeled'; note toy set's is 'unlabeled_data/'")
-parser.add_argument('--shuffle', action='store_true',
-                    dest='SHUFFLE', help="Shuffle data toggle")
-parser.add_argument('-voff', '--verbose_off', action='store_false',
-                    dest='VERBOSE_OFF', help="Verbose mode toggle")
+parser.add_argument('--shuffle', action='store_true', help="Shuffle data toggle")
+parser.add_argument('-voff', '--verbose_off', action='store_false', help="Verbose mode toggle")
 parser.add_argument('-c', '--classes', default=100, type=int,
                     metavar='NUM_CLASSES', help='Number of classes; default is 100')
 parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18', choices=model_names,
                     help='Pretrained (SimCLR) model weights come from this architecture: ' + ' | '.join(model_names) +
                     ' (default: resnet18)')
-parser.add_argument('-teval', '--ta-evaluate', dest='EVALUATE', action='store_true',
+parser.add_argument('-teval', '--ta_evaluate', action='store_true',
                     help='evaluate model on validation set using course code -- FINAL SUBMISSIONS EVAL CODE!')
 parser.add_argument('-opt', '--optimizer', default='Adam',
                     type=str, help='Adam (default) or SGD optimizer')
@@ -75,6 +72,7 @@ parser.add_argument('-tb', '--tensorboard',
                     action='store_true', help='Tensorboard displays')
 parser.add_argument('--save_every', metavar='SAVE_EVERY_EPOCH',
                     default=1, help='Frequency of saving model (per epoch)')
+
 
 # =====================SIMCLR ONLY: EDIT THESE FOR BACKBONE TRAIN RUN===============================================================================
 # NOTE these will come into play after --train_backbone is specified and doing something like: python train.py --train_backbone -bbe 5 -bbbs 12345 --backbone_lr 1e-4
@@ -116,24 +114,23 @@ def main():
     args = parser.parse_args()
     print(args)
 
-    args.num_workers = int(os.environ["SLURM_CPUS_PER_TASK"])
+    # int(os.environ["SLURM_CPUS_PER_TASK"])
+    args.num_workers = os.cpu_count()//2
     # WARNING: create model - already does distributed GPU train from lightning code so avoid interfering with custom DDP process below...
     print(f'Retrieving backbone model...')
     # The get_model() function saves weights automatically as well as train; recommend rename to generate_backbone_data
     model = get_model(args, backbone=args.backbone, num_classes=args.classes)
     print('Done.')
 
-    # Print model's state_dict
-    if not args.verbose_off:
-        print("Backbones's state_dict:")
-        for param_tensor in model.state_dict():
-            print(param_tensor, "\t", model.state_dict()[param_tensor].size())
+    print("Backbones's state_dict:")
+    for param_tensor in model.state_dict():
+        print(param_tensor, "\t", model.state_dict()[param_tensor].size())
 
     if args.ta_evaluate:
         # TA code entry point
         # TODO Consider making validation-set-specific batch size?
-        _, val_loader = labeled_dataloader(args.batch_size, int(
-            os.environ["SLURM_CPUS_PER_TASK"]), args.shuffle, args.path_lbl, SPLIT="validation")
+        _, val_loader = labeled_dataloader(
+            args.backbone_batch_size, args.num_workers, args.shuffle, args.path_lbl, SPLIT="validation")
         TA_EVAL(model, val_loader, torch.device('cuda:0')
                 if torch.cuda.is_available() else torch.device('cpu'))
         return

@@ -60,7 +60,7 @@ parser.add_argument('--shuffle', action='store_true',
                     dest='SHUFFLE', help="Shuffle data toggle")
 parser.add_argument('-voff', '--verbose_off', action='store_false',
                     dest='VERBOSE_OFF', help="Verbose mode toggle")
-parser.add_argument('-teval', '--ta-evaluate', dest='EVALUATE', action='store_true',
+parser.add_argument('-teval', '--ta_evaluate', dest='EVALUATE', action='store_true',
                     help='evaluate model on validation set using course code -- FINAL SUBMISSIONS EVAL CODE!')
 parser.add_argument('-opt', '--optimizer', default='Adam',
                     type=str, help='Adam (default) or SGD optimizer')
@@ -88,12 +88,12 @@ parser.add_argument('-s', '--step', default=50, metavar='SCHEDULER_STEP',
                     type=int, help="Default step size for scheduler")
 parser.add_argument('-g', '--gamma', default=0.2, metavar='SCHEDULER_GAMMA',
                     type=float, help="Default gamma factor for scheduler")
-parser.add_argument('-f', '--freeze', action='store_true',
-                    dest='FREEZE', help='Freeze backbone weights; default is False')
 parser.add_argument('--pretrained', dest='pretrained',
                     action='store_true', help='use pre-trained model')
 parser.add_argument('--seed', default=None, type=int,
                     help='seed for initializing training. ')
+parser.add_argument('-f', '--freeze', action='store_true',
+                    dest='FREEZE', help='Freeze backbone weights; default is False')
 
 
 def train(train_loader, model, optimizer, epoch, gpu, args, tb):
@@ -206,8 +206,12 @@ def main():
     # load your model architecture/module
     model = Backbone()
     # fill your architecture with the trained weights
-    model.load_state_dict(torch.load(path))
+    model.load_state_dict(torch.load('resnet18_backbone_weights.ckpt'))
     print('Done.')
+
+    if args.freeze:
+        for p in model.parameters():
+            p.requires_grad = False
 
     setup(rank, world_size)
     if rank == 0:
