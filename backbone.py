@@ -27,7 +27,7 @@ def get_backbone(train=False):
 
     backbone = models.resnet18(pretrained=None)
     backbone.fc = nn.Identity()
-    checkpoint = torch.load('./resnet18_backbone_weights.ckpt')
+    checkpoint = torch.load('./my_models/resnet18_backbone_weights.ckpt')
     backbone.load_state_dict(checkpoint['model_state_dict'])
 
     return Backbone(backbone)
