@@ -261,7 +261,7 @@ class SimCLR_pl(pl.LightningModule):
         max_epochs = int(self.config.epochs)
         param_groups = define_param_groups(self.model, self.config.weight_decay, 'adam')
         lr = self.config.lr
-        optimizer = SGD(param_groups, lr=lr, weight_decay=self.config.weight_decay)
+        optimizer = Adam(param_groups, lr=lr, weight_decay=self.config.weight_decay)
 
         print(f'Optimizer Adam, '
               f'Learning Rate {lr}, '
@@ -285,10 +285,10 @@ class Hparams:
         self.load = False # load pretrained checkpoint
         self.gradient_accumulation_steps = 5 # gradient accumulation steps
         self.batch_size = 128
-        self.lr = 3e-4 # for ADAm only
+        self.lr = 1e-3 # for ADAm only
         self.weight_decay = 2e-6
         self.embedding_size= 128 # papers value is 128
-        self.temperature = 0.5 # 0.1 or 0.5
+        self.temperature = 1.0 # 0.1 or 0.5
         self.checkpoint_path = './my_models/SimCLR_ResNet18_adam_.ckpt' # replace checkpoint path here
 
 """## Pretraining main logic"""
