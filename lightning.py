@@ -284,12 +284,12 @@ class Hparams:
         self.save = "./saved_models/" # save checkpoint
         self.load = False # load pretrained checkpoint
         self.gradient_accumulation_steps = 5 # gradient accumulation steps
-        self.batch_size = 256
+        self.batch_size = 128
         self.lr = 3e-4 # for ADAm only
         self.weight_decay = 1e-6
         self.embedding_size= 128 # papers value is 128
-        self.temperature = 0.5 # 0.1 or 0.5
-        self.checkpoint_path = './SimCLR_ResNet18_adam_.ckpt' # replace checkpoint path here
+        self.temperature = 0.1 # 0.1 or 0.5
+        self.checkpoint_path = './my_models/SimCLR_ResNet18_adam_.ckpt' # replace checkpoint path here
 
 """## Pretraining main logic"""
 
