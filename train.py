@@ -6,7 +6,7 @@ from utils import train_one_epoch
 from eval import evaluate
 from torch.multiprocessing import cpu_count
 
-def train(backbone="SimCLR", BATCH_SIZE=32, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", EPOCHS=1, LR=0.008, MOM=0.9, DECAY=0.0005, print_freq=10, verbose=False):
+def train(backbone="SimCLR", BATCH_SIZE=32, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", EPOCHS=10, LR=0.008, MOM=0.9, DECAY=0.0005, print_freq=10, verbose=False):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
@@ -32,7 +32,7 @@ def train(backbone="SimCLR", BATCH_SIZE=32, NUM_WORKERS=cpu_count()//2, SHUFFLE=
         print('Model Summary:')
         print(model)
     else:
-        print_freq = 5
+        print_freq = 10
 
     print("!!! FastRCNN Training START !!!")
     for epoch in range(EPOCHS):

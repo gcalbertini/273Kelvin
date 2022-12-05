@@ -9,6 +9,5 @@
 - scancel id
 
 - :wq
-- ls
 
 - git reset HEAD -- SimCLR.pt
