@@ -53,6 +53,7 @@ def main():
     parser.add_argument('-s', '--step', default=50, metavar='SCHEDULER_STEP', type=int, help="Default step size for scheduler")
     parser.add_argument('-g', '--gamma', default=0.2, metavar='SCHEDULER_GAMMA', type=float, help="Default gamma factor for scheduler")
     parser.add_argument('-f', '--freeze', action='store_true', help='Freeze backbone weights; default is False')
+    parser.add_argument('--num_workers', default=cpu_count()//2, metavar='NUM_WORKERS', type=int, help="Default num_workers")
 
     #=====================SIMCLR ONLY: EDIT THESE FOR BACKBONE TRAIN RUN===============================================================================
     # NOTE these will come into play after --train_backbone is specified and doing something like: python train.py --train_backbone -bbe 5 -bbbs 12345 --backbone_lr 1e-4

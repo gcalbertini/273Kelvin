@@ -70,6 +70,8 @@ parser.add_argument('-tb', '--tensorboard',
                     action='store_true', help='Tensorboard displays')
 parser.add_argument('--save_every', metavar='SAVE_EVERY_EPOCH',
                     default=1, help='Frequency of saving model (per epoch)')
+parser.add_argument('-bb', '--backbone', default="SimCLR", type=str, metavar='BACKBONE',
+                    help="Backbone to use; default is SimCLR. Set to 'None' for mobilenet_v2.")
 
 # =====================FASTERCNN-SIMCLR: EDIT THESE FOR FULL MODEL RUN AFTER BACKBONE TRAIN===============================================================
 parser.add_argument('-bs', '--batch_size', default=64,
@@ -204,9 +206,9 @@ def main():
         'Loading in backbone to rank {rank} of {world_size} on {gethostname()}...')
     path = './' + str(args.arch)+ '_backbone_weights.ckpt'
     # load your model architecture/module
-    model = Backbone()
-    # fill your architecture with the trained weights
-    model.load_state_dict(torch.load('resnet18_backbone_weights.ckpt'))
+    model = models.resnet18(weights=None)
+    model.fc = torch.nn.Identity()
+    model.load_state_dict(torch.load('./resnet18_backbone_weights.ckpt')['model_state_dict'])
     print('Done.')
 
     if args.freeze:
