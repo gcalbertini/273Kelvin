@@ -15,9 +15,9 @@ class Backbone(nn.Module):
             p.requires_grad = True
 
     def forward(self,x):
-        #print(x.size())
+        print(x.size())
         out = self.premodel(x)
-        #print(out.size())
+        print(out.size())
         return out
 
 def get_backbone(train=False):
