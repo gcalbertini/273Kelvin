@@ -18,7 +18,7 @@
 #SBATCH --mail-type=fail         # send email if job fails
 #SBATCH --mail-user=ga947@nyu.edu
 
-singularity exec --nv --overlay /scratch/DL22FA/overlay_12-01.ext3:ro \
+singularity exec --nv --overlay /scratch/DL22FA/overlay_12-02.ext3:ro \
             -B /scratch/DL22FA/unlabeled_224.sqsh:/unlabeled:image-src=/ \
             -B /scratch/DL22FA/labeled.sqsh:/labeled:image-src=/ \
             -B /scratch -B /scratch_tmp \

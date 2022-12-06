@@ -1,0 +1,275 @@
+
+Namespace(path_lbl='labeled_data/', path_unlbl='unlabeled_data/', shuffle=False, verbose_off=True, classes=100, train_backbone=True, output_size=1, backbone='SimCLR', batch_size=64, epochs=5, learn_rate=0.001, momentum=0.9, weight_decay=0.0005, print_freq=200, step=50, gamma=0.2, freeze=False, backbone_epochs=1, backbone_cuda_off=True, backbone_seed=77777, backbone_img_size=224, backbone_save_directory='saved_models/', backbone_load_pretrained=False, backbone_grad_accumulate_steps=1, backbone_batch_size=16, backbone_embedding_size=128, backbone_lr=0.00075, backbone_weight_decay=1e-06, backbone_temperature=0.1, backbone_checkpoint_path='./SimCLR_ResNet18.ckpt', backbone_resume=False)
+Pretraining backbone...
+available_gpus: 4
+Dim MLP input: 512
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+Initializing distributed: GLOBAL_RANK: 3, MEMBER: 4/4
+Initializing distributed: GLOBAL_RANK: 1, MEMBER: 2/4
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/4
+Initializing distributed: GLOBAL_RANK: 2, MEMBER: 3/4
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 4 processes
+----------------------------------------------------------------------------------------------------
+
+LOCAL_RANK: 3 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+LOCAL_RANK: 1 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+LOCAL_RANK: 2 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+
+  | Name  | Type            | Params
+------------------------------------------
+0 | model | AddProjection   | 11.5 M
+1 | loss  | ContrastiveLoss | 0     
+------------------------------------------
+11.5 M    Trainable params
+0         Non-trainable params
+11.5 M    Total params
+46.024    Total estimated model params size (MB)
+Optimizer Adam, Learning Rate 0.00075, Effective batch size 16
+Training: 0it [00:00, ?it/s]Training:   0%|          | 0/16 [00:00<?, ?it/s]Epoch 0:   0%|          | 0/16 [00:00<?, ?it/s] Optimizer Adam, Learning Rate 0.00075, Effective batch size 16
+Optimizer Adam, Learning Rate 0.00075, Effective batch size 16
+Optimizer Adam, Learning Rate 0.00075, Effective batch size 16
+[W reducer.cpp:1251] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+[W reducer.cpp:1251] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+[W reducer.cpp:1251] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+[W reducer.cpp:1251] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:   6%|▋         | 1/16 [00:25<06:28, 25.93s/it]Epoch 0:   6%|▋         | 1/16 [00:25<06:29, 25.93s/it, loss=5.1, v_num=104096, Contrastive loss_step=5.100]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  12%|█▎        | 2/16 [00:25<03:01, 12.99s/it, loss=5.1, v_num=104096, Contrastive loss_step=5.100]Epoch 0:  12%|█▎        | 2/16 [00:25<03:01, 13.00s/it, loss=4.69, v_num=104096, Contrastive loss_step=4.290]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  19%|█▉        | 3/16 [00:26<01:52,  8.68s/it, loss=4.69, v_num=104096, Contrastive loss_step=4.290]Epoch 0:  19%|█▉        | 3/16 [00:26<01:52,  8.68s/it, loss=5.15, v_num=104096, Contrastive loss_step=6.070]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  25%|██▌       | 4/16 [00:26<01:18,  6.52s/it, loss=5.15, v_num=104096, Contrastive loss_step=6.070]Epoch 0:  25%|██▌       | 4/16 [00:26<01:18,  6.53s/it, loss=5.19, v_num=104096, Contrastive loss_step=5.280]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  31%|███▏      | 5/16 [00:26<00:57,  5.23s/it, loss=5.19, v_num=104096, Contrastive loss_step=5.280]Epoch 0:  31%|███▏      | 5/16 [00:26<00:57,  5.23s/it, loss=5.14, v_num=104096, Contrastive loss_step=4.970]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  38%|███▊      | 6/16 [00:26<00:43,  4.37s/it, loss=5.14, v_num=104096, Contrastive loss_step=4.970]Epoch 0:  38%|███▊      | 6/16 [00:26<00:43,  4.37s/it, loss=5.36, v_num=104096, Contrastive loss_step=6.450]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  44%|████▍     | 7/16 [00:26<00:33,  3.75s/it, loss=5.36, v_num=104096, Contrastive loss_step=6.450]Epoch 0:  44%|████▍     | 7/16 [00:26<00:33,  3.75s/it, loss=5.24, v_num=104096, Contrastive loss_step=4.550]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  50%|█████     | 8/16 [00:26<00:26,  3.29s/it, loss=5.24, v_num=104096, Contrastive loss_step=4.550]Epoch 0:  50%|█████     | 8/16 [00:26<00:26,  3.29s/it, loss=5.12, v_num=104096, Contrastive loss_step=4.210]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  56%|█████▋    | 9/16 [00:26<00:20,  2.93s/it, loss=5.12, v_num=104096, Contrastive loss_step=4.210]Epoch 0:  56%|█████▋    | 9/16 [00:26<00:20,  2.93s/it, loss=5.24, v_num=104096, Contrastive loss_step=6.210]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  62%|██████▎   | 10/16 [00:26<00:15,  2.64s/it, loss=5.24, v_num=104096, Contrastive loss_step=6.210]Epoch 0:  62%|██████▎   | 10/16 [00:26<00:15,  2.64s/it, loss=5.18, v_num=104096, Contrastive loss_step=4.670]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  69%|██████▉   | 11/16 [00:26<00:12,  2.41s/it, loss=5.18, v_num=104096, Contrastive loss_step=4.670]Epoch 0:  69%|██████▉   | 11/16 [00:26<00:12,  2.41s/it, loss=5.14, v_num=104096, Contrastive loss_step=4.780]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  75%|███████▌  | 12/16 [00:26<00:08,  2.21s/it, loss=5.14, v_num=104096, Contrastive loss_step=4.780]Epoch 0:  75%|███████▌  | 12/16 [00:26<00:08,  2.21s/it, loss=5.08, v_num=104096, Contrastive loss_step=4.340]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  81%|████████▏ | 13/16 [00:26<00:06,  2.04s/it, loss=5.08, v_num=104096, Contrastive loss_step=4.340]Epoch 0:  81%|████████▏ | 13/16 [00:26<00:06,  2.04s/it, loss=5.1, v_num=104096, Contrastive loss_step=5.350] torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  88%|████████▊ | 14/16 [00:26<00:03,  1.90s/it, loss=5.1, v_num=104096, Contrastive loss_step=5.350]Epoch 0:  88%|████████▊ | 14/16 [00:26<00:03,  1.90s/it, loss=5.1, v_num=104096, Contrastive loss_step=5.080]torch.Size([32, 32])
+torch.Size([32, 32])
+Epoch 0:  94%|█████████▍| 15/16 [00:26<00:01,  1.78s/it, loss=5.1, v_num=104096, Contrastive loss_step=5.080]Epoch 0:  94%|█████████▍| 15/16 [00:26<00:01,  1.78s/it, loss=4.98, v_num=104096, Contrastive loss_step=3.350]torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([20, 20])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([20, 20])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([32, 32])
+torch.Size([20, 20])
+torch.Size([32, 32])
+torch.Size([20, 20])
+Traceback (most recent call last):
+  File "/scratch_tmp/ga947/273Kelvin/train_backbone.py", line 82, in <module>
+    main()
+  File "/scratch_tmp/ga947/273Kelvin/train_backbone.py", line 79, in main
+    train(args)
+  File "/scratch_tmp/ga947/273Kelvin/train_backbone.py", line 14, in train
+    model = get_model(args, backbone=args.backbone, num_classes=args.classes) # if you want to train with mobileye backbone, then: get_model(backbone=None)
+  File "/scratch_tmp/ga947/273Kelvin/fastrcnn.py", line 15, in get_model
+    backbone = get_backbone(args, train=args.train_backbone)
+  File "/scratch_tmp/ga947/273Kelvin/backbone.py", line 29, in get_backbone
+    train_backbone(args)
+  File "/scratch_tmp/ga947/273Kelvin/lightning.py", line 355, in train_backbone
+    trainer.fit(model, data_loader)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 696, in fit
+    self._call_and_handle_interrupt(
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 648, in _call_and_handle_interrupt
+    return self.strategy.launcher.launch(trainer_fn, *args, trainer=self, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/strategies/launchers/multiprocessing.py", line 107, in launch
+    mp.start_processes(
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/torch/multiprocessing/spawn.py", line 198, in start_processes
+    while not context.join():
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/torch/multiprocessing/spawn.py", line 160, in join
+    raise ProcessRaisedException(msg, error_index, failed_process.pid)
+torch.multiprocessing.spawn.ProcessRaisedException: 
+
+-- Process 2 terminated with the following error:
+Traceback (most recent call last):
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/torch/multiprocessing/spawn.py", line 69, in _wrap
+    fn(i, *args)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/strategies/launchers/multiprocessing.py", line 133, in _wrapping_function
+    results = function(*args, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 735, in _fit_impl
+    results = self._run(model, ckpt_path=self.ckpt_path)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 1166, in _run
+    results = self._run_stage()
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 1252, in _run_stage
+    return self._run_train()
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 1283, in _run_train
+    self.fit_loop.run()
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/loop.py", line 200, in run
+    self.advance(*args, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/fit_loop.py", line 271, in advance
+    self._outputs = self.epoch_loop.run(self._data_fetcher)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/loop.py", line 200, in run
+    self.advance(*args, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/epoch/training_epoch_loop.py", line 203, in advance
+    batch_output = self.batch_loop.run(kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/loop.py", line 200, in run
+    self.advance(*args, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/batch/training_batch_loop.py", line 87, in advance
+    outputs = self.optimizer_loop.run(optimizers, kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/loop.py", line 200, in run
+    self.advance(*args, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 201, in advance
+    result = self._run_optimization(kwargs, self._optimizers[self.optim_progress.optimizer_position])
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 248, in _run_optimization
+    self._optimizer_step(optimizer, opt_idx, kwargs.get("batch_idx", 0), closure)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 358, in _optimizer_step
+    self.trainer._call_lightning_module_hook(
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 1550, in _call_lightning_module_hook
+    output = fn(*args, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/core/module.py", line 1705, in optimizer_step
+    optimizer.step(closure=optimizer_closure)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/core/optimizer.py", line 168, in step
+    step_output = self._strategy.optimizer_step(self._optimizer, self._optimizer_idx, closure, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/strategies/strategy.py", line 216, in optimizer_step
+    return self.precision_plugin.optimizer_step(model, optimizer, opt_idx, closure, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/plugins/precision/precision_plugin.py", line 153, in optimizer_step
+    return optimizer.step(closure=closure, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/torch/optim/lr_scheduler.py", line 65, in wrapper
+    return wrapped(*args, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/torch/optim/optimizer.py", line 113, in wrapper
+    return func(*args, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/torch/autograd/grad_mode.py", line 27, in decorate_context
+    return func(*args, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/torch/optim/adam.py", line 118, in step
+    loss = closure()
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/plugins/precision/precision_plugin.py", line 138, in _wrap_closure
+    closure_result = closure()
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 146, in __call__
+    self._result = self.closure(*args, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 132, in closure
+    step_output = self._step_fn()
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/loops/optimization/optimizer_loop.py", line 407, in _training_step
+    training_step_output = self.trainer._call_strategy_hook("training_step", *kwargs.values())
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/trainer/trainer.py", line 1704, in _call_strategy_hook
+    output = fn(*args, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/strategies/ddp_spawn.py", line 287, in training_step
+    return self.model(*args, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 1008, in forward
+    output = self._run_ddp_forward(*inputs, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 969, in _run_ddp_forward
+    return module_to_run(*inputs[0], **kwargs[0])
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/pytorch_lightning/overrides/base.py", line 79, in forward
+    output = self.module.training_step(*inputs, **kwargs)
+  File "/scratch_tmp/ga947/273Kelvin/lightning.py", line 261, in training_step
+    loss = self.loss(z1, z2)
+  File "/ext3/miniconda3/envs/project/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/scratch_tmp/ga947/273Kelvin/lightning.py", line 183, in forward
+    denominator = denominator * torch.exp(similarity_matrix / self.temperature)
+RuntimeError: The size of tensor a (32) must match the size of tensor b (20) at non-singleton dimension 1
+

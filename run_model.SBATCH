@@ -35,9 +35,9 @@ export MASTER_ADDR=$master_addr
 echo "MASTER_ADDR="$MASTER_ADDR
 
 # srun included as each process generated for us, else have to include mp.spawn in code using main
-srun singularity exec --nv --overlay /scratch/DL22FA/overlay_12-01.ext3:ro \
+srun singularity exec --nv --overlay /scratch/DL22FA/overlay_12-02.ext3:ro \
             -B /scratch/DL22FA/unlabeled_224.sqsh:/unlabeled:image-src=/ \
             -B /scratch/DL22FA/labeled.sqsh:/labeled:image-src=/ \
             -B /scratch -B /scratch_tmp \
             /scratch/DL22FA/cuda11.2.2-cudnn8-devel-ubuntu20.04.sif \
-            /bin/bash -c "source /ext3/env.sh; python train_model.py --train_backbone"
+            /bin/bash -c "source /ext3/env.sh; python train_model.py"
