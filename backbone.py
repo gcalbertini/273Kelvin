@@ -22,12 +22,12 @@ class Backbone(nn.Module):
 
 def get_backbone(train=False):
 
-    #if train:
-    train_backbone()
+    if train:
+        train_backbone()
 
     resnet = models.resnet18(pretrained=None)
     resnet.fc = nn.Identity()
-    checkpoint = torch.load('./resnet18_backbone_weights.ckpt')
+    checkpoint = torch.load('./prev_models/resnet18_backbone_weights.ckpt')
     resnet.load_state_dict(checkpoint['model_state_dict'])
     req_layers = list(resnet.children())[:8]
     backbone = nn.Sequential(*req_layers)
