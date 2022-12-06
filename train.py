@@ -63,8 +63,8 @@ def main():
     # WHERE TOTAL EFFECTIVE BATCH SIZE YOU RUN IS THIS NUMBER MULTIPLIED NUMBER OF GPUs FOUND
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--path_lbl', default="labeled_data/", metavar='DATA_PATH_LBL', type=str, help="Default path for labeled data; default used is '/labeled/labeled'; note toy set's is 'labeled_data/'")
-    parser.add_argument('--path_unlbl', default="unlabeled_data/", metavar='DATA_PATH_UNLBL', type=str, help="Default path for unlabeled data; default used is'/unlabeled/unlabeled'; note toy set's is 'unlabeled_data/'")
+    parser.add_argument('--path_lbl', default="/labeled/labeled", metavar='DATA_PATH_LBL', type=str, help="Default path for labeled data; default used is '/labeled/labeled'; note toy set's is 'labeled_data/'")
+    parser.add_argument('--path_unlbl', default="/unlabeled/unlabeled", metavar='DATA_PATH_UNLBL', type=str, help="Default path for unlabeled data; default used is'/unlabeled/unlabeled'; note toy set's is 'unlabeled_data/'")
     parser.add_argument('--shuffle', action='store_true', help="Shuffle data toggle")
     parser.add_argument('-voff', '--verbose_off', action='store_false', help="Verbose mode toggle")
     parser.add_argument('-c', '--classes', default=100, type=int, metavar='NUM_CLASSES', help='Number of classes; default is 100')
