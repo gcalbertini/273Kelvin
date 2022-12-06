@@ -110,7 +110,12 @@ class LabeledDataset(torch.utils.data.Dataset):
             transformed = self.transforms(image=img, bboxes=target["boxes"], class_labels=target["labels"])
             img = transformed['image']
             target["boxes"] = torch.as_tensor(transformed['bboxes'], dtype=torch.float32)
+
+            #l = torch.as_tensor(transformed['class_labels'], dtype=torch.int64)
+            #target["labels"] = torch.add(l, 1)
+
             target["labels"] = torch.as_tensor(transformed['class_labels'], dtype=torch.int64)
+
             area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
             target["area"] = area
 

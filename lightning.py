@@ -10,7 +10,8 @@ Original file is located at
 
 ## Imports, basic utils, augmentations and Contrastive loss
 """
-
+#!pip install pytorch-lightning
+#!pip install lightning-bolts
 import torch
 import torchvision.models as models
 import numpy as np
@@ -277,8 +278,8 @@ class SimCLR_pl(pl.LightningModule):
 # a lazy way to pass the config file
 class Hparams:
     def __init__(self):
-        self.epochs = 1 # number of training epochs
-        self.seed = 45678 # randomness seed
+        self.epochs = 10 # number of training epochs
+        self.seed = 77777 # randomness seed
         self.cuda = True # use nvidia gpu
         self.img_size = 224 #image shape
         self.save = "./saved_models/" # save checkpoint
@@ -347,8 +348,10 @@ def train_backbone():
                 }, 'resnet18_backbone_weights.ckpt')
 
 
+'''
 def main():
     train_backbone()
 
 if __name__=="__main__":
     main()
+'''

@@ -22,8 +22,8 @@ class Backbone(nn.Module):
 
 def get_backbone(train=False):
 
-    if train:
-        train_backbone()
+    #if train:
+    train_backbone()
 
     resnet = models.resnet18(pretrained=None)
     resnet.fc = nn.Identity()
