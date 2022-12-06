@@ -1,9 +1,10 @@
 import argparse
+import sys
 import warnings
 import torch
-
+import os
 from fastrcnn import get_model
-from labeled_dataloader import labeled_dataloader
+from labeled_dataloader import LabeledDataset, labeled_dataloader
 from utils import train_one_epoch
 from eval import evaluate
 from torch.multiprocessing import cpu_count
@@ -58,10 +59,12 @@ def main():
     # Example python main.py                   --> Will not train backbone
     # Example python main.py --train_backbone  --> Trains backbone
 
-    #NOTE BATCH SIZES SHOULD BE A MULTIPLE OF GPUs USED AND GREATER THAN THE NUMBER OF GPUs. THE EFFECTIVE BATCH SIZE IS BATCH_SIZE_SPECIFIED*NUM_GPUS == BATCH_SIZE 
+    #NOTE BATCH SIZES SHOULD BE A MULTIPLE OF GPUs USED AND GREATER THAN THE NUMBER OF GPUs. THE EFFECTIVE BATCH SIZE/GPU IS BATCH_SIZE_SPECIFIED*GRAD_ACCUM_STEPS,
+    # WHERE TOTAL EFFECTIVE BATCH SIZE YOU RUN IS THIS NUMBER MULTIPLIED NUMBER OF GPUs FOUND
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('--path_lbl', default="/labeled/labeled", metavar='DATA_PATH_LBL', type=str, help="Default path for labeled data; default used is '/labeled/labeled'; note toy set's is 'labeled_data/'")
-    parser.add_argument('--path_unlbl', default="/unlabeled/unlabeled", metavar='DATA_PATH_UNLBL', type=str, help="Default path for unlabeled data; default used is'/unlabeled/unlabeled'; note toy set's is 'unlabeled_data/'")
+    parser.add_argument('--path_lbl', default="labeled_data/", metavar='DATA_PATH_LBL', type=str, help="Default path for labeled data; default used is '/labeled/labeled'; note toy set's is 'labeled_data/'")
+    parser.add_argument('--path_unlbl', default="unlabeled_data/", metavar='DATA_PATH_UNLBL', type=str, help="Default path for unlabeled data; default used is'/unlabeled/unlabeled'; note toy set's is 'unlabeled_data/'")
     parser.add_argument('--shuffle', action='store_true', help="Shuffle data toggle")
     parser.add_argument('-voff', '--verbose_off', action='store_false', help="Verbose mode toggle")
     parser.add_argument('-c', '--classes', default=100, type=int, metavar='NUM_CLASSES', help='Number of classes; default is 100')
@@ -90,7 +93,7 @@ def main():
     parser.add_argument('-bbsv','--backbone_save_directory', default='saved_models/', metavar='BACKBONE_SAVE_DIR_PATH', type=str, help="Backbone save checkpoint directory path")
     parser.add_argument('-bblp','--backbone_load_pretrained', action='store_true', help="Backbone load pretraining")
     parser.add_argument('-bbg','--backbone_grad_accumulate_steps', type=int, default = 1, metavar='BACKBONE_GRAD_ACCUM_STEPS', help="Backbone gradient accumulation steps")
-    parser.add_argument('-bbbs', '--backbone_batch_size', default=16, type=int, metavar='BACKBONE_BATCH_SIZE', help='Backbone batch size to use')
+    parser.add_argument('-bbbs', '--backbone_batch_size', default=4, type=int, metavar='BACKBONE_BATCH_SIZE', help='Backbone batch size to use')
     parser.add_argument('-bbemb','--backbone_embedding_size', type=int, default = 128, metavar='BACKBONE_EMBED_SIZE', help='Backbone embedding size')
     parser.add_argument('-bblr','--backbone_lr', type=float, default = 3e-4, metavar='BACKBONE_ADAM_LEARN_RATE', help='Backbone learning rate for ADAM')
     parser.add_argument('-bbdk','--backbone_weight_decay', type=float, default = 1e-6, metavar='BACKBONE_WEIGHT_DECAY', help='Backbone weight decay')
@@ -99,10 +102,42 @@ def main():
     parser.add_argument('-bbr','--backbone_resume', action='store_true', help="Backbone resume training from checkpoint; default is False")
 
     args = parser.parse_args()
-    print()
-    print(args)
+    DIR = os.path.join(args.path_lbl, "training", "images")
+    image_dir_training_len =  len([name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR, name))])
+    print(f'Found {image_dir_training_len} training images.')
+    available_gpus = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]
+    available_gpus = len(available_gpus)
 
-    train(args)
+    # NOTE this is only for backbone dim checking
+    try: 
+        effective_batch_size = args.backbone_batch_size*args.backbone_grad_accumulate_steps
+        assert image_dir_training_len % effective_batch_size == 0
+
+        print('Dimensions for backbone OK. Note that code for training backbone computes effective batch size per GPU.')
+        params = vars(args)
+        print(params)
+        print(f'Total effective batch size (across all GPU(s)) is {effective_batch_size*available_gpus}')
+        train(args)
+
+    except: 
+        print(f'Epoch steps must be integer but is {image_dir_training_len/effective_batch_size}; i.e. len(data) / effective batch size needs to be a whole number')
+        print('Attempting to change grad_accum_steps of backbone to 1 to resolve error...')
+        args.backbone_grad_accumulate_steps = 1
+        new_effective_batch_size = args.backbone_batch_size*args.backbone_grad_accumulate_steps
+        print(f'Epoch steps now is {image_dir_training_len/new_effective_batch_size}')
+        assert image_dir_training_len % new_effective_batch_size == 0
+
+        print('Adjusted dimensions for backbone OK. Note that code for training backbone computes effective batch size per GPU.')
+        params = vars(args)
+        print(params)
+        print(f'Total effective batch size (across all GPU(s)) is {new_effective_batch_size*available_gpus}')
+        train(args)
+
+    finally:
+        print('Could not adjust parameters.')
+        sys.exit()
+
+    
 
 if __name__=="__main__":
     main()
