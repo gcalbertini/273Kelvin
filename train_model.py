@@ -94,8 +94,7 @@ parser.add_argument('--pretrained', dest='pretrained',
                     action='store_true', help='use pre-trained model')
 parser.add_argument('--seed', default=None, type=int,
                     help='seed for initializing training. ')
-parser.add_argument('-f', '--freeze', action='store_true',
-                    dest='FREEZE', help='Freeze backbone weights; default is False')
+parser.add_argument('-f', '--freeze', action='store_true', help='Freeze backbone weights; default is False')
 
 
 def train(train_loader, model, optimizer, epoch, gpu, args, tb):
@@ -203,13 +202,13 @@ def main():
           f" {gpus_per_node} allocated GPUs per node.", flush=True)
 
     print(
-        'Loading in backbone to rank {rank} of {world_size} on {gethostname()}...')
+        'Loading in backbone to rank {rank} of {world_size} on {gethostname()}...', flush=True)
     path = './' + str(args.arch)+ '_backbone_weights.ckpt'
     # load your model architecture/module
     model = models.resnet18(weights=None)
     model.fc = torch.nn.Identity()
     model.load_state_dict(torch.load('./resnet18_backbone_weights.ckpt')['model_state_dict'])
-    print('Done.')
+    print('Done.', flush=True)
 
     if args.freeze:
         for p in model.parameters():
@@ -224,9 +223,9 @@ def main():
     print(f"host: {gethostname()}, rank: {rank}, local_rank: {local_rank}")
 
     # Data loading code
-    print(f'Loading data to rank {rank} of {world_size} on {gethostname()}...')
+    print(f'Loading data to rank {rank} of {world_size} on {gethostname()}...', flush=True)
     train_dataset, train_dataloader = labeled_dataloader(args.batch_size, args.num_workers, args.shuffle, args.path_lbl, SPLIT="training")
-    print('Done.')
+    print('Done.', flush=True)
 
     # TODO Consider making validation-set-specific batch size?
     _, val_loader = labeled_dataloader(args.batch_size, int(
@@ -234,10 +233,10 @@ def main():
 
     # Now make dataloader for DDP
     print(
-        f'Generating DDP loader for rank {rank} of {world_size} on {gethostname()}...')
+        f'Generating DDP loader for rank {rank} of {world_size} on {gethostname()}...', flush=True)
     train_dataloader = DDP.DistributedSampler(
         train_dataset, num_replicas=world_size, rank=rank)
-    print('Done.')
+    print('Done.', flush=True)
 
     model = model.to(local_rank)
     ddp_model = DDP(model, device_ids=[local_rank])
@@ -253,7 +252,7 @@ def main():
                                     momentum=args.momentum,
                                     weight_decay=args.weight_decay)
     else:
-        print('Dumbass.')
+        print('Dumbass.', flush=True)
         sys.exit()
 
     scheduler = StepLR(args.optimizer, step_size=args.step, gamma=args.gamma)
@@ -267,7 +266,7 @@ def main():
         tb = None
         if args.tensorboard:
             print(
-                f'Creating Tensorboard summary writer to rank {rank} of {world_size} on {gethostname()} and adding data...')
+                f'Creating Tensorboard summary writer to rank {rank} of {world_size} on {gethostname()} and adding data...', flush=True)
             tb = SummaryWriter()
             _, train_dataloader = labeled_dataloader(args.batch_size, int(
                 os.environ["SLURM_CPUS_PER_TASK"]), args.shuffle, args.path_lbl, SPLIT="training")
@@ -275,7 +274,7 @@ def main():
             grid = torchvision.utils.make_grid(images)
             tb.add_image("images", grid)
             tb.add_graph(model, images)
-            print('Done.')
+            print('Done.', flush=True)
 
     for epoch in range(args.start_epoch, args.epochs):
         epoch_start = time.time()
