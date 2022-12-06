@@ -124,7 +124,7 @@ class Augment:
 
 def get_stl_dataloader(batch_size, transform=None):
     #stl10 = STL10("./", split=split, transform=transform, download=True)
-    dataset = UnlabeledDataset("./unlabeled_data", transform=transform)
+    dataset = UnlabeledDataset("/unlabeled/unlabeled", transform=transform)
     return DataLoader(dataset=dataset, batch_size=batch_size, num_workers=cpu_count()//2)
 
 import matplotlib.pyplot as plt

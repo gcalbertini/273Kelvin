@@ -15,9 +15,9 @@ class Backbone(nn.Module):
             p.requires_grad = True
 
     def forward(self,x):
+        print(x.size())
         out = self.premodel(x)
-        out = out.unsqueeze(2)
-        out = out.unsqueeze(3)
+        print(out.size())
         return out
 
 def get_backbone(train=False):
@@ -25,9 +25,11 @@ def get_backbone(train=False):
     if train:
         train_backbone()
 
-    backbone = models.resnet18(pretrained=None)
-    backbone.fc = nn.Identity()
-    checkpoint = torch.load('./my_models/resnet18_backbone_weights.ckpt')
-    backbone.load_state_dict(checkpoint['model_state_dict'])
+    resnet = models.resnet18(pretrained=None)
+    resnet.fc = nn.Identity()
+    checkpoint = torch.load('./resnet18_backbone_weights.ckpt')
+    resnet.load_state_dict(checkpoint['model_state_dict'])
+    req_layers = list(resnet.children())[:8]
+    backbone = nn.Sequential(*req_layers)
 
     return Backbone(backbone)
