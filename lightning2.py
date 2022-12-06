@@ -84,7 +84,6 @@ def weights_update(model, checkpoint_path):
     print(f'Checkpoint {checkpoint_path} was loaded')
     return model
 
-
 class Augment:
     """
     A stochastic data augmentation module
@@ -125,7 +124,7 @@ class Augment:
 
 def get_stl_dataloader(batch_size, transform=None):
     #stl10 = STL10("./", split=split, transform=transform, download=True)
-    dataset = UnlabeledDataset("/unlabeled/unlabeled", transform=transform)
+    dataset = UnlabeledDataset("./unlabeled_data", transform=transform)
     return DataLoader(dataset=dataset, batch_size=batch_size, num_workers=cpu_count()//2)
 
 import matplotlib.pyplot as plt
@@ -194,13 +193,20 @@ class AddProjection(nn.Module):
     def __init__(self, config, model=None, mlp_dim=512):
         super(AddProjection, self).__init__()
         embedding_size = config.embedding_size
-        self.backbone = default(model, models.resnet18(pretrained=False, num_classes=config.embedding_size))
-        mlp_dim = default(mlp_dim, self.backbone.fc.in_features)
+        resnet = default(model, models.resnet18(pretrained=False, num_classes=config.embedding_size))
+        mlp_dim = default(mlp_dim, resnet.fc.in_features)
         print('Dim MLP input:',mlp_dim)
-        self.backbone.fc = nn.Identity()
+        resnet.fc = nn.Identity()
+
+        all_layers = list(resnet.children())
+        req_layers = all_layers[:8]
+        self.backbone = nn.Sequential(*req_layers)
 
         # add mlp projection head
         self.projection = nn.Sequential(
+            all_layers[8],
+            nn.Flatten(1),
+            all_layers[9],
             nn.Linear(in_features=mlp_dim, out_features=mlp_dim),
             nn.BatchNorm1d(mlp_dim),
             nn.ReLU(),
@@ -243,7 +249,6 @@ class SimCLR_pl(pl.LightningModule):
         self.config = config
         
         self.model = AddProjection(config, model=model, mlp_dim=feat_dim)
-
         self.loss = ContrastiveLoss(config.batch_size, temperature=self.config.temperature)
 
     def forward(self, X):
@@ -278,7 +283,7 @@ class SimCLR_pl(pl.LightningModule):
 class Hparams:
     def __init__(self):
         self.epochs = 1 # number of training epochs
-        self.seed = 45678 # randomness seed
+        self.seed = 77777 # randomness seed
         self.cuda = True # use nvidia gpu
         self.img_size = 224 #image shape
         self.save = "./saved_models/" # save checkpoint
@@ -345,7 +350,6 @@ def train_backbone():
     torch.save({
                 'model_state_dict': resnet18_backbone_weights.state_dict(),
                 }, 'resnet18_backbone_weights.ckpt')
-
 
 def main():
     train_backbone()
