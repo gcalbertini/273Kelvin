@@ -467,6 +467,7 @@ def evaluate(model, data_loader, device):
         images = list(img.to(device) for img in images)
         outputs = model(images)
         outputs = [{k: v.to(cpu_device) for k, v in t.items()} for t in outputs]
+        print(outputs)
         for target, output in zip(targets, outputs):
             res[target["image_id"].item()] = output
     coco_evaluator.update(res)
