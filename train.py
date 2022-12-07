@@ -11,7 +11,7 @@ from labeled_dataloader import labeled_dataloader
 #from utils import train_one_epoch
 from eval import evaluate
 
-def train(backbone="SimCLR", BATCH_SIZE=16, EPOCHS=5, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4, print_freq=10, verbose=False):
+def train(backbone="SimCLR", BATCH_SIZE=16, EPOCHS=5, NUM_WORKERS=cpu_count()//2, SHUFFLE=True, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4, print_freq=10, verbose=False):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
@@ -20,6 +20,10 @@ def train(backbone="SimCLR", BATCH_SIZE=16, EPOCHS=5, NUM_WORKERS=cpu_count()//2
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model = model.to(device)
+
+    for p in model.parameters():
+        p.requires_grad = True
+
     optimizer = torch.optim.SGD(model.parameters(), lr=LR, momentum=MOM, weight_decay=DECAY, nesterov=True)
 
     # Use a learning rate scheduler: this means that we will decay the learning rate every <step_size> epoch by a factor of <gamma>
@@ -62,6 +66,8 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
         all_losses_dict.append(loss_dict_append)
         
         if not math.isfinite(loss_value):
+            print(targets)
+            print(loss_dict)
             print(f"Loss is {loss_value}, stopping trainig") # train if loss becomes infinity
             print(loss_dict)
             sys.exit(1)
