@@ -62,7 +62,7 @@ class LabeledDataset(torch.utils.data.Dataset):
                             A.augmentations.geometric.resize.SmallestMaxSize(max_size=self.IMAGE_SIZE , interpolation=cv2.INTER_CUBIC, always_apply=False, p=1),
                             A.RandomSizedBBoxSafeCrop(height=self.IMAGE_SIZE , width=self.IMAGE_SIZE , erosion_rate=0.0),
                             A.HorizontalFlip(p=0.5),
-                            A.augmentations.geometric.resize.Resize(800, 800, always_apply=True),
+                            #A.augmentations.geometric.resize.Resize(800, 800, always_apply=True),
                             A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
                             ToTensorV2(),  # convert PIL to Pytorch Tensor
                         ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
