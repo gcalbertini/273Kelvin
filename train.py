@@ -6,7 +6,7 @@ from utils import train_one_epoch
 from eval import evaluate
 from torch.multiprocessing import cpu_count
 
-def train(backbone="SimCLR", BATCH_SIZE=32, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", EPOCHS=1, LR=0.008, MOM=0.9, DECAY=0.0005, print_freq=10, verbose=False):
+def train(backbone="SimCLR", BATCH_SIZE=32, EPOCHS=1, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4, print_freq=10, verbose=False):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
@@ -17,9 +17,9 @@ def train(backbone="SimCLR", BATCH_SIZE=32, NUM_WORKERS=cpu_count()//2, SHUFFLE=
 
     model = model.to(device)
 
-    optimizer = torch.optim.SGD(model.parameters(), lr=LR, momentum=MOM, weight_decay=DECAY)
+    optimizer = torch.optim.SGD(model.parameters(), lr=LR, momentum=MOM, weight_decay=DECAY, nesterov=True)
     # Use a learning rate scheduler: this means that we will decay the learning rate every <step_size> epoch by a factor of <gamma>
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.2)
+    #lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.2)
 
     if verbose:
         print("Model's state_dict:")
@@ -38,7 +38,7 @@ def train(backbone="SimCLR", BATCH_SIZE=32, NUM_WORKERS=cpu_count()//2, SHUFFLE=
     for epoch in range(EPOCHS):
         print("epoch:", epoch)
         train_one_epoch(model, optimizer, train_dataloader, device, epoch, print_freq)
-        lr_scheduler.step()
+        #lr_scheduler.step()
         evaluate(model, validation_dataloader, device)
 
     torch.save(model.state_dict(), f"./model__mom_{MOM}_decay_{DECAY}_epochs_{EPOCHS}_lr_{LR}_backbone_{backbone}.pt")
