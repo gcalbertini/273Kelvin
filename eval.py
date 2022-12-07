@@ -463,6 +463,8 @@ def evaluate(model, data_loader, device):
 
     res = {}
 
+    print("ENTER")
+
     for images, targets in metric_logger.log_every(data_loader, 100, header):
         images = list(img.to(device) for img in images)
         outputs = model(images)
