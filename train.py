@@ -22,7 +22,8 @@ def train(backbone="SimCLR", BATCH_SIZE=16, EPOCHS=45, NUM_WORKERS=cpu_count()//
     model = model.to(device)
 
     params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = torch.optim.Adam(params, lr=LR, momentum=MOM, weight_decay=DECAY, nesterov=True)
+    #optimizer = torch.optim.SGD(params, lr=LR, momentum=MOM, weight_decay=DECAY, nesterov=True)
+    optimizer = torch.optim.Adam(params, lr=LR, weight_decay=DECAY)
 
     # Use a learning rate scheduler: this means that we will decay the learning rate every <step_size> epoch by a factor of <gamma>
     #lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.2)
