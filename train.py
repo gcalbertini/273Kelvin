@@ -6,7 +6,7 @@ from utils import train_one_epoch
 from eval import evaluate
 from torch.multiprocessing import cpu_count
 
-def train(backbone="SimCLR", BATCH_SIZE=32, EPOCHS=1, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4, print_freq=10, verbose=False):
+def train(backbone="SimCLR", BATCH_SIZE=32, EPOCHS=10, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4, print_freq=10, verbose=False):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
