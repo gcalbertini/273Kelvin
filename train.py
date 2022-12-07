@@ -11,7 +11,7 @@ from labeled_dataloader import labeled_dataloader
 #from utils import train_one_epoch
 from eval import evaluate
 
-def train(backbone="SimCLR", BATCH_SIZE=16, EPOCHS=45, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
+def train(backbone="SimCLR", BATCH_SIZE=16, EPOCHS=45, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.001, MOM=0.9, DECAY=1e-4):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
@@ -23,7 +23,7 @@ def train(backbone="SimCLR", BATCH_SIZE=16, EPOCHS=45, NUM_WORKERS=cpu_count()//
 
     params = [p for p in model.parameters() if p.requires_grad]
     #optimizer = torch.optim.SGD(params, lr=LR, momentum=MOM, weight_decay=DECAY, nesterov=True)
-    optimizer = torch.optim.Adam(params, lr=LR, weight_decay=DECAY)
+    optimizer = torch.optim.Adam(params, lr=LR, eps=1e-3, amsgrad=True)
 
     # Use a learning rate scheduler: this means that we will decay the learning rate every <step_size> epoch by a factor of <gamma>
     #lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.2)
