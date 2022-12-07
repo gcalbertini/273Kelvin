@@ -108,6 +108,7 @@ class Augment:
             T.RandomApply([color_jitter], p=0.8),
             T.RandomApply([blur], p=0.5),
             T.RandomGrayscale(p=0.2),
+            T.Resize(size=800),
             # imagenet stats
             T.ToTensor(),
             T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -278,7 +279,7 @@ class SimCLR_pl(pl.LightningModule):
 # a lazy way to pass the config file
 class Hparams:
     def __init__(self):
-        self.epochs = 10 # number of training epochs
+        self.epochs = 40 # number of training epochs
         self.seed = 77777 # randomness seed
         self.cuda = True # use nvidia gpu
         self.img_size = 224 #image shape
