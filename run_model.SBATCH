@@ -2,7 +2,7 @@
 
 #SBATCH --account=csci_ga_2572_2022fa_16
 #SBATCH --partition=n1s8-v100-1
-#SBATCH --time=1:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem=25GB
 #SBATCH --job-name=FASTRCNN
 #SBATCH --gres=gpu:1
