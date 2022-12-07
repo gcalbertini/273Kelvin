@@ -48,7 +48,7 @@ from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
 class Backbone(nn.Module):
     def __init__(self, backbone):
         super().__init__()
-        self.out_channels = 256
+        self.out_channels = 512
         self.premodel = backbone
 
         # change this later
