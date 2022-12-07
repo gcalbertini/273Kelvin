@@ -53,7 +53,7 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
         targets = [{k: torch.tensor(v).to(device) for k, v in t.items()} for t in targets]
         
         loss_dict = model(images, targets) # the model computes the loss automatically if we pass in targets
-        print(loss_dict)
+        #print(loss_dict)
         losses = sum(loss for loss in loss_dict.values())
         loss_dict_append = {k: v.item() for k, v in loss_dict.items()}
         loss_value = losses.item()

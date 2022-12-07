@@ -34,6 +34,5 @@ def get_backbone(train=False):
     #backbone = nn.Sequential(*req_layers)
 
     #return Backbone(backbone)
-
-
-    return Backbone(resnet_fpn_backbone('resnet18', weights=checkpoint, trainable_layers=5))
+    #return Backbone(resnet_fpn_backbone('resnet18', weights=checkpoint, trainable_layers=5))
+    return resnet_fpn_backbone('resnet18', weights=checkpoint, trainable_layers=5)
