@@ -59,9 +59,9 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
     
     for images, targets in tqdm(loader):
         images = list(image.to(device) for image in images)
-        #targets = [{k: v.clone().detach().to(device) for k, v in t.items()} for t in targets]
-        targets = [{k: torch.tensor(v).to(device) for k, v in t.items()} for t in targets]
-        
+        targets = [{k: v.clone().detach().to(device) for k, v in t.items()} for t in targets]
+        #targets = [{k: torch.tensor(v).to(device) for k, v in t.items()} for t in targets]
+
         loss_dict = model(images, targets) # the model computes the loss automatically if we pass in targets
         #print(loss_dict)
         losses = sum(loss for loss in loss_dict.values())
