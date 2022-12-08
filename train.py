@@ -12,12 +12,12 @@ from labeled_dataloader import labeled_dataloader
 from eval import evaluate
 from eval import LabeledDataset
 
-def train(backbone="SimCLR", BATCH_SIZE=2, EPOCHS=50, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
+def train(backbone="SimCLR", BATCH_SIZE=2, EPOCHS=50, NUM_WORKERS=cpu_count()//2, SHUFFLE=True, DATASET_PATH="/labeled/labeled", LR=0.008, MOM=0.9, DECAY=1e-4):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
     _, train_dataloader = labeled_dataloader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, SPLIT="training")
-    _, validation_dataloader = labeled_dataloader(1, NUM_WORKERS, SHUFFLE, DATASET_PATH, SPLIT="validation") # BATCH=1
+    _, validation_dataloader = labeled_dataloader(1, NUM_WORKERS, False, DATASET_PATH, SPLIT="validation") # BATCH=1
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model = model.to(device)
@@ -73,7 +73,7 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
         loss_dict_append = {k: v.item() for k, v in loss_dict.items()}
         loss_value = losses.item()
 
-        if i % 100 == 0:
+        if i % 750 == 0:
             print(loss_value)
         
         all_losses.append(loss_value)
