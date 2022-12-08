@@ -14,3 +14,6 @@
 
 - scp model_2_batch_4_mom_0.9_decay_0.0001_epochs_11_lr_0.01_backbone_SimCLR_RPN.pt greene-dtn:/scratch/mr6744
 - scp mr6744@greene.hpc.nyu.edu:/scratch/mr6744/model_2_batch_4_mom_0.9_decay_0.0001_epochs_11_lr_0.01_backbone_SimCLR_RPN.pt ~/Downloads
+
+- n1s8-v100-1
+- n1c10m64-v100-1
