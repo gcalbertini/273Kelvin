@@ -16,7 +16,7 @@ import torchvision
 def collate_fn(batch):
     return tuple(zip(*batch))
 
-def train(backbone="SimCLR", BATCH_SIZE=4, EPOCHS=45, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
+def train(backbone="SimCLR", BATCH_SIZE=4, EPOCHS=50, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
