@@ -12,7 +12,7 @@ from labeled_dataloader import labeled_dataloader
 from eval import evaluate
 from eval import LabeledDataset
 
-def train(backbone="SimCLR", BATCH_SIZE=4, EPOCHS=50, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
+def train(backbone="SimCLR", BATCH_SIZE=2, EPOCHS=50, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
@@ -33,13 +33,13 @@ def train(backbone="SimCLR", BATCH_SIZE=4, EPOCHS=50, NUM_WORKERS=cpu_count()//2
     print("!!! FastRCNN Training START !!!")
     for epoch in range(EPOCHS):
         train_one_epoch(model, optimizer, train_dataloader, device, epoch)
-        if (epoch+1) % 2 == 0:
-            torch.save(model.state_dict(), f"./save_fastrcnn_models/model_!TRANSFORMATIONS_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch+1}_lr_{LR}_backbone_{backbone}_RPN.pt")
-        if (epoch+1) % 5 == 0:
+        if (epoch) % 2 == 0:
+            torch.save(model.state_dict(), f"./save_fastrcnn_models/model_3_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch}_lr_{LR}_backbone_{backbone}_RPN.pt")
+        if (epoch) % 5 == 0:
             evaluate(model, validation_dataloader, device)
 
     evaluate(model, validation_dataloader, device)
-    torch.save(model.state_dict(), f"./save_fastrcnn_models/model_!TRANSFORMATIONS_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch+1}_lr_{LR}_backbone_{backbone}_RPN.pt")
+    torch.save(model.state_dict(), f"./save_fastrcnn_models/model_3_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch}_lr_{LR}_backbone_{backbone}_RPN.pt")
 
     return model
 
@@ -57,6 +57,8 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
     
     all_losses = []
     all_losses_dict = []
+
+    i = 0
     
     for images, targets in tqdm(loader):
         #print("loop")
@@ -70,6 +72,9 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
         losses = sum(loss for loss in loss_dict.values())
         loss_dict_append = {k: v.item() for k, v in loss_dict.items()}
         loss_value = losses.item()
+
+        if i % 100 == 0:
+            print(loss_value)
         
         all_losses.append(loss_value)
         all_losses_dict.append(loss_dict_append)
@@ -84,6 +89,8 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
         optimizer.zero_grad()
         losses.backward()
         optimizer.step()
+
+        i+=1
         
 #         if lr_scheduler is not None:
 #             lr_scheduler.step() # 
