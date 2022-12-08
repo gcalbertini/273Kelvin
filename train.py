@@ -17,8 +17,8 @@ def train(backbone="SimCLR", BATCH_SIZE=4, EPOCHS=50, NUM_WORKERS=cpu_count()//2
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
     _, train_dataloader = labeled_dataloader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, SPLIT="training")
-    _, validation_dataloader = labeled_dataloader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, SPLIT="validation")
-    
+    _, validation_dataloader = labeled_dataloader(1, NUM_WORKERS, SHUFFLE, DATASET_PATH, SPLIT="validation") # BATCH=1
+
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model = model.to(device)
     print(device)
@@ -61,9 +61,9 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
     for images, targets in tqdm(loader):
         #print("loop")
         images = list(image.to(device) for image in images)
-        targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
+        #targets = [{k: v for k, v in t.items()} for t in targets]
         #targets = [{k: v.clone().detach().to(device) for k, v in t.items()} for t in targets]
-        #targets = [{k: torch.tensor(v).to(device) for k, v in t.items()} for t in targets]
+        targets = [{k: torch.tensor(v).to(device) for k, v in t.items()} for t in targets]
 
         loss_dict = model(images, targets) # the model computes the loss automatically if we pass in targets
         #print(loss_dict)
