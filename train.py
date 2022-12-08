@@ -40,6 +40,7 @@ def train(backbone="SimCLR", BATCH_SIZE=4, EPOCHS=45, NUM_WORKERS=cpu_count()//2
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model = model.to(device)
+    print(device)
 
     #params = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.SGD(model.parameters(), lr=LR, momentum=MOM, weight_decay=DECAY, nesterov=True)
@@ -63,6 +64,7 @@ def train(backbone="SimCLR", BATCH_SIZE=4, EPOCHS=45, NUM_WORKERS=cpu_count()//2
 
 def train_one_epoch(model, optimizer, loader, device, epoch):
     model.to(device)
+    print(device)
     model.train()
     
 #     lr_scheduler = None
@@ -76,9 +78,10 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
     all_losses_dict = []
     
     for images, targets in tqdm(loader):
-        print(1)
+        #print("loop")
         images = list(image.to(device) for image in images)
-        targets = [{k: v.clone().detach().to(device) for k, v in t.items()} for t in targets]
+        targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
+        #targets = [{k: v.clone().detach().to(device) for k, v in t.items()} for t in targets]
         #targets = [{k: torch.tensor(v).to(device) for k, v in t.items()} for t in targets]
 
         loss_dict = model(images, targets) # the model computes the loss automatically if we pass in targets
