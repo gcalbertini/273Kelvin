@@ -23,4 +23,4 @@ def get_backbone(train=False):
     return_layers = {f"layer{k}": str(v) for v, k in enumerate(returned_layers)}
     extra_blocks = LastLevelMaxPool()
 
-    return BackboneWithFPN(backbone=resnet, in_channels_list=in_channels_list, return_layers=return_layers, out_channels=resnet.inplanes, extra_blocks=extra_blocks)
+    return BackboneWithFPN(backbone=resnet, in_channels_list=in_channels_list, return_layers=return_layers, out_channels=256, extra_blocks=extra_blocks)
