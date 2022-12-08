@@ -17,6 +17,11 @@ def get_backbone(train=False):
     checkpoint = torch.load('./resnet18_backbone_weights_final.ckpt')
     resnet.load_state_dict(checkpoint['model_state_dict'])
 
+    layers_to_train = ["layer4", "layer3", "layer2", "layer1", "conv1", "bn1"]
+    for name, parameter in resnet.named_parameters():
+        if all([not name.startswith(layer) for layer in layers_to_train]):
+            parameter.requires_grad_(False)
+
     returned_layers=[1, 2, 3, 4]
     in_channels_stage2 = resnet.inplanes // 8 # resnet.inplanes=512
     in_channels_list = [in_channels_stage2 * 2 ** (i - 1) for i in returned_layers]
