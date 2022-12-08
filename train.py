@@ -11,7 +11,7 @@ from labeled_dataloader import labeled_dataloader
 #from utils import train_one_epoch
 from eval import evaluate
 
-def train(backbone="SimCLR", BATCH_SIZE=4, EPOCHS=45, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
+def train(backbone="SimCLR", BATCH_SIZE=16, EPOCHS=45, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
@@ -39,7 +39,7 @@ def train(backbone="SimCLR", BATCH_SIZE=4, EPOCHS=45, NUM_WORKERS=cpu_count()//2
             evaluate(model, validation_dataloader, device)
 
     evaluate(model, validation_dataloader, device)
-    torch.save(model.state_dict(), f"./save_fastrcnn_models/model_3_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch}_lr_{LR}_backbone_{backbone}_RPN.pt")
+    torch.save(model.state_dict(), f"./save_fastrcnn_models/model_3_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch+1}_lr_{LR}_backbone_{backbone}_RPN.pt")
 
     return model
 

@@ -8,7 +8,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --output=slurm_%j.out
 
-singularity exec --nv --overlay /scratch/DL22FA/overlay_11-16.ext3:ro \
+singularity exec --nv --overlay /scratch/DL22FA/overlay_12-02.ext3:ro \
             -B /scratch/DL22FA/unlabeled_224.sqsh:/unlabeled:image-src=/ \
             -B /scratch/DL22FA/labeled.sqsh:/labeled:image-src=/ \
             -B /scratch -B /scratch_tmp \
