@@ -18,6 +18,8 @@ def train(backbone="SimCLR", BATCH_SIZE=25, EPOCHS=45, NUM_WORKERS=cpu_count()//
     _, train_dataloader = labeled_dataloader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, SPLIT="training")
     _, validation_dataloader = labeled_dataloader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, SPLIT="validation")
 
+    print("done")
+
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model = model.to(device)
 
