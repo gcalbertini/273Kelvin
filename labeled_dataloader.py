@@ -50,7 +50,7 @@ class_dict = {
 }
 
 class LabeledDataset(torch.utils.data.Dataset):
-    def __init__(self, root, split, img_size):
+    def __init__(self, root, split, img_size, transforms=None):
         r"""
         Args:
             root: Location of the dataset folder, usually it is /labeled
@@ -59,16 +59,7 @@ class LabeledDataset(torch.utils.data.Dataset):
         """
         self.IMAGE_SIZE = img_size
         self.split = split
-        self.transforms = A.Compose([
-                            A.augmentations.geometric.resize.SmallestMaxSize(max_size=self.IMAGE_SIZE , interpolation=cv2.INTER_CUBIC, always_apply=False, p=1),
-                            A.RandomSizedBBoxSafeCrop(height=self.IMAGE_SIZE , width=self.IMAGE_SIZE , erosion_rate=0.0),
-                            A.HorizontalFlip(p=0.5),
-                            #A.augmentations.geometric.resize.Resize(800, 800, always_apply=True),
-                            A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
-                            ToTensorV2(),  # convert PIL to Pytorch Tensor
-                        ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
-
-        self.transforms2=lambda x, y: (torchvision.transforms.functional.to_tensor(x), y),
+        self.transforms = transforms
 
         self.image_dir = os.path.join(root, split, "images")
         self.label_dir = os.path.join(root, split, "labels")
@@ -107,7 +98,7 @@ class LabeledDataset(torch.utils.data.Dataset):
         target["image_id"] = image_id
         target["iscrowd"] = iscrowd
 
-        if self.transforms2 is not None:
+        if self.transforms is not None:
             img, target = self.transforms(img, target)
 
         """
@@ -134,7 +125,8 @@ def labeled_dataloader(BATCH_SIZE=16, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH
     labeled_dataset = LabeledDataset(
         root=DATASET_PATH,
         split=SPLIT,
-        img_size=IMAGE_SIZE
+        img_size=IMAGE_SIZE,
+        transforms=lambda x, y: (torchvision.transforms.functional.to_tensor(x), y),
     )
 
     labeled_dataloader = torch.utils.data.DataLoader(
