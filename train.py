@@ -11,7 +11,7 @@ from labeled_dataloader import labeled_dataloader
 #from utils import train_one_epoch
 from eval import evaluate
 
-def train(backbone="SimCLR", BATCH_SIZE=4, EPOCHS=45, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
+def train(backbone="SimCLR", BATCH_SIZE=8, EPOCHS=45, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
@@ -59,8 +59,8 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
     
     for images, targets in tqdm(loader):
         images = list(image.to(device) for image in images)
-        #targets = [{k: v.clone().detach().to(device) for k, v in t.items()} for t in targets]
-        targets = [{k: torch.tensor(v).to(device) for k, v in t.items()} for t in targets]
+        targets = [{k: v.clone().detach().to(device) for k, v in t.items()} for t in targets]
+        #targets = [{k: torch.tensor(v).to(device) for k, v in t.items()} for t in targets]
         
         loss_dict = model(images, targets) # the model computes the loss automatically if we pass in targets
         #print(loss_dict)
