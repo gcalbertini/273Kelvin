@@ -9,7 +9,6 @@ import yaml
 import matplotlib.pyplot as plt
 import torchvision.transforms.functional as F
 from torchvision import transforms
-import torchvision
 
 #from torchvision.utils import draw_bounding_boxes
 #from helper_data import show, unnormalize
@@ -50,7 +49,7 @@ class_dict = {
 }
 
 class LabeledDataset(torch.utils.data.Dataset):
-    def __init__(self, root, split, img_size, transforms=None):
+    def __init__(self, root, split, img_size):
         r"""
         Args:
             root: Location of the dataset folder, usually it is /labeled
@@ -59,8 +58,16 @@ class LabeledDataset(torch.utils.data.Dataset):
         """
         self.IMAGE_SIZE = img_size
         self.split = split
-        self.transforms = transforms
+        self.transforms = A.Compose([
+                            #A.augmentations.geometric.resize.SmallestMaxSize(max_size=self.IMAGE_SIZE , interpolation=cv2.INTER_CUBIC, always_apply=False, p=1),
+                            #A.RandomSizedBBoxSafeCrop(height=self.IMAGE_SIZE , width=self.IMAGE_SIZE , erosion_rate=0.0),
+                            A.HorizontalFlip(p=0.5),
+                            #A.augmentations.geometric.resize.Resize(800, 800, always_apply=True),
+                            A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+                            ToTensorV2(),  # convert PIL to Pytorch Tensor
+                        ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
 
+        
         self.image_dir = os.path.join(root, split, "images")
         self.label_dir = os.path.join(root, split, "labels")
 
@@ -99,10 +106,6 @@ class LabeledDataset(torch.utils.data.Dataset):
         target["iscrowd"] = iscrowd
 
         if self.transforms is not None:
-            img, target = self.transforms(img, target)
-
-        """
-        if self.transforms is not None:
             #img, target = self.transforms(img, target)
             img = np.array(img)
             transformed = self.transforms(image=img, bboxes=target["boxes"], class_labels=target["labels"])
@@ -116,7 +119,6 @@ class LabeledDataset(torch.utils.data.Dataset):
 
             area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
             target["area"] = area
-        """
 
         return img, target
 
@@ -125,8 +127,7 @@ def labeled_dataloader(BATCH_SIZE=16, NUM_WORKERS=2, SHUFFLE=False, DATASET_PATH
     labeled_dataset = LabeledDataset(
         root=DATASET_PATH,
         split=SPLIT,
-        img_size=IMAGE_SIZE,
-        transforms=lambda x, y: (torchvision.transforms.functional.to_tensor(x), y),
+        img_size=IMAGE_SIZE
     )
 
     labeled_dataloader = torch.utils.data.DataLoader(

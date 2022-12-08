@@ -10,13 +10,31 @@ from fastrcnn import get_model
 from labeled_dataloader import labeled_dataloader
 #from utils import train_one_epoch
 from eval import evaluate
+from eval import LabeledDataset
+import torchvision
+
+def collate_fn(batch):
+    return tuple(zip(*batch))
 
 def train(backbone="SimCLR", BATCH_SIZE=2, EPOCHS=45, NUM_WORKERS=cpu_count()//2, SHUFFLE=False, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
     _, train_dataloader = labeled_dataloader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, SPLIT="training")
-    _, validation_dataloader = labeled_dataloader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, SPLIT="validation")
+
+    valid_dataset = LabeledDataset(
+        root=DATASET_PATH,
+        split="validation",
+        transforms=lambda x, y: (torchvision.transforms.functional.to_tensor(x), y),
+    )
+
+    validation_dataloader = torch.utils.data.DataLoader(
+        valid_dataset,
+        batch_size=1,
+        shuffle=False,
+        num_workers=NUM_WORKERS,
+        collate_fn=collate_fn,
+    )
 
     print("done")
 
