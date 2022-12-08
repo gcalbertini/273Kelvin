@@ -9,6 +9,7 @@ import yaml
 import matplotlib.pyplot as plt
 import torchvision.transforms.functional as F
 from torchvision import transforms
+import torchvision
 
 #from torchvision.utils import draw_bounding_boxes
 #from helper_data import show, unnormalize
@@ -67,7 +68,8 @@ class LabeledDataset(torch.utils.data.Dataset):
                             ToTensorV2(),  # convert PIL to Pytorch Tensor
                         ], bbox_params=A.BboxParams(format='pascal_voc', label_fields=['class_labels']))
 
-        
+        self.transforms2=lambda x, y: (torchvision.transforms.functional.to_tensor(x), y),
+
         self.image_dir = os.path.join(root, split, "images")
         self.label_dir = os.path.join(root, split, "labels")
 
@@ -105,6 +107,10 @@ class LabeledDataset(torch.utils.data.Dataset):
         target["image_id"] = image_id
         target["iscrowd"] = iscrowd
 
+        if self.transforms2 is not None:
+            img, target = self.transforms(img, target)
+
+        """
         if self.transforms is not None:
             #img, target = self.transforms(img, target)
             img = np.array(img)
@@ -119,6 +125,7 @@ class LabeledDataset(torch.utils.data.Dataset):
 
             area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
             target["area"] = area
+        """
 
         return img, target
 
