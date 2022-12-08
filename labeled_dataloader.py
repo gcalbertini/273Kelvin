@@ -128,7 +128,7 @@ class LabeledDataset(torch.utils.data.Dataset):
 
         '''
         if self.transforms is not None:
-            img = self.transforms(img)
+            img, target = self.transforms(img, target)
 
         return img, target
 
