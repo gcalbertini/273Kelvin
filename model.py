@@ -4,7 +4,7 @@ from torchvision.models.detection.rpn import AnchorGenerator
 import torchvision
 import torch
 
-trained_fastercnn_path = './model_2_batch_4_mom_0.9_decay_0.0001_epochs_11_lr_0.01_backbone_SimCLR_RPN.pt'
+trained_fastercnn_path = './save_fastrcnn_models/model_2_batch_4_mom_0.9_decay_0.0001_epochs_11_lr_0.01_backbone_SimCLR_RPN.pt'
 
 def get_model(num_classes=100):
 
