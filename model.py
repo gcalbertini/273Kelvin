@@ -6,7 +6,7 @@ import torch
 
 trained_fastercnn_path = './model_2_batch_4_mom_0.9_decay_0.0001_epochs_11_lr_0.01_backbone_SimCLR_RPN.pt'
 
-def model(num_classes=100):
+def get_model(num_classes=100):
 
     checkpoint = torch.load(trained_fastercnn_path)
 
