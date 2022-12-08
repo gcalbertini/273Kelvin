@@ -2,37 +2,25 @@ import torch
 import torchvision.models as models
 import torch.nn as nn
 
-from lightning import train_backbone
-from torchvision.models.detection.backbone_utils import resnet_fpn_backbone
-
-class Backbone(nn.Module):
-    def __init__(self, backbone):
-        super().__init__()
-        self.out_channels = 256
-        self.premodel = backbone
-
-        # change this later
-        #for p in self.premodel.parameters():
-            #p.requires_grad = True
-
-    def forward(self,x):
-        #print(x.size())
-        out = self.premodel(x)
-        #print(out.size())
-        return out
+#from lightning import train_backbone
+from torchvision.models.detection.backbone_utils import BackboneWithFPN
+from torchvision.ops.feature_pyramid_network import LastLevelMaxPool
 
 def get_backbone(train=False):
 
-    if train:
-        train_backbone()
+    #if train:
+        #train_backbone()
 
-    #resnet = models.resnet18(pretrained=None)
-    #resnet.fc = nn.Identity()
+    resnet = models.resnet18(weights=None)
+    resnet.maxpool = nn.Identity()
+    resnet.fc = nn.Identity()
     checkpoint = torch.load('./resnet18_backbone_weights_final.ckpt')
-    #resnet.load_state_dict(checkpoint['model_state_dict'])
-    #req_layers = list(resnet.children())[:8]
-    #backbone = nn.Sequential(*req_layers)
+    resnet.load_state_dict(checkpoint['model_state_dict'])
 
-    #return Backbone(backbone)
-    #return Backbone(resnet_fpn_backbone('resnet18', weights=checkpoint, trainable_layers=5))
-    return resnet_fpn_backbone('resnet18', weights=checkpoint, trainable_layers=3)
+    returned_layers=[1, 2, 3, 4]
+    in_channels_stage2 = resnet.inplanes // 8 # resnet.inplanes=512
+    in_channels_list = [in_channels_stage2 * 2 ** (i - 1) for i in returned_layers]
+    return_layers = {f"layer{k}": str(v) for v, k in enumerate(returned_layers)}
+    extra_blocks = LastLevelMaxPool()
+
+    return BackboneWithFPN(backbone=resnet, in_channels_list=in_channels_list, return_layers=return_layers, out_channels=resnet.inplanes, extra_blocks=extra_blocks)
