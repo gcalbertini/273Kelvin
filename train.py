@@ -76,6 +76,7 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
     all_losses_dict = []
     
     for images, targets in tqdm(loader):
+        print(1)
         images = list(image.to(device) for image in images)
         targets = [{k: v.clone().detach().to(device) for k, v in t.items()} for t in targets]
         #targets = [{k: torch.tensor(v).to(device) for k, v in t.items()} for t in targets]
