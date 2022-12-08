@@ -24,8 +24,8 @@ def train(backbone="SimCLR", BATCH_SIZE=4, EPOCHS=45, NUM_WORKERS=cpu_count()//2
     model = model.to(device)
 
     #params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = torch.optim.SGD(model.parameters(), lr=LR, momentum=MOM, weight_decay=DECAY, nesterov=True)
-    #optimizer = torch.optim.Adam(params, lr=LR, eps=1e-3, amsgrad=True)
+    #optimizer = torch.optim.SGD(model.parameters(), lr=LR, momentum=MOM, weight_decay=DECAY, nesterov=True)
+    optimizer = torch.optim.Adam(model.parameters(), lr=LR, eps=1e-3, amsgrad=True)
 
     # Use a learning rate scheduler: this means that we will decay the learning rate every <step_size> epoch by a factor of <gamma>
     #lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.2)
@@ -34,12 +34,12 @@ def train(backbone="SimCLR", BATCH_SIZE=4, EPOCHS=45, NUM_WORKERS=cpu_count()//2
     for epoch in range(EPOCHS):
         train_one_epoch(model, optimizer, train_dataloader, device, epoch)
         if (epoch+1) % 2 == 0:
-            torch.save(model.state_dict(), f"./save_fastrcnn_models/model_4_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch+1}_lr_{LR}_backbone_{backbone}_RPN.pt")
+            torch.save(model.state_dict(), f"./save_fastrcnn_models/model_5_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch+1}_lr_{LR}_backbone_{backbone}_RPN.pt")
         if (epoch+1) % 5 == 0:
             evaluate(model, validation_dataloader, device)
 
     evaluate(model, validation_dataloader, device)
-    torch.save(model.state_dict(), f"./save_fastrcnn_models/model_4_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch+1}_lr_{LR}_backbone_{backbone}_RPN.pt")
+    torch.save(model.state_dict(), f"./save_fastrcnn_models/model_5_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch+1}_lr_{LR}_backbone_{backbone}_RPN.pt")
 
     return model
 
