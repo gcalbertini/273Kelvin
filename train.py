@@ -87,7 +87,7 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
         
         optimizer.zero_grad()
         losses.backward()
-        torch.nn.utils.clip_grad_norm(model.parameters(), 0.5)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
         optimizer.step()
 
         i+=1
