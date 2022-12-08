@@ -34,12 +34,12 @@ def train(backbone="SimCLR", BATCH_SIZE=8, EPOCHS=45, NUM_WORKERS=cpu_count()//2
     for epoch in range(EPOCHS):
         train_one_epoch(model, optimizer, train_dataloader, device, epoch)
         if (epoch+1) % 2 == 0:
-            torch.save(model.state_dict(), f"./save_fastrcnn_models/model_3_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch+1}_lr_{LR}_backbone_{backbone}_RPN.pt")
+            torch.save(model.state_dict(), f"./save_fastrcnn_models/model_4_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch+1}_lr_{LR}_backbone_{backbone}_RPN.pt")
         if (epoch+1) % 5 == 0:
             evaluate(model, validation_dataloader, device)
 
     evaluate(model, validation_dataloader, device)
-    torch.save(model.state_dict(), f"./save_fastrcnn_models/model_3_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch+1}_lr_{LR}_backbone_{backbone}_RPN.pt")
+    torch.save(model.state_dict(), f"./save_fastrcnn_models/model_4_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch+1}_lr_{LR}_backbone_{backbone}_RPN.pt")
 
     return model
 
