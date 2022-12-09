@@ -100,13 +100,16 @@ class LabeledDataset(torch.utils.data.Dataset):
         labels = []
         for label in yamlfile["labels"]:
             labels.append(class_dict[label])
+        labels = torch.as_tensor(labels, dtype=torch.int64)
         image_id = torch.tensor([idx])
+        area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
         iscrowd = torch.zeros((num_objs,), dtype=torch.int64)
 
         target = {}
         target["boxes"] = boxes
         target["labels"] = labels
         target["image_id"] = image_id
+        target["area"] = area
         target["iscrowd"] = iscrowd
 
         '''
