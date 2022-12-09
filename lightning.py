@@ -25,9 +25,12 @@ from torch.utils.data import DataLoader
 from torch.multiprocessing import cpu_count
 import torchvision.transforms as T
 from PIL import Image
-from pytorch_lightning.utilities.warnings import PossibleUserWarning
+import warnings
+import logging
 
-warnings.filterwarnings("ignore", category=PossibleUserWarning)
+warnings.filterwarnings("ignore")
+logging.captureWarnings(capture=True)
+logging.getLogger("lightning").setLevel(logging.ERROR)
 
 class UnlabeledDataset(torch.utils.data.Dataset):
     def __init__(self, root, transform=None):
