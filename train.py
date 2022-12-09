@@ -14,7 +14,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-def train(backbone="SimCLR", BATCH_SIZE=2, EPOCHS=50, NUM_WORKERS=cpu_count()//2, SHUFFLE=True, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
+def train(backbone="SimCLR", BATCH_SIZE=2, EPOCHS=50, NUM_WORKERS=cpu_count()//2, SHUFFLE=True, DATASET_PATH="/labeled/labeled", LR=0.008, MOM=0.9, DECAY=1e-4):
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
@@ -25,13 +25,12 @@ def train(backbone="SimCLR", BATCH_SIZE=2, EPOCHS=50, NUM_WORKERS=cpu_count()//2
     model = model.to(device)
     #print(device)
 
-    #params = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.SGD(model.parameters(), lr=LR, momentum=MOM, weight_decay=DECAY, nesterov=True)
     #optimizer = torch.optim.Adam(model.parameters(), lr=LR, eps=1e-3, amsgrad=True)
 
     # Use a learning rate scheduler: this means that we will decay the learning rate every <step_size> epoch by a factor of <gamma>
     #lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.2)
-
+    '''
     print("!!! FastRCNN Training START !!!")
     for epoch in range(EPOCHS):
         train_one_epoch(model, optimizer, train_dataloader, device, epoch)
@@ -39,9 +38,9 @@ def train(backbone="SimCLR", BATCH_SIZE=2, EPOCHS=50, NUM_WORKERS=cpu_count()//2
             torch.save(model.state_dict(), f"./save_fastrcnn_models/model_3*_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch}_lr_{LR}_backbone_{backbone}_RPN.pt")
         if (epoch) % 5 == 0:
             evaluate(model, validation_dataloader, device)
-
+    '''
     evaluate(model, validation_dataloader, device)
-    torch.save(model.state_dict(), f"./save_fastrcnn_models/model_3*_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch}_lr_{LR}_backbone_{backbone}_RPN.pt")
+    #torch.save(model.state_dict(), f"./save_fastrcnn_models/model_3*_batch_{BATCH_SIZE}_mom_{MOM}_decay_{DECAY}_epochs_{epoch}_lr_{LR}_backbone_{backbone}_RPN.pt")
 
     return model
 
@@ -83,7 +82,7 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
         if not math.isfinite(loss_value):
             print(targets)
             print(loss_dict)
-            print(f"Loss is {loss_value}, stopping trainig") # train if loss becomes infinity
+            print(f"Loss is {loss_value}, stopping training") # train if loss becomes infinity
             print(loss_dict)
             sys.exit(1)
         
