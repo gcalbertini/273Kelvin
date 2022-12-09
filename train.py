@@ -18,7 +18,7 @@ def train(backbone="SimCLR", BATCH_SIZE=2, EPOCHS=50, NUM_WORKERS=cpu_count()//2
 
     model = get_model(backbone=backbone, num_classes=100) # if you want to train with mobileye backbone, then: get_model(backbone=None)
 
-    _, train_dataloader = labeled_dataloader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, SPLIT="training")
+    #_, train_dataloader = labeled_dataloader(BATCH_SIZE, NUM_WORKERS, SHUFFLE, DATASET_PATH, SPLIT="training")
     _, validation_dataloader = labeled_dataloader(1, NUM_WORKERS, False, DATASET_PATH, SPLIT="validation") # BATCH=1
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
