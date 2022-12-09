@@ -10,6 +10,9 @@ from fastrcnn import get_model
 from labeled_dataloader import labeled_dataloader
 #from utils import train_one_epoch
 from eval import evaluate
+import warnings
+
+warnings.filterwarnings("ignore")
 
 def train(backbone="SimCLR", BATCH_SIZE=2, EPOCHS=50, NUM_WORKERS=cpu_count()//2, SHUFFLE=True, DATASET_PATH="/labeled/labeled", LR=0.01, MOM=0.9, DECAY=1e-4):
 
@@ -57,14 +60,14 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
     all_losses = []
     all_losses_dict = []
 
-    i = 0
+    #i = 0
     
     for images, targets in tqdm(loader):
         #print("loop")
         images = list(image.to(device) for image in images)
         #targets = [{k: v for k, v in t.items()} for t in targets]
-        targets = [{k: v.clone().detach().to(device) for k, v in t.items()} for t in targets]
-        #targets = [{k: torch.tensor(v).to(device) for k, v in t.items()} for t in targets]
+        #targets = [{k: v.clone().detach().to(device) for k, v in t.items()} for t in targets]
+        targets = [{k: torch.tensor(v).to(device) for k, v in t.items()} for t in targets]
 
         loss_dict = model(images, targets) # the model computes the loss automatically if we pass in targets
         #print(loss_dict)
@@ -72,8 +75,8 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
         loss_dict_append = {k: v.item() for k, v in loss_dict.items()}
         loss_value = losses.item()
 
-        if i % 750 == 0:
-            print(loss_value)
+        #if i % 750 == 0:
+        #   print(loss_value)
         
         all_losses.append(loss_value)
         all_losses_dict.append(loss_dict_append)
@@ -90,7 +93,7 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
         torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
         optimizer.step()
 
-        i+=1
+        #i+=1
         
 #         if lr_scheduler is not None:
 #             lr_scheduler.step() # 
