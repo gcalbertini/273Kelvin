@@ -10,7 +10,8 @@ Original file is located at
 
 ## Imports, basic utils, augmentations and Contrastive loss
 """
-import warnings
+#!pip install pytorch-lightning
+#!pip install lightning-bolts
 import torch
 import torchvision.models as models
 import numpy as np
@@ -25,6 +26,13 @@ from torch.utils.data import DataLoader
 from torch.multiprocessing import cpu_count
 import torchvision.transforms as T
 from PIL import Image
+import warnings
+import logging
+
+warnings.filterwarnings("ignore")
+logging.captureWarnings(capture=True)
+logging.getLogger("lightning").setLevel(logging.ERROR)
+
 import warnings
 import logging
 
@@ -101,7 +109,8 @@ class Augment:
 
         self.train_transform = T.Compose(
             [
-            T.RandomResizedCrop(size=img_size),
+            T.Resize(size=800),
+            T.RandomResizedCrop(size=800),
             T.RandomHorizontalFlip(p=0.5),  # with 0.5 probability
             T.RandomApply([color_jitter], p=0.8),
             T.RandomApply([blur], p=0.5),
@@ -189,7 +198,6 @@ import torch.nn.functional as F
 from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 from torch.optim import SGD, Adam
 
-
 class AddProjection(nn.Module):
     def __init__(self, config, model=None, mlp_dim=512):
         super(AddProjection, self).__init__()
@@ -275,22 +283,21 @@ class SimCLR_pl(pl.LightningModule):
 """## Hyperparameters, and configuration stuff"""
 
 # a lazy way to pass the config file
-class Hparams():
-    def __init__(self, epochs, seed, cuda, img_size, save, load, gradient_accumulation_steps, batch_size, lr, weight_decay, embedding_size, temperature, checkpoint_path, checkpoint_resume):
-        self.epochs = epochs #number of training epochs
-        self.seed = seed #77777, randomness seed
-        self.cuda = cuda #True, use nvidia gpu
-        self.img_size = img_size #224, image shape
-        self.save = save #"saved_models/", save checkpoint
-        self.load = load #False, load pretrained checkpoint
-        self.gradient_accumulation_steps = gradient_accumulation_steps #5, gradient accumulation steps
-        self.batch_size = batch_size #200
-        self.lr = lr #3e-4, for ADAm only
-        self.weight_decay = weight_decay#1e-6
-        self.embedding_size= embedding_size # papers value is 128
-        self.temperature = temperature # 0.1 or 0.5
-        self.checkpoint_path = checkpoint_path # './SimCLR_ResNet18.ckpt' replace checkpoint path here
-        self.resume_checkpoint = checkpoint_resume # resume from checkpoint 
+class Hparams:
+    def __init__(self):
+        self.epochs = 40 # number of training epochs
+        self.seed = 77777 # randomness seed
+        self.cuda = True # use nvidia gpu
+        self.img_size = 224 #image shape
+        self.save = "./saved_models/" # save checkpoint
+        self.load = False # load pretrained checkpoint
+        self.gradient_accumulation_steps = 5 # gradient accumulation steps
+        self.batch_size = 64
+        self.lr = 0.008 # for ADAm only
+        self.weight_decay = 1e-6
+        self.embedding_size= 128 # papers value is 128
+        self.temperature = 0.5 # 0.1 or 0.5
+        self.checkpoint_path = './SimCLR_ResNet18_adam_.ckpt' # replace checkpoint path here
 
 """## Pretraining main logic"""
 
@@ -335,7 +342,7 @@ def train_backbone(args):
 
     accumulator = GradientAccumulationScheduler(scheduling={0: train_config.gradient_accumulation_steps})
     checkpoint_callback = ModelCheckpoint(filename=filename, dirpath=save_model_path,
-                                            save_last=True, save_top_k=2,monitor='Contrastive loss_epoch',mode='min')
+                                            save_last=True, save_top_k=2,monitor='train_loss',mode='min')
 
     if resume_from_checkpoint:
         trainer = Trainer(callbacks=[accumulator, checkpoint_callback],
@@ -361,3 +368,12 @@ def train_backbone(args):
     torch.save({
                 'model_state_dict': resnet18_backbone_weights.state_dict(),
                 }, 'resnet18_backbone_weights.ckpt')
+
+
+'''
+def main():
+    train_backbone()
+
+if __name__=="__main__":
+    main()
+'''

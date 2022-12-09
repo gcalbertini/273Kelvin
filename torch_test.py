@@ -5,6 +5,7 @@ from pytorch_lightning import LightningModule, Trainer
 import torchvision.models as models
 from pl_bolts.callbacks import ORTCallback
 import albumentations
+import tqdm
 
 print(torch.__file__)
 print(torch.__version__)
