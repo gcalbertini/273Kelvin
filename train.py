@@ -23,7 +23,7 @@ def train(backbone="SimCLR", BATCH_SIZE=2, EPOCHS=50, NUM_WORKERS=cpu_count()//2
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model = model.to(device)
-    print(device)
+    #print(device)
 
     #params = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.SGD(model.parameters(), lr=LR, momentum=MOM, weight_decay=DECAY, nesterov=True)
@@ -47,7 +47,6 @@ def train(backbone="SimCLR", BATCH_SIZE=2, EPOCHS=50, NUM_WORKERS=cpu_count()//2
 
 def train_one_epoch(model, optimizer, loader, device, epoch):
     model.to(device)
-    print(device)
     model.train()
     
 #     lr_scheduler = None
@@ -90,7 +89,7 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
         
         optimizer.zero_grad()
         losses.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
+        #torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
         optimizer.step()
 
         #i+=1
