@@ -416,6 +416,7 @@ def convert_to_coco_api(ds):
         bboxes = targets["boxes"]
         bboxes[:, 2:] -= bboxes[:, :2]
         bboxes = bboxes.tolist()
+        print(targets)
         labels = targets["labels"].tolist()
         areas = targets["area"].tolist()
         iscrowd = targets["iscrowd"].tolist()
