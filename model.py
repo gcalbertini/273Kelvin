@@ -3,6 +3,9 @@ from torchvision.models.detection import FasterRCNN
 from torchvision.models.detection.rpn import AnchorGenerator
 import torchvision
 import torch
+import warnings
+
+warnings.filterwarnings("ignore")
 
 path = './save_fastrcnn_models/model_3_batch_2_mom_0.9_decay_0.0001_epochs_12_lr_0.005_backbone_SimCLR_RPN.pt'
 
