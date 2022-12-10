@@ -17,3 +17,6 @@
 
 - n1s8-v100-1
 - n1c10m64-v100-1
+
+Epoch 12, lr: 0.008000, loss: 0.284519, loss_classifier: 0.114391, loss_box: 0.075653, loss_rpn_box: 0.069437, loss_object: 0.025038
+Epoch 12, lr: 0.005000, loss: 0.282298, loss_classifier: 0.110875, loss_box: 0.075207, loss_rpn_box: 0.069520, loss_object: 0.026696
